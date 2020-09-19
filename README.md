@@ -1,4 +1,4 @@
-[![Python 3.8](https://img.shields.io/badge/python-3.8-green.svg)](https://www.python.org/downloads/release/python-360/)
+[![Python 3.8](https://img.shields.io/badge/python-3.8-green.svg)](https://www.python.org/downloads/release/python-380/)
 # 🗒️ Графический редактор на Python
 
 ## Цель:
