@@ -222,7 +222,7 @@ class Events:
                 None
 
             Побочный эффект:
-                Очищает все бинды и создаёт 2 новых бинла <ButtonPress-1>, <ButtonRelease-1> - отрисовка линии (отрезка)
+                Очищает все бинды и создаёт 3 новых бинла <ButtonPress-1>, <ButtonRelease-1>, <B1-Motion> - отрисовка линии (отрезка)
         """
 
         Basic.unbind_all_events(used_events)
@@ -245,14 +245,14 @@ class Events:
                 * used_events: List[str] - список из всех задействованных событий
                 * canvas: tkinter.Canvas - canvas (слой), на котором рисуем окружность
                 ** thickness: int - жирность обводки окружности
-                ** bgcolor: str - цвет заливки овала
-                ** outcolor: str - цвет обводки овала
+                ** bgcolor: str - цвет заливки окружности
+                ** outcolor: str - цвет обводки окружности
 
             Возвращает:
                 None
 
             Побочный эффект:
-                Очищаются все бинды и создаётся новый бинд на <B1-Motion> - отрисовка последовательности точек (овалов)
+                Очищает все бинды и создаёт 3 новых бинла <ButtonPress-1>, <ButtonRelease-1>, <B1-Motion> - отрисовка окружности
         """
 
         Basic.unbind_all_events(used_events)
@@ -293,7 +293,7 @@ if __name__ == '__main__':
                                    Events.event_btnCreateLine(ue, c, thickness=t, color=clr))
             btnCreateLine.pack(side=TOP, pady=5)
 
-            btnCreateOval = Button(frame_main, text='*овал*',
+            btnCreateOval = Button(frame_main, text='*окружность*',
                                    command=lambda ue=_USED_EVENTS, c=canvas, t=2, bgclr=None, outclr='black':
                                    Events.event_btnCreateOval(ue, c, thickness=t, bgcolor=bgclr, outcolor=outclr))
             btnCreateOval.pack(side=TOP, pady=5)
