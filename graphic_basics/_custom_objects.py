@@ -6,9 +6,13 @@ class CustomCanvas(Canvas):
     """ CustomCanvas(Canvas) - для того, чтобы не портить canvas из моудля tkinter создадим класс с расширенными полями и методами
 
         Поля:
-            * obj_ovals - временное хранилище овалов
-            * obj_lines - временное хранилище прямых
+            * old_point - временное хранилище прошлых координат точки
+            * obj_oval - временное хранилище эллипса
+            * obj_line - временное хранилище прямой (отрезка)
+            * obg_rectangle - временное хранилище прямоугольника
     """
 
-    obj_ovals = []
-    obj_lines = []
+    old_point = None
+    obj_oval = None
+    obj_line = None
+    obj_rectangle = None
