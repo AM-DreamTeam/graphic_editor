@@ -1,7 +1,9 @@
+""" Графические примитивы """
+
 # Импортированные модули
 from tkinter import *
 from _custom_objects import CustomCanvas
-from _defaults import _USED_EVENTS
+from _defaults import *
 from typing import List, Tuple
 from numpy import subtract
 
@@ -129,14 +131,16 @@ class Draw:
                 Отрисовка линии по заданным точкам на canvas'e
         """
 
+        new_point = (event.x, event.y)
+
         if str(event.type) == 'ButtonPress':
-            canvas.old_point = event.x, event.y
+            canvas.old_point = new_point
         elif str(event.type) == 'ButtonRelease':
-            x1, y1 = event.x, event.y
+            x1, y1 = new_point
             x2, y2 = canvas.old_point
             canvas.create_line(x1, y1, x2, y2, width=thickness, fill=color)
         elif str(event.type) == 'Motion':
-            x1, y1 = event.x, event.y
+            x1, y1 = new_point
             x2, y2 = canvas.old_point
             l = canvas.create_line(x1, y1, x2, y2, width=thickness, fill=color)
 
@@ -383,9 +387,9 @@ if __name__ == '__main__':
 
 
     class App:
-        """ App - тестовое приложение для проверки модуля """
+        """ App - пример приложение для проверки модуля """
 
-        def __init__(self, root, _USED_EVENTS):
+        def __init__(self, root):
             root.title('Graphic Basic')
 
             events = Events(root)
@@ -393,30 +397,30 @@ if __name__ == '__main__':
             frame_main = Frame(root)
             frame_main.pack()
 
-            canvas = CustomCanvas(frame_main, width=800, height=600, bg='white')
+            canvas = CustomCanvas(frame_main, width=CANVAS_W, height=CANVAS_H, bg=CANVAS_BG)
             canvas.pack(side=RIGHT)
 
             btnClear = Button(frame_main, text='*отчистить*',
-                              command=lambda ue=_USED_EVENTS, c=canvas: events.event_btnClear(ue, c))
+                              command=lambda ue=USED_EVENTS, c=canvas: events.event_btnClear(ue, c))
             btnClear.pack(side=TOP, pady=5)
 
             btnBrush = Button(frame_main, text='*кисть*',
-                              command=lambda ue=_USED_EVENTS, c=canvas, s=5, clr='black':
+                              command=lambda ue=USED_EVENTS, c=canvas, s=SIZE, clr=FIRST_COLOR:
                               events.event_btnBrush(ue, c, size=s, color='black'))
             btnBrush.pack(side=TOP, pady=5)
 
             btnCreateLine = Button(frame_main, text='*линия*',
-                                   command=lambda ue=_USED_EVENTS, c=canvas, t=2, clr='black':
+                                   command=lambda ue=USED_EVENTS, c=canvas, t=THICKNESS, clr=FIRST_COLOR:
                                    events.event_btnCreateLine(ue, c, thickness=t, color=clr))
             btnCreateLine.pack(side=TOP, pady=5)
 
             btnCreateOval = Button(frame_main, text='*эллипс*',
-                                   command=lambda ue=_USED_EVENTS, c=canvas, t=2, bgclr=None, outclr='black':
+                                   command=lambda ue=USED_EVENTS, c=canvas, t=THICKNESS, outclr=FIRST_COLOR, bgclr=SECOND_COLOR:
                                    events.event_btnCreateOval(ue, c, thickness=t, bgcolor=bgclr, outcolor=outclr))
             btnCreateOval.pack(side=TOP, pady=5)
 
             btnCreateRectangle = Button(frame_main, text='*прямоугольник*',
-                                   command=lambda ue=_USED_EVENTS, c=canvas, t=2, bgclr=None, outclr='black':
+                                   command=lambda ue=USED_EVENTS, c=canvas, t=THICKNESS, outclr=FIRST_COLOR, bgclr=SECOND_COLOR:
                                    events.event_btnCreateRectangle(ue, c, thickness=t, bgcolor=bgclr, outcolor=outclr))
             btnCreateRectangle.pack(side=TOP, pady=5)
 
@@ -424,5 +428,5 @@ if __name__ == '__main__':
 
 
     root = Tk()
-    App(root, _USED_EVENTS)
+    App(root)
     root.mainloop()
