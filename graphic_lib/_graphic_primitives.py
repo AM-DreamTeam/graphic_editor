@@ -112,7 +112,7 @@ class Draw:
 
     # TODO: добавить параметр dash
     @staticmethod
-    def line(event: Event, canvas: Canvas,
+    def line(event: Event, canvas: CustomCanvas,
              *,
              thickness: int = 2,
              color: str = 'black') -> None:
