@@ -12,13 +12,13 @@
     CANVAS_BG - заливка слоя (canvas'a)
 """
 
-USED_EVENTS = ('<B1-Motion>', '<ButtonPress-1>','<ButtonRelease-1>', '<KeyPress-Control_L>', '<KeyRelease-Control_L>')
+DEFAULT_USED_EVENTS = ('<B1-Motion>', '<ButtonPress-1>','<ButtonRelease-1>', '<KeyPress-Control_L>', '<KeyRelease-Control_L>')
 
-FIRST_COLOR = 'black'
-SECOND_COLOR = None
-THICKNESS = 2
-SIZE = 5
+DEFAULT_FIRST_COLOR = 'black'
+DEFAULT_SECOND_COLOR = None
+DEFAULT_THICKNESS = 2
+DEFAULT_SIZE = 5
 
-CANVAS_W = 800
-CANVAS_H = 600
-CANVAS_BG = 'white'
+DEFAULT_CANVAS_W = 800
+DEFAULT_CANVAS_H = 600
+DEFAULT_CANVAS_BG = 'white'

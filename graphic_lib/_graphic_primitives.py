@@ -4,45 +4,36 @@
 from tkinter import *
 from _custom_objects import CustomCanvas
 from _defaults import *
-from typing import List, Tuple
+from typing import List, Tuple, Callable
 from numpy import subtract
 
 
 class Basic:
     """ Basic - базовые функции
 
-        Аргументы:
-            * root: tkinter.Tk - главное окно
-
-        Методы:
-            * unbind_all_events(used_events: List[str], canvas: CustomCanvas) -> None
-
         Статические методы:
+            * reset(function: Callable[..., None]) -> Callable[..., None]
             * transform_coords(old_coords: Tuple[int], new_coords: Tuple[int]) -> Tuple[int]
             * transform_line_coords(old_coords: Tuple[int], new_coords: Tuple[int]) -> Tuple[int]
     """
 
-    def __init__(self, root: Tk):
-        self._root = root
+    @staticmethod
+    def reset(function: Callable[..., None]) -> Callable[..., None]:
+        """ Декоратор, который очищает бинды и удаляет старые точки
 
-    def unbind_all_events(self, used_events: List[str], canvas: CustomCanvas) -> None:
-        """ Очищает все действующие бинды
+        Аргументы:
+            * function: Callable[..., None] - декорируемая фнкция
 
-            Аргументы:
-                * used_events: List[str] - список из всех задействованных событий
-                * canvas: _custom_objects.CustomCanvas - canvas (слой) на котором очищаются старые точки
-
-            Возвращает:
-                None
-
-            Побочный эффект:
-                Очищает все бинды - used_events
+        Возвращает:
+            Callable[..., None] - функцию, с очищенными старыми точками и биндами
         """
 
-        canvas.old_point = None
-
-        for _ in used_events:
-            self._root.unbind(_)
+        def inner(self, *args, **kwargs):
+            self._canvas.old_point = None
+            for _ in self._used_events:
+                self._root.unbind(_)
+            return function(self, *args, **kwargs)
+        return inner
 
     @staticmethod
     def transform_coords(old_coords: Tuple[int], new_coords: Tuple[int]) -> Tuple[int]:
@@ -173,11 +164,10 @@ class Draw:
             x2, y2 = canvas.old_point
             x1, y1 = Basic.transform_line_coords(canvas.old_point, new_point) if event.state == 260 else new_point
             canvas.create_line(x1, y1, x2, y2, width=thickness, fill=color, smooth=TRUE, capstyle=ROUND)
-        elif str(event.type) == 'Motion':
-            if canvas.old_point:
-                x2, y2 = canvas.old_point
-                x1, y1 = Basic.transform_line_coords(canvas.old_point, new_point) if event.state == 260 else new_point
-                l = canvas.create_line(x1, y1, x2, y2, width=thickness, fill=color, smooth=TRUE, capstyle=ROUND)
+        elif str(event.type) == 'Motion' and canvas.old_point:
+            x2, y2 = canvas.old_point
+            x1, y1 = Basic.transform_line_coords(canvas.old_point, new_point) if event.state == 260 else new_point
+            l = canvas.create_line(x1, y1, x2, y2, width=thickness, fill=color, smooth=TRUE, capstyle=ROUND)
 
             if canvas.obj_line:
                 canvas.delete(canvas.obj_line)
@@ -211,11 +201,11 @@ class Draw:
 
         if str(event.type) == 'ButtonPress':
             canvas.old_point = event.x, event.y
-        elif str(event.type) == 'ButtonRelease':
+        elif str(event.type) == 'ButtonRelease' and canvas.old_point:
             x1, y1 = Basic.transform_coords(canvas.old_point, new_point) if event.state == 260 else new_point
             x2, y2 = canvas.old_point
             canvas.create_oval(x1, y1, x2, y2, width=thickness, fill=bgcolor, outline=outcolor)
-        elif str(event.type) == 'Motion':
+        elif str(event.type) == 'Motion' and canvas.old_point:
             x1, y1 = Basic.transform_coords(canvas.old_point, new_point) if event.state == 260 else new_point
             x2, y2 = canvas.old_point
             o = canvas.create_oval(x1, y1, x2, y2, width=thickness, fill=bgcolor, outline=outcolor)
@@ -252,12 +242,12 @@ class Draw:
 
         if str(event.type) == 'ButtonPress':
             canvas.old_point = new_point
-        elif str(event.type) == 'ButtonRelease':
+        elif str(event.type) == 'ButtonRelease' and canvas.old_point:
             x1, y1 = Basic.transform_coords(canvas.old_point, new_point) if event.state == 260 else new_point
             x2, y2 = canvas.old_point
             canvas.create_rectangle(x1, y1, x2, y2, width=thickness, fill=bgcolor, outline=outcolor)
             canvas.delete(canvas.obj_rectangle)
-        elif str(event.type) == 'Motion':
+        elif str(event.type) == 'Motion' and canvas.old_point:
             x1, y1 = Basic.transform_coords(canvas.old_point, new_point) if event.state == 260 else new_point
             x2, y2 = canvas.old_point
             r = canvas.create_rectangle(x1, y1, x2, y2, width=thickness, fill=bgcolor, outline=outcolor)
@@ -273,25 +263,28 @@ class Events:
 
         Аргументы:
             * root: tkinter.Tk - главное окно
+            * used_Events: Tuple[str] - список событий
+            * canvas: _custom_objects.CustomCanvas - canvas (слой), на котором происходит отрисовка
 
         Методы:
-            * event_btnClear(used_events: List[str], canvas: CustomCanvas) -> None
-            * event_btnBrush_Event(used_events: List[str], canvas: CustomCanvas, *, size: int = 5, color: str = 'black') -> None
-            * event_btnCreateLine(used_events: List[str], canvas: CustomCanvas, *, thickness: int = 2, color: str = 'black') -> None
-            * event_btnCreateOval(used_events: List[str], canvas: CustomCanvas, *, thickness: int = 2, bgcolor: str = None, outcolor: str = 'black') -> None
-            * event_btnCreateRectangle(used_events: List[str], canvas: CustomCanvas, *, thickness: int = 2, bgcolor: str = None, outcolor: str = 'black') -> None
+            * event_btnClear() -> None
+            * event_btnBrush_Event(*, size: int = 5, color: str = 'black') -> None
+            * event_btnCreateLine(*, thickness: int = 2, color: str = 'black') -> None
+            * event_btnCreateOval(*, thickness: int = 2, bgcolor: str = None, outcolor: str = 'black') -> None
+            * event_btnCreateRectangle(*, thickness: int = 2, bgcolor: str = None, outcolor: str = 'black') -> None
     """
 
-    def __init__(self, root: Tk):
+    def __init__(self, root: Tk, used_events: Tuple[str], canvas: CustomCanvas):
         self._root = root
-        self._Basic = Basic(root)
+        self._Draw = Draw
+        self._used_events = used_events
+        self._canvas = canvas
 
-    def event_btnClear(self, used_events: List[str], canvas: CustomCanvas) -> None:
+    __basic = Basic()
+
+    @__basic.reset
+    def event_btnClear(self) -> None:
         """ Событие для кнопки btnClear
-
-            Аргументы:
-                * used_events: List[str] - список из всех задействованных событий
-                * canvas: _custom_objects.CustomCanvas - canvas (слой), который очищается
 
             Возвращает:
                 None
@@ -300,18 +293,16 @@ class Events:
                 Очистка canvas'a (слоя)
         """
 
-        self._Basic.unbind_all_events(used_events, canvas)
-        canvas.delete('all')
+        self._canvas.delete('all')
 
-    def event_btnBrush(self, used_events: List[str], canvas: CustomCanvas,
+    @__basic.reset
+    def event_btnBrush(self,
                        *,
                        size: int = 5,
                        color: str = 'black') -> None:
         """ Событие для кнопки btnBrush
 
             Аргументы:
-                * used_events: List[str] - список из всех задействованных событий
-                * canvas: _custom_objetcs.CustomCanvas - canvas (слой), на котором будет отрисовываться последовательность точек (овалов)
                 ** size: int - размер точки (овала)
                 ** color: str - цвет точки (овала)
 
@@ -319,26 +310,22 @@ class Events:
                 None
 
             Побочный эффект:
-                Очищаются все бинды и создаётся новый бинды на <ButtonRelease-1>, <ButtonPress-1>,
-                                                            <B1-Motion> - отрисовка последовательности точек (овалов)
+                Очищаются все бинды и создаётся новый бинды на <ButtonRelease-1>,  <B1-Motion> - отрисовка
+                                                                                    последовательности точек (овалов)
         """
 
-        self._Basic.unbind_all_events(used_events, canvas)
-
         for event in ('<ButtonRelease-1>', '<B1-Motion>'):
-            self._root.bind(event, lambda event, c=canvas, s=size, clr=color: Draw.point(event, c,
-                                                                                         size=s,
-                                                                                         color=clr))
+            self._root.bind(event, lambda e, c=self._canvas, s=size, clr=color:
+                            self._Draw.point(e, c, size=s, color=clr))
 
-    def event_btnCreateLine(self, used_events: List[str], canvas: CustomCanvas,
+    @__basic.reset
+    def event_btnCreateLine(self,
                             *,
                             thickness: int = 2,
                             color: str = 'black') -> None:
         """ Событие для кнопки btnCreateLine
 
             Аргументы:
-                * used_events: List[str] - список из всех задействованных событий
-                * canvas: _custom_objetcs.CustomCanvas - canvas (слой), на котором будет отрисовываться линия (отрезок)
                 ** thickness: int - жирность линии
                 ** color: str - цвет линии
 
@@ -350,14 +337,12 @@ class Events:
                                                 <KeyPress-Control_L>, <KeyRelease-Control_L> - отрисовка линии (отрезка)
         """
 
-        self._Basic.unbind_all_events(used_events, canvas)
-
         for event in ('<ButtonPress-1>', '<ButtonRelease-1>', '<B1-Motion>', '<KeyPress-Control_L>','<KeyRelease-Control_L>'):
-            self._root.bind(event, lambda event, c=canvas, t=thickness, clr=color: Draw.line(event, c,
-                                                                                             thickness=t,
-                                                                                             color=clr))
+            self._root.bind(event, lambda e, c=self._canvas, t=thickness, clr=color:
+                            self._Draw.line(e, c, thickness=t, color=clr))
 
-    def event_btnCreateOval(self, used_events: List[str], canvas: CustomCanvas,
+    @__basic.reset
+    def event_btnCreateOval(self,
                             *,
                             thickness: int = 2,
                             bgcolor: str = None,
@@ -365,8 +350,6 @@ class Events:
         """ Событие для кнопки btnCreateOval
 
             Аргументы:
-                * used_events: List[str] - список из всех задействованных событий
-                * canvas: _custom_objects.CustomCanvas - canvas (слой), на котором рисуем эллипс
                 ** thickness: int - жирность обводки эллипса
                 ** bgcolor: str - цвет заливки эллипса
                 ** outcolor: str - цвет обводки эллипса
@@ -375,20 +358,16 @@ class Events:
                 None
 
             Побочный эффект:
-                Очищает все бинды и создаёт 3 новых бинла <ButtonPress-1>, <ButtonRelease-1>, <B1-Motion>
-                                                        <KeyPress-Control_L>, <KeyRelease-Control_L>- отрисовка эллипса
+                Очищает все бинды и создаёт 3 новых бинла <ButtonPress-1>, <ButtonRelease-1>, <B1-Motion>,
+                                                        <KeyPress-Control_L>, <KeyRelease-Control_L> - отрисовка эллипса
         """
 
-        self._Basic.unbind_all_events(used_events, canvas)
-
         for event in ('<ButtonPress-1>', '<ButtonRelease-1>', '<B1-Motion>', '<KeyPress-Control_L>', '<KeyRelease-Control_L>'):
-            self._root.bind(event,
-                            lambda event, c=canvas, t=thickness, bgclr=bgcolor, outclr=outcolor: Draw.oval(event, c,
-                                                                                                           thickness=t,
-                                                                                                           bgcolor=bgclr,
-                                                                                                           outcolor=outclr))
+            self._root.bind(event, lambda e, c=self._canvas, t=thickness, bgclr=bgcolor, outclr=outcolor:
+                            self._Draw.oval(e, c, thickness=t, bgcolor=bgclr, outcolor=outclr))
 
-    def event_btnCreateRectangle(self, used_events: List[str], canvas: CustomCanvas,
+    @__basic.reset
+    def event_btnCreateRectangle(self,
                                  *,
                                  thickness: int = 2,
                                  bgcolor: str = None,
@@ -396,8 +375,6 @@ class Events:
         """ Событие для кнопки btnCreateOval
 
             Аргументы:
-                * used_events: List[str] - список из всех задействованных событий
-                * canvas: _custom_objects.CustomCanvas - canvas (слой), на котором рисуем прямоугольник
                 ** thickness: int - жирность обводки прямоугольника
                 ** bgcolor: str - цвет заливки прямоугольника
                 ** outcolor: str - цвет обводки прямоугольника
@@ -406,19 +383,13 @@ class Events:
                 None
 
             Побочный эффект:
-                Очищает все бинды и создаёт 3 новых бинла <ButtonPress-1>, <ButtonRelease-1>, <B1-Motion> - отрисовка прямоугольника
+                Очищает все бинды и создаёт 3 новых бинла <ButtonPress-1>, <ButtonRelease-1>, <B1-Motion>,
+                                                    <KeyPress-Control_L>, <KeyRelease-Control_L> - отрисовка прямоугольника
         """
 
-        self._Basic.unbind_all_events(used_events, canvas)
-
-        for event in (
-        '<ButtonPress-1>', '<ButtonRelease-1>', '<B1-Motion>', '<KeyPress-Control_L>', '<KeyRelease-Control_L>'):
-            self._root.bind(event,
-                            lambda event, c=canvas, t=thickness, bgclr=bgcolor, outclr=outcolor: Draw.rectangle(event,
-                                                                                                                c,
-                                                                                                                thickness=t,
-                                                                                                                bgcolor=bgclr,
-                                                                                                                outcolor=outclr))
+        for event in ('<ButtonPress-1>', '<ButtonRelease-1>', '<B1-Motion>', '<KeyPress-Control_L>', '<KeyRelease-Control_L>'):
+            self._root.bind(event, lambda e, c=self._canvas, t=thickness, bgclr=bgcolor, outclr=outcolor:
+                            self._Draw.rectangle(e, c, thickness=t, bgcolor=bgclr, outcolor=outclr))
 
 
 # Создаём пример приложения
@@ -434,39 +405,35 @@ if __name__ == '__main__':
         def __init__(self, root):
             root.title('Graphic Basic')
 
-            events = Events(root)
-
             frame_main = Frame(root)
             frame_main.pack()
 
-            canvas = CustomCanvas(frame_main, width=CANVAS_W, height=CANVAS_H, bg=CANVAS_BG)
+            canvas = CustomCanvas(frame_main, width=DEFAULT_CANVAS_W, height=DEFAULT_CANVAS_H, bg=DEFAULT_CANVAS_BG)
             canvas.pack(side=RIGHT)
 
-            btnClear = Button(frame_main, text='*отчистить*',
-                              command=lambda ue=USED_EVENTS, c=canvas: events.event_btnClear(ue, c))
+            events = Events(root, USED_EVENTS, canvas)
+
+            btnClear = Button(frame_main, text='*отчистить*', command=events.event_btnClear)
             btnClear.pack(side=TOP, pady=5)
 
             btnBrush = Button(frame_main, text='*кисть*',
-                              command=lambda ue=USED_EVENTS, c=canvas, s=SIZE, clr=FIRST_COLOR:
-                              events.event_btnBrush(ue, c, size=s, color='black'))
+                                command=lambda s=DEFAULT_SIZE, clr=DEFAULT_FIRST_COLOR:
+                                events.event_btnBrush(size=s, color=clr))
             btnBrush.pack(side=TOP, pady=5)
 
             btnCreateLine = Button(frame_main, text='*линия*',
-                                   command=lambda ue=USED_EVENTS, c=canvas, t=THICKNESS, clr=FIRST_COLOR:
-                                   events.event_btnCreateLine(ue, c, thickness=t, color=clr))
+                                    command=lambda t=DEFAULT_THICKNESS, clr=DEFAULT_FIRST_COLOR:
+                                    events.event_btnCreateLine(thickness=t, color=clr))
             btnCreateLine.pack(side=TOP, pady=5)
 
             btnCreateOval = Button(frame_main, text='*эллипс*',
-                                   command=lambda ue=USED_EVENTS, c=canvas, t=THICKNESS, outclr=FIRST_COLOR,
-                                                  bgclr=SECOND_COLOR:
-                                   events.event_btnCreateOval(ue, c, thickness=t, bgcolor=bgclr, outcolor=outclr))
+                                    command=lambda t=DEFAULT_THICKNESS, outclr=DEFAULT_FIRST_COLOR, bgclr=DEFAULT_SECOND_COLOR:
+                                    events.event_btnCreateOval(thickness=t, bgcolor=bgclr, outcolor=outclr))
             btnCreateOval.pack(side=TOP, pady=5)
 
             btnCreateRectangle = Button(frame_main, text='*прямоугольник*',
-                                        command=lambda ue=USED_EVENTS, c=canvas, t=THICKNESS, outclr=FIRST_COLOR,
-                                                       bgclr=SECOND_COLOR:
-                                        events.event_btnCreateRectangle(ue, c, thickness=t, bgcolor=bgclr,
-                                                                        outcolor=outclr))
+                                        command=lambda t=DEFAULT_THICKNESS, outclr=DEFAULT_FIRST_COLOR, bgclr=DEFAULT_SECOND_COLOR:
+                                        events.event_btnCreateRectangle(thickness=t, bgcolor=bgclr, outcolor=outclr))
             btnCreateRectangle.pack(side=TOP, pady=5)
 
             root.bind('<Control-x>', quit)
