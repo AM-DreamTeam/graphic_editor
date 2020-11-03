@@ -94,6 +94,7 @@ class Basic:
         deltaX, deltaY = tuple(subtract(new_coords, old_coords))
         return (new_coords[0], old_coords[1]) if abs(deltaX) > abs(deltaY) else (old_coords[0], new_coords[1])
 
+
 class Draw:
     """ Draw - отрисовка элементов
 
@@ -402,10 +403,20 @@ class Events:
             self._root.bind(event, lambda e, c=self._canvas, t=thickness, bgclr=bgcolor, outclr=outcolor:
                             self.__draw.rectangle(e, c, thickness=t, bgcolor=bgclr, outcolor=outclr))
 
-    def event_undo(self):
+    def event_undo(self) -> None:
+        """ Событие для бинда отмены действия (Ctrl-z)
+
+            Возвращает:
+                None
+
+            Побочный эффект:
+                Удаляет последний элемент из словаря с элементами
+        """
         if self._canvas.obj_storage:
             key, value = self._canvas.obj_storage.popitem()
             self._canvas.delete(key)
+
+
 
 # Создаём пример приложения
 if __name__ == '__main__':
