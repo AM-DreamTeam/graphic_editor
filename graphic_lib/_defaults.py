@@ -1,15 +1,15 @@
 """ Стандартные настройки
 
-    USED_EVENTS - события, которые используются
+    DEFAULT_USED_EVENTS - события, которые используются
 
-    FIRST_COLOR - основной цвет или цвет обводки для графического примитива
-    SECOND_COLOR - дополнительный цвет (цвет заливки) для графического примитива
-    SIZE - размер кисти
-    THICKNESS - ширина обводки графического примитива
+    DEFAULT_FIRST_COLOR - основной цвет или цвет обводки для графического примитива
+    DEFAULT_SECOND_COLOR - дополнительный цвет (цвет заливки) для графического примитива
+    DEFAULT_SIZE - размер кисти
+    DEFAULT_THICKNESS - ширина обводки графического примитива
 
-    CANVAS_W - ширина слоя (canvas'a)
-    CANVAS_H - высота слоя (canvas'a)
-    CANVAS_BG - заливка слоя (canvas'a)
+    DEFAULT_CANVAS_W - ширина слоя (canvas'a)
+    DEFAULT_CANVAS_H - высота слоя (canvas'a)
+    DEFAULT_CANVAS_BG - заливка слоя (canvas'a)
 """
 
 DEFAULT_USED_EVENTS = ('<B1-Motion>', '<ButtonPress-1>','<ButtonRelease-1>', '<KeyPress-Control_L>', '<KeyRelease-Control_L>')

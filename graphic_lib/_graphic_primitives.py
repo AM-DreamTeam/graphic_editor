@@ -92,7 +92,6 @@ class Basic:
         """
 
         deltaX, deltaY = tuple(subtract(new_coords, old_coords))
-
         return (new_coords[0], old_coords[1]) if abs(deltaX) > abs(deltaY) else (old_coords[0], new_coords[1])
 
 class Draw:
@@ -130,10 +129,10 @@ class Draw:
         if str(event.type) == 'ButtonRelease':
             canvas.old_point = None
         elif str(event.type) == 'Motion':
-            if canvas.old_point:
+           if canvas.old_point:
                 x2, y2 = canvas.old_point
                 canvas.create_line(x1, y1, x2, y2, width=size, fill=color, smooth=TRUE, capstyle=ROUND)
-            canvas.old_point = x1, y1
+           canvas.old_point = x1, y1
 
     # TODO: добавить параметр dash
     @staticmethod
@@ -161,9 +160,12 @@ class Draw:
         if str(event.type) == 'ButtonPress':
             canvas.old_point = new_point
         elif str(event.type) == 'ButtonRelease' and canvas.old_point:
+            tag = f'line{len(canvas.obj_storage) + 1}'
             x2, y2 = canvas.old_point
             x1, y1 = Basic.transform_line_coords(canvas.old_point, new_point) if event.state == 260 else new_point
-            canvas.create_line(x1, y1, x2, y2, width=thickness, fill=color, smooth=TRUE, capstyle=ROUND)
+            canvas.create_line(x1, y1, x2, y2, width=thickness, fill=color, smooth=TRUE, capstyle=ROUND, tags=tag)
+            canvas.obj_storage[tag] = (x1, y1, x2, y2)
+            canvas.delete(canvas.obj_line)
         elif str(event.type) == 'Motion' and canvas.old_point:
             x2, y2 = canvas.old_point
             x1, y1 = Basic.transform_line_coords(canvas.old_point, new_point) if event.state == 260 else new_point
@@ -202,9 +204,12 @@ class Draw:
         if str(event.type) == 'ButtonPress':
             canvas.old_point = event.x, event.y
         elif str(event.type) == 'ButtonRelease' and canvas.old_point:
+            tag = f'oval{len(canvas.obj_storage) + 1}'
             x1, y1 = Basic.transform_coords(canvas.old_point, new_point) if event.state == 260 else new_point
             x2, y2 = canvas.old_point
-            canvas.create_oval(x1, y1, x2, y2, width=thickness, fill=bgcolor, outline=outcolor)
+            canvas.create_oval(x1, y1, x2, y2, width=thickness, fill=bgcolor, outline=outcolor, tags=tag)
+            canvas.obj_storage[tag] = (x1, y1, x2, y2)
+            canvas.delete(canvas.obj_oval)
         elif str(event.type) == 'Motion' and canvas.old_point:
             x1, y1 = Basic.transform_coords(canvas.old_point, new_point) if event.state == 260 else new_point
             x2, y2 = canvas.old_point
@@ -243,9 +248,11 @@ class Draw:
         if str(event.type) == 'ButtonPress':
             canvas.old_point = new_point
         elif str(event.type) == 'ButtonRelease' and canvas.old_point:
+            tag = f'rectangle{len(canvas.obj_storage)+1}'
             x1, y1 = Basic.transform_coords(canvas.old_point, new_point) if event.state == 260 else new_point
             x2, y2 = canvas.old_point
-            canvas.create_rectangle(x1, y1, x2, y2, width=thickness, fill=bgcolor, outline=outcolor)
+            canvas.create_rectangle(x1, y1, x2, y2, width=thickness, fill=bgcolor, outline=outcolor, tags=tag)
+            canvas.obj_storage[tag] = (x1, y1, x2, y2)
             canvas.delete(canvas.obj_rectangle)
         elif str(event.type) == 'Motion' and canvas.old_point:
             x1, y1 = Basic.transform_coords(canvas.old_point, new_point) if event.state == 260 else new_point
@@ -266,6 +273,9 @@ class Events:
             * used_Events: Tuple[str] - список событий
             * canvas: _custom_objects.CustomCanvas - canvas (слой), на котором происходит отрисовка
 
+        Поля:
+            * __basic: Basic - экземпляр класса Basic
+
         Методы:
             * event_btnClear() -> None
             * event_btnBrush_Event(*, size: int = 5, color: str = 'black') -> None
@@ -276,10 +286,9 @@ class Events:
 
     def __init__(self, root: Tk, used_events: Tuple[str], canvas: CustomCanvas):
         self._root = root
-        self._Draw = Draw
         self._used_events = used_events
         self._canvas = canvas
-
+        self.__draw = Draw()
     __basic = Basic()
 
     @__basic.reset
@@ -293,7 +302,9 @@ class Events:
                 Очистка canvas'a (слоя)
         """
 
+        self._canvas.obj_storage = {}
         self._canvas.delete('all')
+        print(self._canvas.obj_storage)
 
     @__basic.reset
     def event_btnBrush(self,
@@ -316,7 +327,7 @@ class Events:
 
         for event in ('<ButtonRelease-1>', '<B1-Motion>'):
             self._root.bind(event, lambda e, c=self._canvas, s=size, clr=color:
-                            self._Draw.point(e, c, size=s, color=clr))
+                            self.__draw.point(e, c, size=s, color=clr))
 
     @__basic.reset
     def event_btnCreateLine(self,
@@ -339,7 +350,7 @@ class Events:
 
         for event in ('<ButtonPress-1>', '<ButtonRelease-1>', '<B1-Motion>', '<KeyPress-Control_L>','<KeyRelease-Control_L>'):
             self._root.bind(event, lambda e, c=self._canvas, t=thickness, clr=color:
-                            self._Draw.line(e, c, thickness=t, color=clr))
+                            self.__draw.line(e, c, thickness=t, color=clr))
 
     @__basic.reset
     def event_btnCreateOval(self,
@@ -364,7 +375,7 @@ class Events:
 
         for event in ('<ButtonPress-1>', '<ButtonRelease-1>', '<B1-Motion>', '<KeyPress-Control_L>', '<KeyRelease-Control_L>'):
             self._root.bind(event, lambda e, c=self._canvas, t=thickness, bgclr=bgcolor, outclr=outcolor:
-                            self._Draw.oval(e, c, thickness=t, bgcolor=bgclr, outcolor=outclr))
+                            self.__draw.oval(e, c, thickness=t, bgcolor=bgclr, outcolor=outclr))
 
     @__basic.reset
     def event_btnCreateRectangle(self,
@@ -389,15 +400,19 @@ class Events:
 
         for event in ('<ButtonPress-1>', '<ButtonRelease-1>', '<B1-Motion>', '<KeyPress-Control_L>', '<KeyRelease-Control_L>'):
             self._root.bind(event, lambda e, c=self._canvas, t=thickness, bgclr=bgcolor, outclr=outcolor:
-                            self._Draw.rectangle(e, c, thickness=t, bgcolor=bgclr, outcolor=outclr))
+                            self.__draw.rectangle(e, c, thickness=t, bgcolor=bgclr, outcolor=outclr))
 
+    def event_undo(self):
+        if self._canvas.obj_storage:
+            key, value = self._canvas.obj_storage.popitem()
+            self._canvas.delete(key)
 
 # Создаём пример приложения
 if __name__ == '__main__':
+
     # Тестируем все доктесты
     import doctest
     doctest.testmod()
-
 
     class App:
         """ App - пример приложение для проверки модуля """
@@ -411,7 +426,7 @@ if __name__ == '__main__':
             canvas = CustomCanvas(frame_main, width=DEFAULT_CANVAS_W, height=DEFAULT_CANVAS_H, bg=DEFAULT_CANVAS_BG)
             canvas.pack(side=RIGHT)
 
-            events = Events(root, USED_EVENTS, canvas)
+            events = Events(root, DEFAULT_USED_EVENTS, canvas)
 
             btnClear = Button(frame_main, text='*отчистить*', command=events.event_btnClear)
             btnClear.pack(side=TOP, pady=5)
@@ -437,7 +452,7 @@ if __name__ == '__main__':
             btnCreateRectangle.pack(side=TOP, pady=5)
 
             root.bind('<Control-x>', quit)
-
+            root.bind('<Control-z>', lambda event: events.event_undo())
 
     root = Tk()
     App(root)
