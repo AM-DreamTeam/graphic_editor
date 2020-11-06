@@ -163,13 +163,13 @@ class Draw:
         elif str(event.type) == 'ButtonRelease' and canvas.old_point:
             tag = f'line{len(canvas.obj_storage) + 1}'
             x2, y2 = canvas.old_point
-            x1, y1 = Basic.transform_line_coords(canvas.old_point, new_point) if event.state == 260 else new_point
+            x1, y1 = Basic.transform_line_coords(canvas.old_point, new_point) if 'Control' in str(event) else new_point
             canvas.create_line(x1, y1, x2, y2, width=thickness, fill=color, smooth=TRUE, capstyle=ROUND, tags=tag)
             canvas.obj_storage[tag] = (x1, y1, x2, y2)
             canvas.delete(canvas.obj_line)
         elif str(event.type) == 'Motion' and canvas.old_point:
             x2, y2 = canvas.old_point
-            x1, y1 = Basic.transform_line_coords(canvas.old_point, new_point) if event.state == 260 else new_point
+            x1, y1 = Basic.transform_line_coords(canvas.old_point, new_point) if 'Control' in str(event) else new_point
             l = canvas.create_line(x1, y1, x2, y2, width=thickness, fill=color, smooth=TRUE, capstyle=ROUND)
 
             if canvas.obj_line:
@@ -206,13 +206,13 @@ class Draw:
             canvas.old_point = event.x, event.y
         elif str(event.type) == 'ButtonRelease' and canvas.old_point:
             tag = f'oval{len(canvas.obj_storage) + 1}'
-            x1, y1 = Basic.transform_coords(canvas.old_point, new_point) if event.state == 260 else new_point
+            x1, y1 = Basic.transform_coords(canvas.old_point, new_point) if 'Control' in str(event) else new_point
             x2, y2 = canvas.old_point
             canvas.create_oval(x1, y1, x2, y2, width=thickness, fill=bgcolor, outline=outcolor, tags=tag)
             canvas.obj_storage[tag] = (x1, y1, x2, y2)
             canvas.delete(canvas.obj_oval)
         elif str(event.type) == 'Motion' and canvas.old_point:
-            x1, y1 = Basic.transform_coords(canvas.old_point, new_point) if event.state == 260 else new_point
+            x1, y1 = Basic.transform_coords(canvas.old_point, new_point) if 'Control' in str(event) else new_point
             x2, y2 = canvas.old_point
             o = canvas.create_oval(x1, y1, x2, y2, width=thickness, fill=bgcolor, outline=outcolor)
 
@@ -250,13 +250,13 @@ class Draw:
             canvas.old_point = new_point
         elif str(event.type) == 'ButtonRelease' and canvas.old_point:
             tag = f'rectangle{len(canvas.obj_storage)+1}'
-            x1, y1 = Basic.transform_coords(canvas.old_point, new_point) if event.state == 260 else new_point
+            x1, y1 = Basic.transform_coords(canvas.old_point, new_point) if 'Control' in str(event) else new_point
             x2, y2 = canvas.old_point
             canvas.create_rectangle(x1, y1, x2, y2, width=thickness, fill=bgcolor, outline=outcolor, tags=tag)
             canvas.obj_storage[tag] = (x1, y1, x2, y2)
             canvas.delete(canvas.obj_rectangle)
         elif str(event.type) == 'Motion' and canvas.old_point:
-            x1, y1 = Basic.transform_coords(canvas.old_point, new_point) if event.state == 260 else new_point
+            x1, y1 = Basic.transform_coords(canvas.old_point, new_point) if 'Control' in str(event) else new_point
             x2, y2 = canvas.old_point
             r = canvas.create_rectangle(x1, y1, x2, y2, width=thickness, fill=bgcolor, outline=outcolor)
 
@@ -305,7 +305,6 @@ class Events:
 
         self._canvas.obj_storage = {}
         self._canvas.delete('all')
-        print(self._canvas.obj_storage)
 
     @__basic.reset
     def event_btnBrush(self,
@@ -429,7 +428,7 @@ if __name__ == '__main__':
         """ App - пример приложение для проверки модуля """
 
         def __init__(self, root):
-            root.title('Graphic Basic')
+            root.title('visualist')
 
             frame_main = Frame(root)
             frame_main.pack()
