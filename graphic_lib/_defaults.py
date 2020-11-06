@@ -7,6 +7,8 @@
     DEFAULT_SIZE - размер кисти
     DEFAULT_THICKNESS - ширина обводки графического примитива
 
+    DEFAULT_MOUSE_SPEED - скорость передвижения объектов на слое (canvas'e)
+
     DEFAULT_CANVAS_W - ширина слоя (canvas'a)
     DEFAULT_CANVAS_H - высота слоя (canvas'a)
     DEFAULT_CANVAS_BG - заливка слоя (canvas'a)
@@ -18,6 +20,8 @@ DEFAULT_FIRST_COLOR = 'black'
 DEFAULT_SECOND_COLOR = None
 DEFAULT_THICKNESS = 2
 DEFAULT_SIZE = 5
+
+DEFAULT_MOUSE_SPEED = 5
 
 DEFAULT_CANVAS_W = 800
 DEFAULT_CANVAS_H = 600

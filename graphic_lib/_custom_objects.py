@@ -13,6 +13,7 @@ class CustomCanvas(Canvas):
             * obj_line: None or Line - временное хранилище прямой (отрезка)
             * obj_rectangle: None or Rectangle - временное хранилище прямоугольника
             * obj_storage: dict - хранилище графических примитивов на слое (canvas'e)
+            * obj_tag: None or str - временное хранилище tag'ов объектов, на которые нажимает пользователь
     """
 
     old_point = None
@@ -22,3 +23,5 @@ class CustomCanvas(Canvas):
     obj_rectangle = None
 
     obj_storage = {}
+
+    obj_tag = None
