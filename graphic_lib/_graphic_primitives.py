@@ -120,18 +120,22 @@ class Basic:
             if (x1 > x > x2 or x2 > x > x1) and (y1 > y > y2 or y2 > y > y1):
                 obj_lst.append(obj[coords.index(obj_coords)])
 
-        return obj_lst[0] if obj_lst else None
+        return obj_lst[-1] if obj_lst else None
 
 
 class Draw:
     """ Draw - отрисовка элементов
 
+        Аргументы:
+            * event: tkinter.Event - событие, по которому считывается положение курсора
+            * canvas: _custom_objects.CustomCanvas - canvas (слой), на котором происходит отрисовка
+
         Методы:
-            * point(*, size: int = 5, color: str = 'black') -> None
-            * oval(*, thickness: int = 2, bgcolor: str, outcolor: str) -> None
-            * line(*, thickness: int = 2, bgcolor: str = None, outcolor: str = 'black') -> None
-            * rectangle(*, thickness: int = 2, bgcolor: str = None, outcolor: str = 'black') -> None
-            * move(*, mouse_speed: int = 5) -> None
+            * point(*, size: int = DEFAULT_SIZE, color: str = DEFAULT_FIRST_COLOR) -> None
+            * oval(*, thickness: int = DEFAULT_THICKNESS, bgcolor: str = DEFAULT_SECOND_COLOR, outcolor: str = DEFAULT_FIRST_COLOR) -> None
+            * line(*, thickness: int = DEFAULT_THICKNESS, bgcolor: str = DEFAULT_SECOND_COLOR, outcolor: str = DEFAULT_FIRST_COLOR) -> None
+            * rectangle(*, thickness: int = DEFAULT_THICKNESS, bgcolor: str = DEFAULT_SECOND_COLOR, outcolor: str = DEFAULT_FIRST_COLOR) -> None
+            * move(*, mouse_speed: int = DEFAULT_MOUSE_SPEED) -> None
     """
 
     def __init__(self, event: Event, canvas: CustomCanvas):
@@ -140,8 +144,8 @@ class Draw:
 
     def point(self,
               *,
-              size: int = 5,
-              color: str = 'black') -> None:
+              size: int = DEFAULT_SIZE,
+              color: str = DEFAULT_FIRST_COLOR) -> None:
         """ Рисует точку на месте курсора
 
             Аргументы:
@@ -169,8 +173,8 @@ class Draw:
 
     def line(self,
              *,
-             thickness: int = 2,
-             color: str = 'black') -> None:
+             thickness: int = DEFAULT_THICKNESS,
+             color: str = DEFAULT_FIRST_COLOR) -> None:
         """ Рисует линию по заданным точкам
 
              Аргументы:
@@ -209,9 +213,9 @@ class Draw:
 
     def oval(self,
              *,
-             thickness: int = 2,
-             bgcolor: str = None,
-             outcolor: str = 'black') -> None:
+             thickness: int = DEFAULT_THICKNESS,
+             bgcolor: str = DEFAULT_SECOND_COLOR,
+             outcolor: str = DEFAULT_FIRST_COLOR) -> None:
         """ Рисует эллипс по заданным точкам
 
             Аргументы:
@@ -251,9 +255,9 @@ class Draw:
 
     def rectangle(self,
                   *,
-                  thickness: int = 2,
-                  bgcolor: str = None,
-                  outcolor: str = 'black') -> None:
+                  thickness: int = DEFAULT_THICKNESS,
+                  bgcolor: str = DEFAULT_SECOND_COLOR,
+                  outcolor: str = DEFAULT_FIRST_COLOR) -> None:
         """ Рисует прямоугольник по заданным точкам
 
             Аргументы:
@@ -291,7 +295,7 @@ class Draw:
 
             canvas.obj_rectangle = r
 
-    def move(self, *, mouse_speed: int = 5) -> None:
+    def move(self, *, mouse_speed: int = DEFAULT_MOUSE_SPEED) -> None:
         """ Двигает объекты на canvas'e (слое)
 
             Аргументы:
@@ -336,18 +340,19 @@ class Events:
 
         Методы:
             * event_btnClear() -> None
-            * event_btnBrush_Event(*, size: int = 5, color: str = 'black') -> None
-            * event_btnCreateLine(*, thickness: int = 2, color: str = 'black') -> None
-            * event_btnCreateOval(*, thickness: int = 2, bgcolor: str = None, outcolor: str = 'black') -> None
-            * event_btnCreateRectangle(*, thickness: int = 2, bgcolor: str = None, outcolor: str = 'black') -> None
+            * event_btnBrush_Event(*, size: int = DEFAULT_SIZE, color: str = DEFAULT_FIRST_COLOR) -> None
+            * event_btnCreateLine(*, thickness: int = DEFAULT_THICKNESS, color: str = DEFAULT_FIRST_COLOR) -> None
+            * event_btnCreateOval(*, thickness: int = DEFAULT_THICKNESS, bgcolor: str = DEFAULT_SECOND_COLOR, outcolor: str = DEFAULT_FIRST_COLOR) -> None
+            * event_btnCreateRectangle(*, thickness: int = DEFAULT_THICKNESS, bgcolor: str = DEFAULT_SECOND_COLOR, outcolor: str = DEFAULT_FIRST_COLOR) -> None
             * event_undo() -> None
-            * event_move(*, mouse_speed: int = 5) -> None
+            * event_move(*, mouse_speed: int = DEFAULT_MOUSE_SPEED) -> None
     """
 
     def __init__(self, root: Tk, used_events: Tuple[str], canvas: CustomCanvas):
         self._root = root
         self._used_events = used_events
         self._canvas = canvas
+        self.__draw = lambda e, c: Draw(e, c)
 
     __basic = Basic()
 
@@ -368,8 +373,8 @@ class Events:
     @__basic.reset
     def event_btnBrush(self,
                        *,
-                       size: int = 5,
-                       color: str = 'black') -> None:
+                       size: int = DEFAULT_SIZE,
+                       color: str = DEFAULT_FIRST_COLOR) -> None:
         """ Событие для кнопки btnBrush
 
             Аргументы:
@@ -386,13 +391,13 @@ class Events:
 
         for event in ('<ButtonRelease-1>', '<B1-Motion>'):
             self._root.bind(event, lambda e, c=self._canvas, s=size, clr=color:
-                            self.Draw(e, c).point(size=s, color=clr))
+                            self.__draw(e, c).point(size=s, color=clr))
 
     @__basic.reset
     def event_btnCreateLine(self,
                             *,
-                            thickness: int = 2,
-                            color: str = 'black') -> None:
+                            thickness: int = DEFAULT_THICKNESS,
+                            color: str = DEFAULT_FIRST_COLOR) -> None:
         """ Событие для кнопки btnCreateLine
 
             Аргументы:
@@ -409,14 +414,14 @@ class Events:
 
         for event in ('<ButtonPress-1>', '<ButtonRelease-1>', '<B1-Motion>', '<KeyPress-Control_L>','<KeyRelease-Control_L>'):
             self._root.bind(event, lambda e, c=self._canvas, t=thickness, clr=color:
-                            Draw(e, c).line(thickness=t, color=clr))
+                            self.__draw(e, c).line(thickness=t, color=clr))
 
     @__basic.reset
     def event_btnCreateOval(self,
                             *,
-                            thickness: int = 2,
-                            bgcolor: str = None,
-                            outcolor: str = 'black') -> None:
+                            thickness: int = DEFAULT_THICKNESS,
+                            bgcolor: str = DEFAULT_SECOND_COLOR,
+                            outcolor: str = DEFAULT_FIRST_COLOR) -> None:
         """ Событие для кнопки btnCreateOval
 
             Аргументы:
@@ -434,14 +439,14 @@ class Events:
 
         for event in ('<ButtonPress-1>', '<ButtonRelease-1>', '<B1-Motion>', '<KeyPress-Control_L>', '<KeyRelease-Control_L>'):
             self._root.bind(event, lambda e, c=self._canvas, t=thickness, bgclr=bgcolor, outclr=outcolor:
-                            Draw(e, c).oval(thickness=t, bgcolor=bgclr, outcolor=outclr))
+                            self.__draw(e, c).oval(thickness=t, bgcolor=bgclr, outcolor=outclr))
 
     @__basic.reset
     def event_btnCreateRectangle(self,
                                  *,
-                                 thickness: int = 2,
-                                 bgcolor: str = None,
-                                 outcolor: str = 'black') -> None:
+                                 thickness: int = DEFAULT_THICKNESS,
+                                 bgcolor: str = DEFAULT_SECOND_COLOR,
+                                 outcolor: str = DEFAULT_FIRST_COLOR) -> None:
         """ Событие для кнопки btnCreateOval
 
             Аргументы:
@@ -476,7 +481,7 @@ class Events:
             self._canvas.delete(key)
 
     @__basic.reset
-    def event_move(self, *, mouse_speed: int = 5) -> None:
+    def event_move(self, *, mouse_speed: int = DEFAULT_MOUSE_SPEED) -> None:
         """ Событие для кнопки btnMove
 
             Аргументы:
@@ -491,7 +496,7 @@ class Events:
         """
 
         for e in ('<ButtonPress-1>', '<ButtonRelease-1>', '<B1-Motion>'):
-            self._root.bind(e, lambda e, c=self._canvas, ms=mouse_speed: Draw(e, c).move(mouse_speed=ms))
+            self._root.bind(e, lambda e, c=self._canvas, ms=mouse_speed: self.__draw(e, c).move(mouse_speed=ms))
 
 
 # Создаём пример приложения
@@ -512,7 +517,7 @@ if __name__ == '__main__':
             ico.thumbnail((64, 64), Image.ANTIALIAS)
             photo = ImageTk.PhotoImage(ico)
 
-            root.title('visualist')
+            root.title('Visualist')
             root.wm_iconphoto(False, photo)
 
             frame_main = Frame(root)
@@ -552,8 +557,8 @@ if __name__ == '__main__':
 
             root.bind('<Control-x>', quit)
             root.bind('<Control-z>', lambda event: events.event_undo())
-            root.bind('<Control-s>', lambda evevent: print(canvas.obj_storage))
+            root.bind('<Control-s>', lambda event: print(canvas.obj_storage))
 
-    root = Tk()
+    root = Tk(className='Visualist')
     App(root)
     root.mainloop()
