@@ -1,5 +1,6 @@
 [![Python 3.8](https://img.shields.io/badge/python-3.8-green.svg)](https://www.python.org/downloads/release/python-380/)
 ![GitHub issues](https://img.shields.io/github/issues/AM-DreamTeam/graphic_editor)
+![GitHub contributors](https://img.shields.io/github/contributors/AM-DreamTeam/graphic_editor)
 
 <h1 id="logo"> <img src="visualist.png" width="40" alt="visualist"/> Графический редактор — <i>Visualist</i> </h1>
 
