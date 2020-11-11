@@ -1,7 +1,5 @@
 # Импортированные модули
 from ._draw import *
-from typing import Tuple    # TODO: сделать pyi-file
-from tkinter import Tk
 
 
 class Events:
@@ -25,14 +23,14 @@ class Events:
             * event_move(*, mouse_speed: int = DEFAULT_MOUSE_SPEED) -> None
     """
 
-    def __init__(self, root: Tk, used_events: Tuple[str], canvas: CustomCanvas):
+    def __init__(self, root, used_events, canvas):
         self._root = root
         self._used_events = used_events
         self._canvas = canvas
         self.__draw = lambda e, c: Draw(e, c)
 
     @reset
-    def event_btnClear(self) -> None:
+    def event_btnClear(self):
         """ Событие для кнопки btnClear
 
             Возвращает:
@@ -48,8 +46,8 @@ class Events:
     @reset
     def event_btnBrush(self,
                        *,
-                       size: int = DEFAULT_SIZE,
-                       color: str = DEFAULT_FIRST_COLOR) -> None:
+                       size,
+                       color):
         """ Событие для кнопки btnBrush
 
             Аргументы:
@@ -71,8 +69,8 @@ class Events:
     @reset
     def event_btnCreateLine(self,
                             *,
-                            thickness: int = DEFAULT_THICKNESS,
-                            color: str = DEFAULT_FIRST_COLOR) -> None:
+                            thickness,
+                            color):
         """ Событие для кнопки btnCreateLine
 
             Аргументы:
@@ -94,9 +92,9 @@ class Events:
     @reset
     def event_btnCreateOval(self,
                             *,
-                            thickness: int = DEFAULT_THICKNESS,
-                            bgcolor: str = DEFAULT_SECOND_COLOR,
-                            outcolor: str = DEFAULT_FIRST_COLOR) -> None:
+                            thickness,
+                            bgcolor,
+                            outcolor):
         """ Событие для кнопки btnCreateOval
 
             Аргументы:
@@ -119,9 +117,9 @@ class Events:
     @reset
     def event_btnCreateRectangle(self,
                                  *,
-                                 thickness: int = DEFAULT_THICKNESS,
-                                 bgcolor: str = DEFAULT_SECOND_COLOR,
-                                 outcolor: str = DEFAULT_FIRST_COLOR) -> None:
+                                 thickness,
+                                 bgcolor,
+                                 outcolor):
         """ Событие для кнопки btnCreateOval
 
             Аргументы:
@@ -141,7 +139,7 @@ class Events:
             self._root.bind(event, lambda e, c=self._canvas, t=thickness, bgclr=bgcolor, outclr=outcolor:
             Draw(e, c).rectangle(thickness=t, bgcolor=bgclr, outcolor=outclr))
 
-    def event_undo(self) -> None:
+    def event_undo(self):
         """ Событие для бинда отмены действия (Ctrl-z)
 
             Возвращает:
@@ -156,7 +154,7 @@ class Events:
             self._canvas.delete(key)
 
     @reset
-    def event_move(self, *, mouse_speed: int = DEFAULT_MOUSE_SPEED) -> None:
+    def event_move(self, *, mouse_speed):
         """ Событие для кнопки btnMove
 
             Аргументы:

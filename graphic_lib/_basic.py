@@ -6,14 +6,12 @@
     detect_object(event: tkinter.Event, _custom_objetcs.CustomCanvas) -> [str, None]
 """
 
+
 # Имортированные модули
-from ._custom_objects import *
-from typing import Callable, Tuple
-from tkinter import Event
-from numpy import subtract                      # TODO: стоит избежать много импортов (используется 2 раза)
+from numpy import subtract
 
 
-def reset(function: Callable[..., None]) -> Callable[..., None]:
+def reset(function):
     """ Декоратор, который очищает бинды и удаляет старые точки
 
     Аргументы:
@@ -31,7 +29,7 @@ def reset(function: Callable[..., None]) -> Callable[..., None]:
     return inner
 
 
-def transform_coords(old_coords: Tuple[int, int], new_coords: Tuple[int, int]) -> Tuple[int, float]:
+def transform_coords(old_coords, new_coords):
     """ Переводит координаты прямоугольного объекта в квадратные
 
         Аргументы:
@@ -65,7 +63,7 @@ def transform_coords(old_coords: Tuple[int, int], new_coords: Tuple[int, int]) -
         return (new_coords[0] + delta, new_coords[1]) if deltaY > deltaX else (new_coords[0], new_coords[1] + delta)
 
 
-def transform_line_coords(old_coords: Tuple[int, int], new_coords: Tuple[int, int]) -> Tuple[int, float]:
+def transform_line_coords(old_coords, new_coords):
     """ Переводит координаты линии в вертикальное или горизонтальное положение
 
         Аргументы:
@@ -90,7 +88,7 @@ def transform_line_coords(old_coords: Tuple[int, int], new_coords: Tuple[int, in
     return (new_coords[0], old_coords[1]) if abs(deltaX) > abs(deltaY) else (old_coords[0], new_coords[1])
 
 
-def detect_object(event: Event, canvas: CustomCanvas) -> [str, None]:
+def detect_object(event, canvas):
     """ Определяет tag объекта, на который нажимает пользователь
 
         Аргументы:

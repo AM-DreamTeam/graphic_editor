@@ -14,6 +14,7 @@
     DEFAULT_CANVAS_BG - заливка слоя (canvas'a)
 """
 
+
 DEFAULT_USED_EVENTS = ('<B1-Motion>', '<ButtonPress-1>','<ButtonRelease-1>', '<KeyPress-Control_L>', '<KeyRelease-Control_L>')
 
 DEFAULT_FIRST_COLOR = 'black'

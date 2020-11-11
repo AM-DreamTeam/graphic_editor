@@ -1,7 +1,6 @@
 # Импротированные модули
-from ._defaults import *
 from ._basic import *
-from tkinter import TRUE, ROUND, Event
+from tkinter import TRUE, ROUND
 from math import atan2, sin, cos
 
 
@@ -20,14 +19,14 @@ class Draw:
             * move(*, mouse_speed: int = DEFAULT_MOUSE_SPEED) -> None
     """
 
-    def __init__(self, event: Event, canvas: CustomCanvas):
+    def __init__(self, event, canvas):
         self._event = event
         self._canvas = canvas
 
     def point(self,
               *,
-              size: int = DEFAULT_SIZE,
-              color: str = DEFAULT_FIRST_COLOR) -> None:
+              size,
+              color):
         """ Рисует точку на месте курсора
 
             Аргументы:
@@ -55,8 +54,8 @@ class Draw:
 
     def line(self,
              *,
-             thickness: int = DEFAULT_THICKNESS,
-             color: str = DEFAULT_FIRST_COLOR) -> None:
+             thickness,
+             color):
         """ Рисует линию по заданным точкам
 
              Аргументы:
@@ -95,9 +94,9 @@ class Draw:
 
     def oval(self,
              *,
-             thickness: int = DEFAULT_THICKNESS,
-             bgcolor: str = DEFAULT_SECOND_COLOR,
-             outcolor: str = DEFAULT_FIRST_COLOR) -> None:
+             thickness,
+             bgcolor,
+             outcolor):
         """ Рисует эллипс по заданным точкам
 
             Аргументы:
@@ -137,9 +136,9 @@ class Draw:
 
     def rectangle(self,
                   *,
-                  thickness: int = DEFAULT_THICKNESS,
-                  bgcolor: str = DEFAULT_SECOND_COLOR,
-                  outcolor: str = DEFAULT_FIRST_COLOR) -> None:
+                  thickness,
+                  bgcolor,
+                  outcolor):
         """ Рисует прямоугольник по заданным точкам
 
             Аргументы:
@@ -177,7 +176,7 @@ class Draw:
 
             canvas.obj_rectangle = r
 
-    def move(self, *, mouse_speed: int = DEFAULT_MOUSE_SPEED) -> None:
+    def move(self, *, mouse_speed):
         """ Двигает объекты на canvas'e (слое)
 
             Аргументы:

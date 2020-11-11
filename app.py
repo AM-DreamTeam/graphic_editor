@@ -7,7 +7,7 @@ class App:
     """ App - пример приложение для проверки модуля """
 
     def __init__(self, root):
-        ico = Image.open('pictures/visualist.png')
+        ico = Image.open('images/visualist.png')
         ico.thumbnail((64, 64), Image.ANTIALIAS)
         photo = ImageTk.PhotoImage(ico)
 
@@ -53,7 +53,7 @@ class App:
 
         root.bind('<Control-x>', quit)
         root.bind('<Control-z>', lambda event: events.event_undo())
-        root.bind('<Control-s>', lambda event: print(canvas.obj_storage))
+        root.bind('<Control-s>', lambda event: print(list(map(type, canvas.obj_storage))))
 
 
 root = Tk(className='Visualist')
