@@ -38,7 +38,7 @@ class App:
 
         btnBrush = Button(frame_main, text='*кисть*',
                           command=lambda s=gcore.DEFAULT_BRUSH_SIZE, clr=gcore.DEFAULT_FIRST_COLOR:
-                          events.event_btnBrush(size=s, color=clr))
+                          events.event_btnBrush(size=s, color=clr, debug_mode=True))
         btnBrush.pack(side=TOP, pady=5)
 
         btnCreateLine = Button(frame_main, text='*линия*',

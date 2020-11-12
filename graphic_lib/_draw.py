@@ -26,12 +26,16 @@ class Draw:
     def point(self,
               *,
               size,
-              color):
+              color,
+              eraser = False,
+              debug_mode = False):
         """ Рисует точку на месте курсора
 
             Аргументы:
                 ** size: int - размер точки (отрезок)
                 ** color: str - цвет точки (отрезок)
+                ** eraser: bool - режим работы с ластиком
+                ** debug_mode: bool - режим отладчика
 
             Возвращает:
                 None
@@ -46,17 +50,20 @@ class Draw:
 
         if str(event.type) == 'ButtonRelease' and canvas.line_sequences:
             canvas.old_point = None
-            print(canvas.line_sequences)
-            tag = f'brush{len(canvas.obj_storage) + 1}'
-            x_min, y_min, x_max, y_max = transform_brush_sequence(canvas.line_sequences)
-            canvas.obj_storage[tag] = (x_min, y_min, x_max, y_max)
-            canvas.addtag_overlapping(tag, x_min, y_min, x_max, y_max)
-            canvas.line_sequences = []
+            if not eraser:
+                tag = f'brush{len(canvas.obj_storage) + 1}'
+                x_min, y_min, x_max, y_max = transform_brush_sequence(canvas.line_sequences)
+                canvas.obj_storage[tag] = (x_min, y_min, x_max, y_max)
+                if debug_mode:
+                    canvas.create_rectangle(x_min, y_min, x_max, y_max, dash=(5, 3), tags=tag)
+                canvas.addtag_overlapping(tag, x_min, y_min, x_max, y_max)
+                canvas.line_sequences = []
         elif str(event.type) == 'Motion':
             if canvas.old_point:
                 x2, y2 = canvas.old_point
                 canvas.create_line(x1, y1, x2, y2, width=size, fill=color, smooth=TRUE, capstyle=ROUND)
-                canvas.line_sequences.append([(x1, y1), (x2, y2)])
+                if not eraser:
+                    canvas.line_sequences.append([(x1, y1), (x2, y2)])
             canvas.old_point = x1, y1
 
     def line(self,

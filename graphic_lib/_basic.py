@@ -1,4 +1,4 @@
-""" Базовые функции для реализации графических  примитивов
+""" Базовые функции для реализации графических примитивов
 
     point_min_x(points: Iterable) -> int
     point_max_x(points: Iterable) -> int
@@ -108,6 +108,10 @@ def transform_brush_sequence(point_storage):
 
         Возвращает:
             Tuple[(int, float), (int, float), (int, float), (int, float)] - кортеж с координатами прямоугольника
+
+        Тесты:
+            >>> transform_brush_sequence([[(85, 157), (85, 158)], [(87, 157), (85, 157)], [(88, 156), (87, 156)], [(89, 156), (88, 156)]])
+            (85, 156, 89, 158)
     """
 
     points_list = [item for sublist in point_storage for item in sublist]

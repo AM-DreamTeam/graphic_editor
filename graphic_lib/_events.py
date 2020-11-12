@@ -4,7 +4,7 @@ from ._defaults import *
 
 
 class Events:
-    """ Events - содержит все события
+    """ Events - содержит все события для работы с окном
 
         Аргументы:
             * root: tkinter.Tk - главное окно
@@ -46,12 +46,14 @@ class Events:
     def event_btnBrush(self,
                        *,
                        size = DEFAULT_BRUSH_SIZE,
-                       color = DEFAULT_FIRST_COLOR):
+                       color = DEFAULT_FIRST_COLOR,
+                       debug_mode = False):
         """ Событие для кнопки btnBrush
 
             Аргументы:
-                ** size: int - размер точки (овала)
-                ** color: str - цвет точки (овала)
+                ** size: int - размер точки (линии)
+                ** color: str - цвет точки (линии)
+                ** debug_mode - режим отладчика
 
             Возвращает:
                 None
@@ -62,8 +64,8 @@ class Events:
         """
 
         for event in ('<ButtonRelease-1>', '<B1-Motion>'):
-            self._root.bind(event, lambda e, s=size, clr=color:
-                            self.__draw(e).point(size=s, color=clr))
+            self._root.bind(event, lambda e, s=size, clr=color, dm=debug_mode:
+                            self.__draw(e).point(size=s, color=clr, eraser=False, debug_mode=dm))
 
     @reset
     def event_btnCreateLine(self,
@@ -180,7 +182,7 @@ class Events:
         """ Событе для кнопки btnEraser
 
             Аргументы:
-                ** size: int - (размер точки овала)
+                ** size: int - размер точки (линии)
 
             Возвращает:
                 None
@@ -192,4 +194,4 @@ class Events:
 
         for event in ('<ButtonRelease-1>', '<B1-Motion>'):
             self._root.bind(event, lambda e, s=size, clr=self._canvas['background']:
-                            self.__draw(e).point(size=s, color=clr))
+                            self.__draw(e).point(size=s, color=clr, eraser=True, debug_mode=False))

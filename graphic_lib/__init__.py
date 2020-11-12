@@ -1,5 +1,5 @@
 from . import _graphic_core
 
-__version__ = "In developing ..."
+__version__ = "in developing ..."
 
 __all__ = ["_graphic_core"]
