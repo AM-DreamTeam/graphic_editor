@@ -1,14 +1,26 @@
 """ Базовые функции для реализации графических  примитивов
 
+    point_min_x(points: Iterable) -> int
+    point_max_x(points: Iterable) -> int
+    point_min_y(points: Iterable) -> int
+    point_max_y(points: Iterable) -> int
     reset(function: Callable[..., None]) -> Callable[..., None]
     transform_coords(old_coords: Tuple[int], new_coords: Tuple[int]) -> Tuple[int]
     transform_line_coords(old_coords: Tuple[int], new_coords: Tuple[int]) -> Tuple[int]
+    transform_brush_sequence(point_storage: Iterable) -> Tuple[(int, float), (int, float), (int, float), (int, float)]
     detect_object(event: tkinter.Event, _custom_objetcs.CustomCanvas) -> [str, None]
 """
 
 
 # Имортированные модули
 from numpy import subtract
+
+
+point_min_x = lambda points: min(point[0] for point in points)
+point_max_x = lambda points: max(point[0] for point in points)
+
+point_min_y = lambda points: min(point[1] for point in points)
+point_max_y = lambda points: max(point[1] for point in points)
 
 
 def reset(function):
@@ -88,13 +100,29 @@ def transform_line_coords(old_coords, new_coords):
     return (new_coords[0], old_coords[1]) if abs(deltaX) > abs(deltaY) else (old_coords[0], new_coords[1])
 
 
+def transform_brush_sequence(point_storage):
+    """ Находит координаты прямоугольника, который описывает последовательность прямых
+
+        Аргументы:
+            * point_storage: Iterable - итерируемый объект с точками
+
+        Возвращает:
+            Tuple[(int, float), (int, float), (int, float), (int, float)] - кортеж с координатами прямоугольника
+    """
+
+    points_list = [item for sublist in point_storage for item in sublist]
+    points = set(points_list)
+    x_min, y_min = point_min_x(points), point_min_y(points)
+    x_max, y_max = point_max_x(points), point_max_y(points)
+    return x_min, y_min, x_max, y_max
+
+
 def detect_object(event, canvas):
     """ Определяет tag объекта, на который нажимает пользователь
 
         Аргументы:
             * event: tkinter.Event - событие, по которому считываем  положение курсора
             * canvas: _custom_objetcs.CustomCanvas - canvas (слой), на котором находятся объекты
-
 
         Возвращает:
             str or None: tag объекта, по которому нажал пользователь

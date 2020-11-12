@@ -4,7 +4,8 @@
 
     DEFAULT_FIRST_COLOR - основной цвет или цвет обводки для графического примитива
     DEFAULT_SECOND_COLOR - дополнительный цвет (цвет заливки) для графического примитива
-    DEFAULT_SIZE - размер кисти
+    DEFAULT_BRUSH_SIZE - размер кисти
+    DEFAULT_ERASER_SIZE - размер ластика
     DEFAULT_THICKNESS - ширина обводки графического примитива
 
     DEFAULT_MOUSE_SPEED - скорость передвижения объектов на слое (canvas'e)
@@ -20,7 +21,8 @@ DEFAULT_USED_EVENTS = ('<B1-Motion>', '<ButtonPress-1>','<ButtonRelease-1>', '<K
 DEFAULT_FIRST_COLOR = 'black'
 DEFAULT_SECOND_COLOR = None
 DEFAULT_THICKNESS = 2
-DEFAULT_SIZE = 5
+DEFAULT_BRUSH_SIZE = 5
+DEFAULT_ERASER_SIZE = 20
 
 DEFAULT_MOUSE_SPEED = 5
 

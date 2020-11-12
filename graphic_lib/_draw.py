@@ -1,11 +1,11 @@
 # Импротированные модули
 from ._basic import *
 from tkinter import TRUE, ROUND
-from math import atan2, sin, cos
+from math import atan2, sin, cos, floor
 
 
 class Draw:
-    """ Draw - отрисовка элементов
+    """ Draw - логика работы с графическими примитивами
 
         Аргументы:
             * event: tkinter.Event - событие, по которому считывается положение курсора
@@ -44,12 +44,19 @@ class Draw:
 
         x1, y1 = event.x, event.y
 
-        if str(event.type) == 'ButtonRelease':
+        if str(event.type) == 'ButtonRelease' and canvas.line_sequences:
             canvas.old_point = None
+            print(canvas.line_sequences)
+            tag = f'brush{len(canvas.obj_storage) + 1}'
+            x_min, y_min, x_max, y_max = transform_brush_sequence(canvas.line_sequences)
+            canvas.obj_storage[tag] = (x_min, y_min, x_max, y_max)
+            canvas.addtag_overlapping(tag, x_min, y_min, x_max, y_max)
+            canvas.line_sequences = []
         elif str(event.type) == 'Motion':
             if canvas.old_point:
                 x2, y2 = canvas.old_point
                 canvas.create_line(x1, y1, x2, y2, width=size, fill=color, smooth=TRUE, capstyle=ROUND)
+                canvas.line_sequences.append([(x1, y1), (x2, y2)])
             canvas.old_point = x1, y1
 
     def line(self,
@@ -194,7 +201,13 @@ class Draw:
         if str(event.type) == 'ButtonPress':
             canvas.obj_tag = detect_object(event, canvas)
         elif str(event.type) == 'ButtonRelease' and canvas.obj_tag:
-            canvas.obj_storage[canvas.obj_tag] = canvas.coords(canvas.obj_tag)
+            if 'brush' in canvas.obj_tag:
+                raw_points = [tuple(map(lambda x: floor(x), canvas.coords(obj))) for obj in canvas.find_withtag(canvas.obj_tag)]
+                points_storage = list(map(lambda sub: [sub[i:i+2] for i in range(0, len(sub), 2)], raw_points))
+                x_min, y_min, x_max, y_max = transform_brush_sequence(points_storage)
+                canvas.obj_storage[canvas.obj_tag] = (x_min, y_min, x_max, y_max)
+            else:
+                canvas.obj_storage[canvas.obj_tag] = canvas.coords(canvas.obj_tag)
             canvas.obj_tag = None
         elif str(event.type) == 'Motion' and canvas.obj_tag:
             x1, y1, x2, y2 = canvas.coords(canvas.obj_tag)

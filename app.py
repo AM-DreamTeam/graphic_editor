@@ -1,3 +1,4 @@
+# Импортированные модули
 from graphic_lib import _graphic_core as gcore
 from tkinter import *
 from PIL import Image, ImageTk
@@ -26,11 +27,17 @@ class App:
         btnClear.pack(side=TOP, pady=5)
 
         btnMove = Button(frame_main, text='*подвинуть*',
-                         command=lambda ms=gcore.DEFAULT_MOUSE_SPEED: events.event_move(mouse_speed=ms))
+                         command=lambda ms=gcore.DEFAULT_MOUSE_SPEED:
+                         events.event_move(mouse_speed=ms))
         btnMove.pack(side=TOP, pady=5)
 
+        btnEraser = Button(frame_main, text='*ластик*',
+                           command=lambda s=gcore.DEFAULT_ERASER_SIZE:
+                           events.event_btnEraser(size=s))
+        btnEraser.pack(side=TOP, pady=5)
+
         btnBrush = Button(frame_main, text='*кисть*',
-                          command=lambda s=gcore.DEFAULT_SIZE, clr=gcore.DEFAULT_FIRST_COLOR:
+                          command=lambda s=gcore.DEFAULT_BRUSH_SIZE, clr=gcore.DEFAULT_FIRST_COLOR:
                           events.event_btnBrush(size=s, color=clr))
         btnBrush.pack(side=TOP, pady=5)
 
@@ -53,7 +60,7 @@ class App:
 
         root.bind('<Control-x>', quit)
         root.bind('<Control-z>', lambda event: events.event_undo())
-        root.bind('<Control-s>', lambda event: print(list(map(type, canvas.obj_storage))))
+        root.bind('<Control-s>', lambda event: print(canvas.obj_storage))
 
 
 root = Tk(className='Visualist')

@@ -1,5 +1,6 @@
 # Импортированные модули
 from ._draw import *
+from ._defaults import *
 
 
 class Events:
@@ -10,9 +11,6 @@ class Events:
             * used_Events: Tuple[str] - список событий
             * canvas: _custom_objects.CustomCanvas - canvas (слой), на котором происходит отрисовка
 
-        Поля:
-            * __basic: Basic - экземпляр класса Basic
-
         Методы:
             * event_btnClear() -> None
             * event_btnBrush_Event(*, size: int = DEFAULT_SIZE, color: str = DEFAULT_FIRST_COLOR) -> None
@@ -21,13 +19,14 @@ class Events:
             * event_btnCreateRectangle(*, thickness: int = DEFAULT_THICKNESS, bgcolor: str = DEFAULT_SECOND_COLOR, outcolor: str = DEFAULT_FIRST_COLOR) -> None
             * event_undo() -> None
             * event_move(*, mouse_speed: int = DEFAULT_MOUSE_SPEED) -> None
+            * event_btnEraser(self, *, size: int = DEFAULT_SIZE) -> None
     """
 
     def __init__(self, root, used_events, canvas):
         self._root = root
         self._used_events = used_events
         self._canvas = canvas
-        self.__draw = lambda e, c: Draw(e, c)
+        self.__draw = lambda event: Draw(event, canvas)
 
     @reset
     def event_btnClear(self):
@@ -46,8 +45,8 @@ class Events:
     @reset
     def event_btnBrush(self,
                        *,
-                       size,
-                       color):
+                       size = DEFAULT_BRUSH_SIZE,
+                       color = DEFAULT_FIRST_COLOR):
         """ Событие для кнопки btnBrush
 
             Аргументы:
@@ -59,18 +58,18 @@ class Events:
 
             Побочный эффект:
                 Очищаются все бинды и создаётся новый бинды на <ButtonRelease-1>, <B1-Motion> - отрисовка
-                                                                                    последовательности точек (овалов)
+                                                                                    последовательности линий (отрезков)
         """
 
         for event in ('<ButtonRelease-1>', '<B1-Motion>'):
-            self._root.bind(event, lambda e, c=self._canvas, s=size, clr=color:
-            self.__draw(e, c).point(size=s, color=clr))
+            self._root.bind(event, lambda e, s=size, clr=color:
+                            self.__draw(e).point(size=s, color=clr))
 
     @reset
     def event_btnCreateLine(self,
                             *,
-                            thickness,
-                            color):
+                            thickness = DEFAULT_THICKNESS,
+                            color = DEFAULT_FIRST_COLOR):
         """ Событие для кнопки btnCreateLine
 
             Аргументы:
@@ -86,15 +85,15 @@ class Events:
         """
 
         for event in ('<ButtonPress-1>', '<ButtonRelease-1>', '<B1-Motion>', '<KeyPress-Control_L>','<KeyRelease-Control_L>'):
-            self._root.bind(event, lambda e, c=self._canvas, t=thickness, clr=color:
-            self.__draw(e, c).line(thickness=t, color=clr))
+            self._root.bind(event, lambda e, t=thickness, clr=color:
+                            self.__draw(e).line(thickness=t, color=clr))
 
     @reset
     def event_btnCreateOval(self,
                             *,
-                            thickness,
-                            bgcolor,
-                            outcolor):
+                            thickness = DEFAULT_THICKNESS,
+                            bgcolor = DEFAULT_SECOND_COLOR,
+                            outcolor = DEFAULT_FIRST_COLOR):
         """ Событие для кнопки btnCreateOval
 
             Аргументы:
@@ -111,15 +110,15 @@ class Events:
         """
 
         for event in ('<ButtonPress-1>', '<ButtonRelease-1>', '<B1-Motion>', '<KeyPress-Control_L>', '<KeyRelease-Control_L>'):
-            self._root.bind(event, lambda e, c=self._canvas, t=thickness, bgclr=bgcolor, outclr=outcolor:
-            self.__draw(e, c).oval(thickness=t, bgcolor=bgclr, outcolor=outclr))
+            self._root.bind(event, lambda e, t=thickness, bgclr=bgcolor, outclr=outcolor:
+                            self.__draw(e).oval(thickness=t, bgcolor=bgclr, outcolor=outclr))
 
     @reset
     def event_btnCreateRectangle(self,
                                  *,
-                                 thickness,
-                                 bgcolor,
-                                 outcolor):
+                                 thickness = DEFAULT_THICKNESS,
+                                 bgcolor = DEFAULT_SECOND_COLOR,
+                                 outcolor = DEFAULT_FIRST_COLOR):
         """ Событие для кнопки btnCreateOval
 
             Аргументы:
@@ -136,8 +135,8 @@ class Events:
         """
 
         for event in ('<ButtonPress-1>', '<ButtonRelease-1>', '<B1-Motion>', '<KeyPress-Control_L>', '<KeyRelease-Control_L>'):
-            self._root.bind(event, lambda e, c=self._canvas, t=thickness, bgclr=bgcolor, outclr=outcolor:
-            Draw(e, c).rectangle(thickness=t, bgcolor=bgclr, outcolor=outclr))
+            self._root.bind(event, lambda e, t=thickness, bgclr=bgcolor, outclr=outcolor:
+                            self.__draw(e).rectangle(thickness=t, bgcolor=bgclr, outcolor=outclr))
 
     def event_undo(self):
         """ Событие для бинда отмены действия (Ctrl-z)
@@ -154,7 +153,9 @@ class Events:
             self._canvas.delete(key)
 
     @reset
-    def event_move(self, *, mouse_speed):
+    def event_move(self,
+                   *,
+                   mouse_speed = DEFAULT_MOUSE_SPEED):
         """ Событие для кнопки btnMove
 
             Аргументы:
@@ -164,9 +165,31 @@ class Events:
                 None
 
             Побочный эффект:
-                Очищает все бинды и создаёт 3 новых бинла <ButtonPress-1>, <ButtonRelease-1>, <B1-Motion>,
+                Очищает все бинды и создаёт 3 новых бинда <ButtonPress-1>, <ButtonRelease-1>, <B1-Motion>,
                                                     - движение объектов на canvas'e (слое)
         """
 
-        for e in ('<ButtonPress-1>', '<ButtonRelease-1>', '<B1-Motion>'):
-            self._root.bind(e, lambda e, c=self._canvas, ms=mouse_speed: self.__draw(e, c).move(mouse_speed=ms))
+        for event in ('<ButtonPress-1>', '<ButtonRelease-1>', '<B1-Motion>'):
+            self._root.bind(event, lambda e, ms=mouse_speed:
+                            self.__draw(e).move(mouse_speed=ms))
+
+    @reset
+    def event_btnEraser(self,
+                        *,
+                        size = DEFAULT_ERASER_SIZE):
+        """ Событе для кнопки btnEraser
+
+            Аргументы:
+                ** size: int - (размер точки овала)
+
+            Возвращает:
+                None
+
+            Побочный эффекут:
+                Очищаются все бинды и создаётся новый бинды на <ButtonRelease-1>, <B1-Motion> - отрисовка
+                                                                                    последовательности линий (отрезков)
+        """
+
+        for event in ('<ButtonRelease-1>', '<B1-Motion>'):
+            self._root.bind(event, lambda e, s=size, clr=self._canvas['background']:
+                            self.__draw(e).point(size=s, color=clr))
