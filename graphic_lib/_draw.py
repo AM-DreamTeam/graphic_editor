@@ -12,7 +12,7 @@ class Draw:
             * canvas: _custom_objects.CustomCanvas - canvas (слой), на котором происходит отрисовка
 
         Методы:
-            * point(*, size: int = DEFAULT_SIZE, color: str = DEFAULT_FIRST_COLOR) -> None
+            * point(*, size: int = DEFAULT_SIZE, color: str = DEFAULT_FIRST_COLOR, eraser: bool = False, debug_mode: bool = False) -> None
             * oval(*, thickness: int = DEFAULT_THICKNESS, bgcolor: str = DEFAULT_SECOND_COLOR, outcolor: str = DEFAULT_FIRST_COLOR) -> None
             * line(*, thickness: int = DEFAULT_THICKNESS, bgcolor: str = DEFAULT_SECOND_COLOR, outcolor: str = DEFAULT_FIRST_COLOR) -> None
             * rectangle(*, thickness: int = DEFAULT_THICKNESS, bgcolor: str = DEFAULT_SECOND_COLOR, outcolor: str = DEFAULT_FIRST_COLOR) -> None
