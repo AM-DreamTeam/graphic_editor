@@ -24,8 +24,8 @@
 Документация по проекту описана в разделе `Wiki`.
 
 ## Технологии:
-1. Tkinter
-1. Pillow (Python Imaging Library)
+1. [**`Tkinter`**](https://docs.python.org/3/library/tkinter.html)
+1. [**`Pillow (Python Imaging Library)`**](https://pillow.readthedocs.io/en/stable/)
 
 <sub> Проект по ЯиМП: 2 курс (1 семестр) </sub>
 <br>
