@@ -121,7 +121,7 @@ class Events:
                                  thickness = DEFAULT_THICKNESS,
                                  bgcolor = DEFAULT_SECOND_COLOR,
                                  outcolor = DEFAULT_FIRST_COLOR):
-        """ Событие для кнопки btnCreateOval
+        """ Событие для кнопки btnCreateRectangle
 
             Аргументы:
                 ** thickness: int - жирность обводки прямоугольника

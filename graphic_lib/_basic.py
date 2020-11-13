@@ -5,8 +5,8 @@
     point_min_y(points: Iterable) -> int
     point_max_y(points: Iterable) -> int
     reset(function: Callable[..., None]) -> Callable[..., None]
-    transform_coords(old_coords: Tuple[int], new_coords: Tuple[int]) -> Tuple[int]
-    transform_line_coords(old_coords: Tuple[int], new_coords: Tuple[int]) -> Tuple[int]
+    transform_coords(old_coords: Tuple[int, int], new_coords: Tuple[int, int]) -> Tuple[int, int]
+    transform_line_coords(old_coords: Tuple[int, int], new_coords: Tuple[int, int]) -> Tuple[int, int]
     transform_brush_sequence(point_storage: Iterable) -> Tuple[(int, float), (int, float), (int, float), (int, float)]
     detect_object(event: tkinter.Event, _custom_objetcs.CustomCanvas) -> [str, None]
 """

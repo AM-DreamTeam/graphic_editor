@@ -13,7 +13,7 @@ class CustomCanvas(Canvas):
             * obj_oval: None or Oval - временное хранилище эллипса
             * obj_line: None or Line - временное хранилище прямой (отрезка)
             * obj_rectangle: None or Rectangle - временное хранилище прямоугольника
-            * line_sequences: list - хранение
+            * line_sequences: list - хранение последовательности линий
             * obj_storage: dict - хранилище графических примитивов на слое (canvas'e)
             * obj_tag: None or str - временное хранилище tag'ов объектов, на которые нажимает пользователь
     """
