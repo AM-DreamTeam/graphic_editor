@@ -17,6 +17,7 @@ class Draw:
             * line(*, thickness: int = DEFAULT_THICKNESS, bgcolor: str = DEFAULT_SECOND_COLOR, outcolor: str = DEFAULT_FIRST_COLOR) -> None
             * rectangle(*, thickness: int = DEFAULT_THICKNESS, bgcolor: str = DEFAULT_SECOND_COLOR, outcolor: str = DEFAULT_FIRST_COLOR) -> None
             * move(*, mouse_speed: int = DEFAULT_MOUSE_SPEED) -> None
+            * fill_objects(self, *, color: str = DEFAULT_CHANGE_COLOR) -> None
     """
 
     def __init__(self, event, canvas):
@@ -190,7 +191,9 @@ class Draw:
 
             canvas.obj_rectangle = r
 
-    def move(self, *, mouse_speed):
+    def move(self,
+             *,
+             mouse_speed):
         """ Двигает объекты на canvas'e (слое)
 
             Аргументы:
@@ -226,3 +229,30 @@ class Draw:
             x, y = mouse_speed*cos(theta), mouse_speed*sin(theta)
 
             canvas.move(canvas.obj_tag, x, y)
+
+    def fill_objects(self,
+                     *,
+                     color):
+        """ Перекрашивает объект на canvas'е (слое)
+
+            Аргументы:
+                ** color: str - цвет в который будет перекрашен объект
+
+            Возвращает:
+                None
+
+            Побочный эффект:
+
+        """
+
+        event, canvas = self._event, self._canvas
+
+        if str(event.type) == 'ButtonPress':
+            canvas.obj_tag = detect_object(event, canvas)
+            if canvas.obj_tag:
+                if 'brush' in canvas.obj_tag:
+                    for member in canvas.find_withtag(canvas.obj_tag):
+                        canvas.itemconfig(member, fill=color)
+                else:
+                    obj = canvas.find_withtag(canvas.obj_tag)
+                    canvas.itemconfig(obj, fill=color)

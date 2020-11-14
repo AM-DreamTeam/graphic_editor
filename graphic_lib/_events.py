@@ -20,6 +20,7 @@ class Events:
             * event_undo() -> None
             * event_move(*, mouse_speed: int = DEFAULT_MOUSE_SPEED) -> None
             * event_btnEraser(self, *, size: int = DEFAULT_SIZE) -> None
+            * event_btnFill(self, *, color: str = DEFAULT_CHANGE_COLOR) -> None
     """
 
     def __init__(self, root, used_events, canvas):
@@ -187,11 +188,30 @@ class Events:
             Возвращает:
                 None
 
-            Побочный эффекут:
-                Очищаются все бинды и создаётся новый бинды на <ButtonRelease-1>, <B1-Motion> - отрисовка
+            Побочный эффект:
+                Очищаются все бинды и создаётся новые бинды на <ButtonRelease-1>, <B1-Motion> - отрисовка
                                                                                     последовательности линий (отрезков)
         """
 
         for event in ('<ButtonRelease-1>', '<B1-Motion>'):
             self._root.bind(event, lambda e, s=size, clr=self._canvas['background']:
                             self.__draw(e).point(size=s, color=clr, eraser=True, debug_mode=False))
+
+    @reset
+    def event_btnFill(self,
+                      *,
+                      color = DEFAULT_CHANGE_COLOR):
+        """ Событие для кнопки btnFill
+
+            Аргументы:
+                ** color: str - цвет в который будет перекрашен объект
+
+            Возвращает:
+                None
+
+
+            Побочный эффект:
+                Очищает все бинды и создаёт новый <ButtonPress-1> - заливка графических примитивов
+        """
+        self._root.bind('<ButtonPress-1>', lambda e, c=color:
+                        self.__draw(e).fill_objects(color=c))

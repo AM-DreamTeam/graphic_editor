@@ -2,7 +2,7 @@
 from graphic_lib import _graphic_core as gcore
 from tkinter import *
 from PIL import Image, ImageTk
-
+from random import choice
 
 class App:
     """ App - пример приложение для проверки модуля """
@@ -17,6 +17,8 @@ class App:
 
         frame_main = Frame(root)
         frame_main.pack()
+
+        colors = ('red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet')
 
         canvas = gcore.CustomCanvas(frame_main, width=gcore.DEFAULT_CANVAS_W, height=gcore.DEFAULT_CANVAS_H, bg=gcore.DEFAULT_CANVAS_BG)
         canvas.pack(side=RIGHT)
@@ -38,8 +40,13 @@ class App:
 
         btnBrush = Button(frame_main, text='*кисть*',
                           command=lambda s=gcore.DEFAULT_BRUSH_SIZE, clr=gcore.DEFAULT_FIRST_COLOR:
-                          events.event_btnBrush(size=s, color=clr, debug_mode=True))
+                          events.event_btnBrush(size=s, color=clr, debug_mode=False))
         btnBrush.pack(side=TOP, pady=5)
+
+        btnFill = Button(frame_main, text='*заливка*',
+                         command=lambda c=colors:
+                         events.event_btnFill(color=choice(c)))
+        btnFill.pack(side=TOP, pady=5)
 
         btnCreateLine = Button(frame_main, text='*линия*',
                                command=lambda t=gcore.DEFAULT_THICKNESS, clr=gcore.DEFAULT_FIRST_COLOR:
