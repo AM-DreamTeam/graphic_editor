@@ -18,6 +18,7 @@ class Draw:
             * rectangle(*, thickness: int = DEFAULT_THICKNESS, bgcolor: str = DEFAULT_SECOND_COLOR, outcolor: str = DEFAULT_FIRST_COLOR) -> None
             * move(*, mouse_speed: int = DEFAULT_MOUSE_SPEED) -> None
             * fill_objects(self, *, color: str = DEFAULT_CHANGE_COLOR) -> None
+            * quick_eraser(self) -> None
     """
 
     def __init__(self, event, canvas):
@@ -233,7 +234,7 @@ class Draw:
     def fill_objects(self,
                      *,
                      color):
-        """ Перекрашивает объект на canvas'е (слое)
+        """ Заливка объекта на canvas'е (слое)
 
             Аргументы:
                 ** color: str - цвет в который будет перекрашен объект
@@ -242,17 +243,32 @@ class Draw:
                 None
 
             Побочный эффект:
-
+                Перекрашивает объект в цвет color на canvas'e (слое)
         """
 
         event, canvas = self._event, self._canvas
 
-        if str(event.type) == 'ButtonPress':
-            canvas.obj_tag = detect_object(event, canvas)
-            if canvas.obj_tag:
-                if 'brush' in canvas.obj_tag:
-                    for member in canvas.find_withtag(canvas.obj_tag):
-                        canvas.itemconfig(member, fill=color)
-                else:
-                    obj = canvas.find_withtag(canvas.obj_tag)
-                    canvas.itemconfig(obj, fill=color)
+        canvas.obj_tag = detect_object(event, canvas)
+
+        if canvas.obj_tag:
+            if 'brush' in canvas.obj_tag:
+                for member in canvas.find_withtag(canvas.obj_tag):
+                    canvas.itemconfig(member, fill=color)
+            else:
+                obj = canvas.find_withtag(canvas.obj_tag)
+                canvas.itemconfig(obj, fill=color)
+
+    def quick_eraser(self):
+        """ 'Быстрый' ластик
+
+            Возвращает:
+                None
+
+            Побочный эффект:
+                За одно касание удаляет графический примитив
+        """
+
+        event, canvas = self._event, self._canvas
+
+        canvas.obj_tag = detect_object(event, canvas)
+        canvas.delete(canvas.obj_tag)

@@ -38,6 +38,10 @@ class App:
                            events.event_btnEraser(size=s))
         btnEraser.pack(side=TOP, pady=5)
 
+        btnQuickEraser = Button(frame_main, text='*быстрый ластик*',
+                                command=events.event_btnQuickEraser)
+        btnQuickEraser.pack(side=TOP, pady=5)
+
         btnBrush = Button(frame_main, text='*кисть*',
                           command=lambda s=gcore.DEFAULT_BRUSH_SIZE, clr=gcore.DEFAULT_FIRST_COLOR:
                           events.event_btnBrush(size=s, color=clr, debug_mode=False))

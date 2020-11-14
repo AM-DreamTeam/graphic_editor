@@ -21,6 +21,7 @@ class Events:
             * event_move(*, mouse_speed: int = DEFAULT_MOUSE_SPEED) -> None
             * event_btnEraser(self, *, size: int = DEFAULT_SIZE) -> None
             * event_btnFill(self, *, color: str = DEFAULT_CHANGE_COLOR) -> None
+            * event_btnQuickEraser(self) -> None
     """
 
     def __init__(self, root, used_events, canvas):
@@ -209,9 +210,22 @@ class Events:
             Возвращает:
                 None
 
-
             Побочный эффект:
-                Очищает все бинды и создаёт новый <ButtonPress-1> - заливка графических примитивов
+                Очищает все бинды и создаёт новый бинд <ButtonPress-1> - заливка графических примитивов
         """
+
         self._root.bind('<ButtonPress-1>', lambda e, c=color:
                         self.__draw(e).fill_objects(color=c))
+
+    @reset
+    def event_btnQuickEraser(self):
+        """ Событие для кнопки btnQuickEraser
+
+            Возвращает:
+                None
+
+            Побочный эффект:
+                Очищает все бинды и создаёт новый бинд <ButtonPress-1> - удаляет графический примитив с canvas'а (слоя)
+        """
+
+        self._root.bind('<ButtonPress-1>', lambda e: self.__draw(e).quick_eraser())

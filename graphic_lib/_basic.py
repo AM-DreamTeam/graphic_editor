@@ -35,6 +35,7 @@ def reset(function):
 
     def inner(self, *args, **kwargs):
         self._canvas.old_point = None
+        self._canvas.obj_tag = None
         for _ in self._used_events:
             self._root.unbind(_)
         return function(self, *args, **kwargs)
