@@ -101,12 +101,12 @@ class Draw:
         elif str(event.type) == 'Motion' and canvas.old_point:
             x2, y2 = canvas.old_point
             x1, y1 = transform_line_coords(canvas.old_point, new_point) if 'Control' in str(event) else new_point
-            l = canvas.create_line(x1, y1, x2, y2, width=thickness, fill=color, smooth=TRUE, capstyle=ROUND)
+            line = canvas.create_line(x1, y1, x2, y2, width=thickness, fill=color, smooth=TRUE, capstyle=ROUND)
 
             if canvas.obj_line:
                 canvas.delete(canvas.obj_line)
 
-            canvas.obj_line = l
+            canvas.obj_line = line
 
     def oval(self,
              *,
@@ -143,12 +143,12 @@ class Draw:
         elif str(event.type) == 'Motion' and canvas.old_point:
             x1, y1 = transform_coords(canvas.old_point, new_point) if 'Control' in str(event) else new_point
             x2, y2 = canvas.old_point
-            o = canvas.create_oval(x1, y1, x2, y2, width=thickness, fill=bgcolor, outline=outcolor)
+            oval = canvas.create_oval(x1, y1, x2, y2, width=thickness, fill=bgcolor, outline=outcolor)
 
             if canvas.obj_oval:
                 canvas.delete(canvas.obj_oval)
 
-            canvas.obj_oval = o
+            canvas.obj_oval = oval
 
     def rectangle(self,
                   *,
@@ -185,12 +185,12 @@ class Draw:
         elif str(event.type) == 'Motion' and canvas.old_point:
             x1, y1 = transform_coords(canvas.old_point, new_point) if 'Control' in str(event) else new_point
             x2, y2 = canvas.old_point
-            r = canvas.create_rectangle(x1, y1, x2, y2, width=thickness, fill=bgcolor, outline=outcolor)
+            rect = canvas.create_rectangle(x1, y1, x2, y2, width=thickness, fill=bgcolor, outline=outcolor)
 
             if canvas.obj_rectangle:
                 canvas.delete(canvas.obj_rectangle)
 
-            canvas.obj_rectangle = r
+            canvas.obj_rectangle = rect
 
     def move(self,
              *,
@@ -257,6 +257,8 @@ class Draw:
             else:
                 obj = canvas.find_withtag(canvas.obj_tag)
                 canvas.itemconfig(obj, fill=color)
+        else:
+            canvas['background'] = color
 
     def quick_eraser(self):
         """ 'Быстрый' ластик

@@ -42,6 +42,7 @@ class Events:
         """
 
         self._canvas.obj_storage = {}
+        self._canvas['background'] = 'white'
         self._canvas.delete('all')
 
     @reset
