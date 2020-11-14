@@ -1,3 +1,4 @@
+![visualist stats:](https://img.shields.io/badge/visualist-%3A-%23000000)
 [![Python 3.8](https://img.shields.io/badge/python-3.8-green.svg)](https://www.python.org/downloads/release/python-380/)
 ![GitHub issues](https://img.shields.io/github/issues/AM-DreamTeam/graphic_editor)
 ![GitHub contributors](https://img.shields.io/github/contributors/AM-DreamTeam/graphic_editor)
@@ -30,4 +31,4 @@
 
 <sub> Проект по ЯиМП: 2 курс (1 семестр) </sub>
 <br>
-<sub> Последнее обновление: 14.11.2020 </sub>
+<sub> Последнее обновление: 15.11.2020 </sub>
