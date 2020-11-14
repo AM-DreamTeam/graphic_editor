@@ -1,4 +1,4 @@
-![visualist stats:](https://img.shields.io/badge/visualist-%3A-%23000000)
+![visualist stats:](https://img.shields.io/badge/visualist-in%20developing%20...-%23000000)\
 [![Python 3.8](https://img.shields.io/badge/python-3.8-green.svg)](https://www.python.org/downloads/release/python-380/)
 ![GitHub issues](https://img.shields.io/github/issues/AM-DreamTeam/graphic_editor)
 ![GitHub contributors](https://img.shields.io/github/contributors/AM-DreamTeam/graphic_editor)
