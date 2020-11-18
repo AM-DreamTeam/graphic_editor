@@ -1,8 +1,8 @@
-![visualist stats:](https://img.shields.io/badge/visualist-in%20developing%20...-%23000000)\
-[![Python 3.8](https://img.shields.io/badge/python-3.8-green.svg)](https://www.python.org/downloads/release/python-380/)
-![GitHub issues](https://img.shields.io/github/issues/AM-DreamTeam/graphic_editor)
-![GitHub contributors](https://img.shields.io/github/contributors/AM-DreamTeam/graphic_editor)
-![GitHub repo size](https://img.shields.io/github/repo-size/AM-DreamTeam/graphic_editor)
+![visualist stats:](https://img.shields.io/badge/visualist-in%20developing...-%23000000?style=for-the-badge)\
+[![Python 3.8](https://img.shields.io/badge/python-3.8-green.svg?style=flat-square)](https://www.python.org/downloads/release/python-380/)
+![GitHub issues](https://img.shields.io/github/issues/AM-DreamTeam/graphic_editor?style=flat-square)
+![GitHub contributors](https://img.shields.io/github/contributors/AM-DreamTeam/graphic_editor?style=flat-square)
+![GitHub repo size](https://img.shields.io/github/repo-size/AM-DreamTeam/graphic_editor?style=flat-square)
 
 <h1> <img src="visualist.png" width="40" alt="visualist"/> Графический редактор — <i>Visualist</i> </h1>
 
