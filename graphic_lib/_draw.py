@@ -15,6 +15,7 @@ class Draw:
             * point(*, size: int = DEFAULT_SIZE, color: str = DEFAULT_FIRST_COLOR, eraser: bool = False, debug_mode: bool = False) -> None
             * oval(*, thickness: int = DEFAULT_THICKNESS, bgcolor: str = DEFAULT_SECOND_COLOR, outcolor: str = DEFAULT_FIRST_COLOR) -> None
             * line(*, thickness: int = DEFAULT_THICKNESS, bgcolor: str = DEFAULT_SECOND_COLOR, outcolor: str = DEFAULT_FIRST_COLOR) -> None
+            * polygon(self, *, thickness: int = DEFAULT_THICKNESS, bgcolor: str = DEFAULT_SECOND_COLOR, outcolor: str = DEFAULT_FIRST_COLOR) -> None
             * rectangle(*, thickness: int = DEFAULT_THICKNESS, bgcolor: str = DEFAULT_SECOND_COLOR, outcolor: str = DEFAULT_FIRST_COLOR) -> None
             * move(*, mouse_speed: int = DEFAULT_MOUSE_SPEED) -> None
             * fill_objects(self, *, color: str = DEFAULT_CHANGE_COLOR) -> None
@@ -191,6 +192,54 @@ class Draw:
                 canvas.delete(canvas.obj_rectangle)
 
             canvas.obj_rectangle = rect
+
+    def polygon(self,
+                *,
+                thickness,
+                bgcolor,
+                outcolor):
+        """ Рисует многоугольник (последовательность линий) по заданным точкам
+
+            Аргументы:
+                ** thickness: int - жирность обводки многоугольника
+                ** bgcolor: str - цвет заливки многоугольника
+                ** outcolor: str - цвет обводки многоугольника
+
+            Возвращает:
+                None
+
+            Побочный эффект:
+                Отрисовка многоугольника (последовательности линий) по заданным точкам на canvas'e
+        """
+
+        event, canvas = self._event, self._canvas
+
+        new_point = event.x, event.y
+
+        if str(event.type) == 'ButtonPress' and not canvas.old_point:
+            canvas.start_point = new_point
+            canvas.old_point = new_point
+        elif str(event.type) == 'ButtonRelease' and canvas.old_point:
+            tag = f'polygon{len(canvas.obj_storage) + 1}'
+            x2, y2 = canvas.old_point
+            x1, y1 = transform_line_coords(canvas.old_point, new_point) if 'Control' in str(event) else new_point
+            if x1-10 < canvas.start_point[0] < x1+10 and y1-10 < canvas.start_point[1] < y1+10:
+                x1, y1 = canvas.start_point
+                canvas.old_point, canvas.start_point = None, None
+            else:
+                canvas.old_point = x1, y1
+            canvas.create_line(x1, y1, x2, y2, width=thickness, fill=outcolor, smooth=TRUE, capstyle=ROUND, tags=tag)
+            canvas.obj_storage[tag] = (x1, y1, x2, y2)
+            canvas.delete(canvas.obj_line)
+        elif str(event.type) == 'Motion' and canvas.old_point:
+            x2, y2 = canvas.old_point
+            x1, y1 = transform_line_coords(canvas.old_point, new_point) if 'Control' in str(event) else new_point
+            line = canvas.create_line(x1, y1, x2, y2, width=thickness, fill=outcolor, smooth=TRUE, capstyle=ROUND)
+
+            if canvas.obj_line:
+                canvas.delete(canvas.obj_line)
+
+            canvas.obj_line = line
 
     def move(self,
              *,

@@ -5,6 +5,7 @@ from PIL import Image, ImageTk
 from random import choice
 
 class App:
+
     """ App - пример приложение для проверки модуля """
 
     def __init__(self, root):
@@ -56,6 +57,11 @@ class App:
                                command=lambda t=gcore.DEFAULT_THICKNESS, clr=gcore.DEFAULT_FIRST_COLOR:
                                events.event_btnCreateLine(thickness=t, color=clr))
         btnCreateLine.pack(side=TOP, pady=5)
+
+        btnCreatePolygon = Button(frame_main, text='*многоугольник*',
+                                  command=lambda t=gcore.DEFAULT_THICKNESS, bgclr=gcore.DEFAULT_SECOND_COLOR, outclr=gcore.DEFAULT_FIRST_COLOR:
+                                  events.event_btnCreatePolygon(thickness=t, bgcolor=bgclr, outcolor=outclr))
+        btnCreatePolygon.pack(side=TOP, pady=5)
 
         btnCreateOval = Button(frame_main, text='*эллипс*',
                                command=lambda t=gcore.DEFAULT_THICKNESS, outclr=gcore.DEFAULT_FIRST_COLOR,

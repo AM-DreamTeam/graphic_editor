@@ -15,6 +15,7 @@ class CustomCanvas(Canvas):
             * obj_rectangle: None or Rectangle - временное хранилище прямоугольника
             * line_sequences: list - хранение последовательности линий
             * obj_storage: dict - хранилище графических примитивов на слое (canvas'e)
+            * start_point: None or Tuple[int, int] - хранит начальную точку для многоугольников
             * obj_tag: None or str - временное хранилище tag'ов объектов, на которые нажимает пользователь
     """
 
@@ -26,5 +27,6 @@ class CustomCanvas(Canvas):
 
     line_sequences = []
     obj_storage = {}
+    start_point = None
 
     obj_tag = None
