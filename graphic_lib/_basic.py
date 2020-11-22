@@ -7,7 +7,7 @@
     reset(function: Callable[..., None]) -> Callable[..., None]
     transform_coords(old_coords: Tuple[int, int], new_coords: Tuple[int, int]) -> Tuple[int, int]
     transform_line_coords(old_coords: Tuple[int, int], new_coords: Tuple[int, int]) -> Tuple[int, int]
-    transform_brush_sequence(point_storage: Iterable) -> Tuple[(int, float), (int, float), (int, float), (int, float)]
+    transform_line_sequence(point_storage: Iterable) -> Tuple[(int, float), (int, float), (int, float), (int, float)]
     detect_object(event: tkinter.Event, _custom_objetcs.CustomCanvas) -> [str, None]
 """
 
@@ -21,6 +21,13 @@ point_max_x = lambda points: max(point[0] for point in points)
 
 point_min_y = lambda points: min(point[1] for point in points)
 point_max_y = lambda points: max(point[1] for point in points)
+
+flatten = lambda points: [item for sublist in points for item in sublist]
+
+
+def partition_coords(coords, n, m):
+    part_coords = [coords[i:i+n] for i in range(0, len(coords), n)]
+    return [[tuple(sublist[i:i+m]) for i in range(0, len(sublist), m)] for sublist in part_coords]
 
 
 def reset(function):
@@ -101,7 +108,7 @@ def transform_line_coords(old_coords, new_coords):
     return (new_coords[0], old_coords[1]) if abs(deltaX) > abs(deltaY) else (old_coords[0], new_coords[1])
 
 
-def transform_brush_sequence(point_storage):
+def transform_line_sequence(point_storage):
     """ Находит координаты прямоугольника, который описывает последовательность прямых
 
         Аргументы:
@@ -111,11 +118,11 @@ def transform_brush_sequence(point_storage):
             Tuple[(int, float), (int, float), (int, float), (int, float)] - кортеж с координатами прямоугольника
 
         Тесты:
-            >>> transform_brush_sequence([[(85, 157), (85, 158)], [(87, 157), (85, 157)], [(88, 156), (87, 156)], [(89, 156), (88, 156)]])
+            >>> transform_line_sequence([[(85, 157), (85, 158)], [(87, 157), (85, 157)], [(88, 156), (87, 156)], [(89, 156), (88, 156)]])
             (85, 156, 89, 158)
     """
 
-    points_list = [item for sublist in point_storage for item in sublist]
+    points_list = flatten(point_storage)
     points = set(points_list)
     x_min, y_min = point_min_x(points), point_min_y(points)
     x_max, y_max = point_max_x(points), point_max_y(points)
@@ -133,14 +140,14 @@ def detect_object(event, canvas):
             str or None: tag объекта, по которому нажал пользователь
     """
 
-    x, y = event.x, event.y
+    x, y = canvas.canvasx(event.x), canvas.canvasy(event.y)
     storage = canvas.obj_storage
 
     obj, coords = list(storage.keys()), list(storage.values())
     obj_lst = []
 
     for obj_coords in coords:
-        x1, y1, x2, y2 = obj_coords
+        x1, y1, x2, y2 = obj_coords[0:4]
         if (x1 > x > x2 or x2 > x > x1) and (y1 > y > y2 or y2 > y > y1):
             obj_lst.append(obj[coords.index(obj_coords)])
 

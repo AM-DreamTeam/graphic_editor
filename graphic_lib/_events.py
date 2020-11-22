@@ -23,6 +23,7 @@ class Events:
             * event_btnEraser(self, *, size: int = DEFAULT_SIZE) -> None
             * event_btnFill(self, *, color: str = DEFAULT_CHANGE_COLOR) -> None
             * event_btnQuickEraser(self) -> None
+            * event_onCanvas(self) -> None
     """
 
     def __init__(self, root, used_events, canvas):
@@ -43,6 +44,7 @@ class Events:
         """
 
         self._canvas.obj_storage = {}
+        self._canvas.line_sequences = []
         self._canvas['background'] = 'white'
         self._canvas.delete('all')
 
@@ -259,3 +261,16 @@ class Events:
         """
 
         self._root.bind('<ButtonPress-1>', lambda e: self.__draw(e).quick_eraser())
+
+    def event_onCanvas(self):
+        """ Событие для canvas'а
+
+            Возвращает:
+                None
+
+            Побочный эффект:
+                Создаёт новые бинды <Enter>, <Leave> для canvas - проверяет, находится курсор над canvas'ом (слоем) или нет
+        """
+
+        for event in ('<Enter>', '<Leave>'):
+            self._canvas.bind(event, lambda e: self.__draw(e).on_canvas())

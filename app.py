@@ -4,6 +4,7 @@ from tkinter import *
 from PIL import Image, ImageTk
 from random import choice
 
+
 class App:
 
     """ App - пример приложение для проверки модуля """
@@ -14,6 +15,7 @@ class App:
         photo = ImageTk.PhotoImage(ico)
 
         root.title('Visualist')
+        root.resizable(False, False)
         root.wm_iconphoto(False, photo)
 
         frame_main = Frame(root)
@@ -25,6 +27,8 @@ class App:
         canvas.pack(side=RIGHT)
 
         events = gcore.Events(root, gcore.DEFAULT_USED_EVENTS, canvas)
+
+        events.event_onCanvas()
 
         btnClear = Button(frame_main, text='*отчистить*', command=events.event_btnClear)
         btnClear.pack(side=TOP, pady=5)
@@ -59,7 +63,8 @@ class App:
         btnCreateLine.pack(side=TOP, pady=5)
 
         btnCreatePolygon = Button(frame_main, text='*многоугольник*',
-                                  command=lambda t=gcore.DEFAULT_THICKNESS, bgclr=gcore.DEFAULT_SECOND_COLOR, outclr=gcore.DEFAULT_FIRST_COLOR:
+                                  command=lambda t=gcore.DEFAULT_THICKNESS, outclr=gcore.DEFAULT_FIRST_COLOR,
+                                                 bgclr=canvas['background']:          # TODO: надо как-то это пофиксить
                                   events.event_btnCreatePolygon(thickness=t, bgcolor=bgclr, outcolor=outclr))
         btnCreatePolygon.pack(side=TOP, pady=5)
 

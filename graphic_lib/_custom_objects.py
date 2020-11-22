@@ -17,6 +17,7 @@ class CustomCanvas(Canvas):
             * obj_storage: dict - хранилище графических примитивов на слое (canvas'e)
             * start_point: None or Tuple[int, int] - хранит начальную точку для многоугольников
             * obj_tag: None or str - временное хранилище tag'ов объектов, на которые нажимает пользователь
+            * hover: bool - хранит логическое значение, находится ли курсор над canvas'ом или нет
     """
 
     old_point = None
@@ -30,3 +31,5 @@ class CustomCanvas(Canvas):
     start_point = None
 
     obj_tag = None
+
+    hover = False
