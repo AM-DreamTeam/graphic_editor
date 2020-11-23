@@ -64,7 +64,7 @@ class App:
 
         btnCreatePolygon = Button(frame_main, text='*многоугольник*',
                                   command=lambda t=gcore.DEFAULT_THICKNESS, outclr=gcore.DEFAULT_FIRST_COLOR,
-                                                 bgclr=canvas['background']:          # TODO: надо как-то это пофиксить
+                                                 bgclr=gcore.DEFAULT_SECOND_COLOR:
                                   events.event_btnCreatePolygon(thickness=t, bgcolor=bgclr, outcolor=outclr))
         btnCreatePolygon.pack(side=TOP, pady=5)
 

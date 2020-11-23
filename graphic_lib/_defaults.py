@@ -20,7 +20,7 @@
 DEFAULT_USED_EVENTS = ('<B1-Motion>', '<ButtonPress-1>','<ButtonRelease-1>', '<KeyPress-Control_L>', '<KeyRelease-Control_L>')
 
 DEFAULT_FIRST_COLOR = 'black'
-DEFAULT_SECOND_COLOR = None
+DEFAULT_SECOND_COLOR = ''
 DEFAULT_CHANGE_COLOR = 'green'
 DEFAULT_THICKNESS = 2
 DEFAULT_BRUSH_SIZE = 5
