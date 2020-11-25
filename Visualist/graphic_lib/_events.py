@@ -17,11 +17,13 @@ class Events:
             * event_btnCreateLine(*, thickness: int = DEFAULT_THICKNESS, color: str = DEFAULT_FIRST_COLOR) -> None
             * event_btnCreateOval(*, thickness: int = DEFAULT_THICKNESS, bgcolor: str = DEFAULT_SECOND_COLOR, outcolor: str = DEFAULT_FIRST_COLOR) -> None
             * event_btnCreateRectangle(*, thickness: int = DEFAULT_THICKNESS, bgcolor: str = DEFAULT_SECOND_COLOR, outcolor: str = DEFAULT_FIRST_COLOR) -> None
+            * event_btnCreatePolygon(self, *, thickness: int = DEFAULT_THICKNESS, bgcolor: str = DEFAULT_SECOND_COLOR, outcolor: str = DEFAULT_FIRST_COLOR) -> None
             * event_undo() -> None
             * event_move(*, mouse_speed: int = DEFAULT_MOUSE_SPEED) -> None
             * event_btnEraser(self, *, size: int = DEFAULT_SIZE) -> None
             * event_btnFill(self, *, color: str = DEFAULT_CHANGE_COLOR) -> None
             * event_btnQuickEraser(self) -> None
+            * event_onCanvas(self) -> None
     """
 
     def __init__(self, root, used_events, canvas):
@@ -42,6 +44,7 @@ class Events:
         """
 
         self._canvas.obj_storage = {}
+        self._canvas.line_sequences = []
         self._canvas['background'] = 'white'
         self._canvas.delete('all')
 
@@ -93,6 +96,7 @@ class Events:
             self._root.bind(event, lambda e, t=thickness, clr=color:
                             self.__draw(e).line(thickness=t, color=clr))
 
+
     @reset
     def event_btnCreateOval(self,
                             *,
@@ -142,6 +146,33 @@ class Events:
         for event in ('<ButtonPress-1>', '<ButtonRelease-1>', '<B1-Motion>', '<KeyPress-Control_L>', '<KeyRelease-Control_L>'):
             self._root.bind(event, lambda e, t=thickness, bgclr=bgcolor, outclr=outcolor:
                             self.__draw(e).rectangle(thickness=t, bgcolor=bgclr, outcolor=outclr))
+
+    @reset
+    def event_btnCreatePolygon(self,
+                               *,
+                               thickness = DEFAULT_THICKNESS,
+                               bgcolor = DEFAULT_SECOND_COLOR,
+                               outcolor = DEFAULT_FIRST_COLOR):
+        """ Событие для кнопки btnCreatePolygon
+
+            Аргументы:
+                ** thickness: int - жирность обводки многоугольника
+                ** bgcolor: str - цвет заливки многоугольника
+                ** outcolor: str - цвет обводки многоугольника
+
+            Возвращает:
+                None
+
+            Побочный эффект:
+                Очищает все бинды и создаёт 5 новых биндов <ButtonPress-1>, <ButtonRelease-1>, <B1-Motion>,
+                                                        <KeyPress-Control_L>, <KeyRelease-Control_L> - отрисовка многоугольника
+                                                                                            (последовательности линий)
+
+        """
+
+        for event in ('<ButtonPress-1>', '<ButtonRelease-1>', '<B1-Motion>', '<KeyPress-Control_L>', '<KeyRelease-Control_L>'):
+            self._root.bind(event, lambda e, t=thickness, bgclr=bgcolor, outclr=outcolor:
+                            self.__draw(e).polygon(thickness=t, bgcolor=bgclr, outcolor=outclr))
 
     def event_undo(self):
         """ Событие для бинда отмены действия (Ctrl-z)
@@ -230,3 +261,16 @@ class Events:
         """
 
         self._root.bind('<ButtonPress-1>', lambda e: self.__draw(e).quick_eraser())
+
+    def event_onCanvas(self):
+        """ Событие для canvas'а
+
+            Возвращает:
+                None
+
+            Побочный эффект:
+                Создаёт новые бинды <Enter>, <Leave> для canvas - проверяет, находится курсор над canvas'ом (слоем) или нет
+        """
+
+        for event in ('<Enter>', '<Leave>'):
+            self._canvas.bind(event, lambda e: self.__draw(e).on_canvas())
