@@ -57,10 +57,10 @@ class Draw:
             if not eraser:
                 tag = f'brush{len(canvas.obj_storage) + 1}'
                 x_min, y_min, x_max, y_max = transform_line_sequence(canvas.line_sequences)
-                canvas.obj_storage[tag] = (x_min, y_min, x_max, y_max)
+                canvas.obj_storage[tag] = (x_min-size, y_min-size, x_max+size, y_max+size)
                 if debug_mode:
-                    canvas.create_rectangle(x_min, y_min, x_max, y_max, dash=(5, 3), tags=tag)
-                canvas.addtag_overlapping(tag, x_min, y_min, x_max, y_max)
+                    canvas.create_rectangle(x_min-size, y_min-size, x_max+size, y_max+size, dash=(5, 3), tags=tag)
+                canvas.addtag_enclosed(tag, x_min-size, y_min-size, x_max+size, y_max+size)
                 canvas.line_sequences = []
         elif str(event.type) == 'Motion':
             if canvas.old_point:
@@ -231,7 +231,7 @@ class Draw:
                 x_delta, y_delta = abs(x1-canvas.start_point[0]), abs(y1-canvas.start_point[1])
                 canvas.line_sequences.append([(x2, y2), (x1+x_delta, y1+y_delta)])
                 canvas.old_point, canvas.start_point = None, None
-                polygon = canvas.create_polygon(*flatten(canvas.line_sequences), fill=bgcolor, outline=outcolor, tags=tag)
+                polygon = canvas.create_polygon(*flatten(canvas.line_sequences), width=thickness, fill=bgcolor, outline=outcolor, tags=tag)
                 canvas.line_sequences = []
                 x_min, y_min, x_max, y_max = transform_line_sequence(partition_coords(canvas.coords(polygon), 4, 2))
                 canvas.obj_storage[tag] = (x_min, y_min, x_max, y_max)
