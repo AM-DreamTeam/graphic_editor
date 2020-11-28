@@ -1,135 +1,158 @@
 from tkinter import *
+from tkinter.ttk import Notebook
 from image_lib import core
 
 
 
-
-
-class App(Tk):
-    def __init__(self):
-        super().__init__()
-        self.geometry('800x600')
-        #self.state('zoomed')
+class App():
+    def __init__(self, root):
+        root.geometry('800x600')
+        #root.state('zoomed')
 
 
         #фрейм для кпопок
-        self.frame_btn = Frame(self)
+        frame_btn = Frame(root)
 
-
+        notebook = Notebook(root)
         #scrollbar'ы для canvas
-        self.scroll_x = Scrollbar(self, orient=HORIZONTAL)
-        self.scroll_y = Scrollbar(self, orient=VERTICAL)
+        scroll_x = Scrollbar(root, orient=HORIZONTAL)
+        scroll_y = Scrollbar(root, orient=VERTICAL)
 
 
-        self.canvas = Canvas(self, width=800, height=600,
-                                xscrollcommand=self.scroll_x.set,
-                                yscrollcommand=self.scroll_y.set,
+        canvas = Canvas(notebook, width=800, height=600,
+                                xscrollcommand=scroll_x.set,
+                                yscrollcommand=scroll_y.set,
                                 bg='#E0FFFF')
-        self.scroll_x.config(command=self.canvas.xview)
-        self.scroll_y.config(command=self.canvas.yview)
 
+        notebook.add(canvas, text="Холст 1")
+        self.selected_tab = canvas
+
+
+        scroll_x.config(command=canvas.xview)
+        scroll_y.config(command=canvas.yview)
+
+        notebook.grid(row=0, column=1, sticky="nswe")
+        scroll_x.grid(row=1, column=1, sticky="we")
+        scroll_y.grid(row=0, column=2, sticky="ns")
 
         #подключение модуля обработки фото
-        self.image_processing = core.Img(self.canvas)
+        image_processing = core.Img(notebook, canvas, scroll_x, scroll_y)
 
+        #кнопка возврата предыдущего изображения
+        Button(frame_btn, text="return image",
+                command=image_processing.return_image).pack(pady=10)
 
-        Button(self.frame_btn, text="return image", command=self.image_processing.return_image).pack(pady=10)
+        Button(frame_btn, text="new canvas",
+                command=image_processing.create_new_canvas).pack(pady=10)
+
+        Button(frame_btn, text="bg",
+                command=image_processing.set_bg).pack(pady=10)
+
 
         #кнопки фильтра 1
-        self.frame_filter1 = Frame(self.frame_btn)
-        self.variable_filter_1 = StringVar(self.frame_filter1)
-        self.variable_filter_1.set(core.DEFAULT_FILTERS_1[0])
-        self.filters1 = OptionMenu(self.frame_filter1, self.variable_filter_1, *core.DEFAULT_FILTERS_1)
-        self.filters1.grid(row=0, sticky="we")
+        frame_filter1 = Frame(frame_btn)
+        variable_filter_1 = StringVar(frame_filter1)
+        variable_filter_1.set(core.DEFAULT_FILTERS_1[0])
+        filters1 = OptionMenu(frame_filter1, variable_filter_1,
+                                *core.DEFAULT_FILTERS_1)
+        filters1.grid(row=0, sticky="we")
 
 
-        btnApplyFilter1 = Button(self.frame_filter1, text="apply filter", command=lambda x=self.variable_filter_1: self.image_processing.apply_filter_1(x))
+        btnApplyFilter1 = Button(frame_filter1,
+                                text="apply filter",
+                                command=lambda x=variable_filter_1:
+                                image_processing.apply_filter_1(x))
         btnApplyFilter1.grid(row=1, sticky="e")
-        self.frame_filter1.pack(pady=10)
+        frame_filter1.pack(pady=10)
 
 
         #кнопки фильтра 2
-        self.frame_filter2 = Frame(self.frame_btn)
-        self.variable_filter_2 = StringVar(self.frame_filter2)
-        self.variable_filter_2.set(core.DEFAULT_FILTERS_2[0])
-        self.filters2 = OptionMenu(self.frame_filter2, self.variable_filter_2, *core.DEFAULT_FILTERS_2)
-        self.filters2.grid(row=0, sticky="we", columnspan=2)
+        frame_filter2 = Frame(frame_btn)
+        variable_filter_2 = StringVar(frame_filter2)
+        variable_filter_2.set(core.DEFAULT_FILTERS_2[0])
+        filters2 = OptionMenu(frame_filter2, variable_filter_2,
+                                *core.DEFAULT_FILTERS_2)
+        filters2.grid(row=0, sticky="we", columnspan=2)
 
-        self.variable_filter_2_percent = StringVar(self.frame_filter2)
-        self.variable_filter_2_percent.set(100)
-        self.entry_filter2 = Entry(self.frame_filter2, textvariable=self.variable_filter_2_percent)
-        self.entry_filter2.grid(row=1, column=0)
-        Label(self.frame_filter2, text="%").grid(row=1, column=1)
+        variable_filter_2_percent = StringVar(frame_filter2)
+        variable_filter_2_percent.set(100)
+        entry_filter2 = Entry(frame_filter2,
+                                textvariable=variable_filter_2_percent)
+        entry_filter2.grid(row=1, column=0)
+        Label(frame_filter2, text="%").grid(row=1, column=1)
 
-        btnApplyFilter2 = Button(self.frame_filter2, text="apply filter", command=lambda x=self.variable_filter_2, y=self.variable_filter_2_percent: self.image_processing.apply_filter_2(x, y))
+        btnApplyFilter2 = Button(frame_filter2,
+                                text="apply filter",
+                                command=lambda
+                                x=variable_filter_2,
+                                y=variable_filter_2_percent:
+                                image_processing.apply_filter_2(x, y))
         btnApplyFilter2.grid(row=2, column=0, columnspan=2, sticky="we")
-        self.frame_filter2.pack(pady=10)
+        frame_filter2.pack(pady=10)
 
 
         #кнопки фильтра 3
-        self.frame_filter3 = Frame(self.frame_btn)
-        self.variable_filter_3 = StringVar(self.frame_filter1)
-        self.variable_filter_3.set(core.DEFAULT_FILTERS_3[0])
-        self.filters3 = OptionMenu(self.frame_filter3, self.variable_filter_3, *core.DEFAULT_FILTERS_3)
-        self.filters3.grid(row=0, column=0, columnspan=2, sticky="we")
+        frame_filter3 = Frame(frame_btn)
+        variable_filter_3 = StringVar(frame_filter1)
+        variable_filter_3.set(core.DEFAULT_FILTERS_3[0])
+        filters3 = OptionMenu(frame_filter3, variable_filter_3,
+                            *core.DEFAULT_FILTERS_3)
+        filters3.grid(row=0, column=0, columnspan=2, sticky="we")
 
 
-        btnApplyFilter3 = Button(self.frame_filter3, text="apply filter", command=lambda x=self.variable_filter_3: self.image_processing.apply_filter_3(x))
+        btnApplyFilter3 = Button(frame_filter3,
+                                text="apply filter",
+                                command=lambda x=variable_filter_3:
+                                image_processing.apply_filter_3(x))
         btnApplyFilter3.grid(row=1, column=0, columnspan=2, sticky="e")
-        self.frame_filter3.pack(pady=10)
+        frame_filter3.pack(pady=10)
 
 
 
         #фильтр 4
-        Button(self.frame_btn, text="try your luck", command=self.image_processing.apply_filter_4).pack(pady=10)
+        Button(frame_btn, text="try your luck",
+                command=image_processing.apply_filter_4).pack(pady=10)
 
-        self.frame_btn.grid(row=0, column=0, rowspan=2, sticky="nsew")
-
-
-        #frame для canvas'a, чтобы scrollbar корректно работал
-        #подробнее тут - https://pythonru.com/uroki/sozdanie-skrollbarov-tkinter-6
-        self.cnv_frame = Frame(self.canvas)
-        self.canvas.create_window((0, 0), window=self.cnv_frame,
-                                  anchor=N + W)
-
-        self.canvas.grid(row=0, column=1, sticky="nswe")
-        self.scroll_x.grid(row=1, column=1, sticky="we")
-        self.scroll_y.grid(row=0, column=2, sticky="ns")
+        frame_btn.grid(row=0, column=0, rowspan=2, sticky="nsew")
 
 
         #для корректного отображения canvas'а
-        self.rowconfigure(0, weight=1)
-        self.columnconfigure(1, weight=1)
-        self.bind("<Configure>", self.resize)
-        self.update_idletasks()
-        self.minsize(self.winfo_width(), self.winfo_height())
+        root.rowconfigure(0, weight=1)
+        root.columnconfigure(1, weight=1)
+        root.bind("<Configure>", image_processing.resize)
+        root.update_idletasks()
+        root.minsize(root.winfo_width(), root.winfo_height())
 
 
 
 
         #меню с доступными командами
-        menubar = Menu(self)
+        menubar = Menu(root)
         filemenu = Menu(menubar, tearoff=0)
-        filemenu.add_command(label="Open", command=self.image_processing.set_image)
-        filemenu.add_command(label="Save", command=self.image_processing.save_image)
+        filemenu.add_command(label="Open", command=image_processing.set_image)
+        filemenu.add_command(label="Save", command=image_processing.save_image)
         filemenu.add_separator()
-        filemenu.add_command(label="Exit", command=self.quit)
+        filemenu.add_command(label="Exit", command=root.quit)
         menubar.add_cascade(label="File", menu=filemenu)
-        self.config(menu=menubar)
+        root.config(menu=menubar)
 
 
-    def resize(self, event):
-        """
-        Метод resize обрабатывает событие изменения размера окна и обновляет параметр scrollregion,
-        определяющий область Canvas, которую можно скроллить.
-        """
-        region = self.canvas.bbox(ALL)
-        self.canvas.configure(scrollregion=region)
+        self.selected_tab.bind("<Button 3>", image_processing.grab)
+        self.selected_tab.bind("<B3-Motion>", image_processing.drag)
+
+
+        notebook.bind("<<NotebookTabChanged>>", image_processing.select_curr_tab)
+
+        # root.bind("<MouseWheel>", image_processing.zoom)
 
 
 
+    def bind_tab(self, event):
+        self.selected_tab = event.widget.select()
+        print(self.selected_tab)
 
 
 if __name__ == "__main__":
-    app = App()
-    app.mainloop()
+    root = Tk()
+    app = App(root)
+    root.mainloop()
