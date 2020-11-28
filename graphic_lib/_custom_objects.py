@@ -16,6 +16,7 @@ class CustomCanvas(Canvas):
             * line_sequences: list - хранение последовательности линий
             * obj_storage: dict - хранилище графических примитивов на слое (canvas'e)
             * start_point: None or Tuple[int, int] - хранит начальную точку для многоугольников
+            * modified_objs = [] - хранит список тэгов изменённых объектов
             * obj_tag: None or str - временное хранилище tag'ов объектов, на которые нажимает пользователь
             * hover: bool - хранит логическое значение, находится ли курсор над canvas'ом или нет
     """
@@ -27,9 +28,11 @@ class CustomCanvas(Canvas):
     obj_rectangle = None
 
     line_sequences = []
+    line_storage = []
     obj_storage = {}
     start_point = None
 
+    modified_objs = []
     obj_tag = None
 
     hover = False

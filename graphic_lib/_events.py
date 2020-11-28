@@ -44,6 +44,7 @@ class Events:
         """
 
         self._canvas.obj_storage = {}
+        self._canvas.last_modified = []
         self._canvas.line_sequences = []
         self._canvas['background'] = 'white'
         self._canvas.delete('all')
@@ -71,7 +72,7 @@ class Events:
 
         for event in ('<ButtonRelease-1>', '<B1-Motion>'):
             self._root.bind(event, lambda e, s=size, clr=color, dm=debug_mode:
-                            self.__draw(e).point(size=s, color=clr, eraser=False, debug_mode=dm))
+                            self.__draw(e).point(size=s, color=clr, debug_mode=dm))
 
     @reset
     def event_btnCreateLine(self,
@@ -181,12 +182,10 @@ class Events:
                 None
 
             Побочный эффект:
-                Удаляет последний элемент из словаря с элементами
+                Создаёт новый бинд <Control-z> - отмена действия
         """
 
-        if self._canvas.obj_storage:
-            key, value = self._canvas.obj_storage.popitem()
-            self._canvas.delete(key)
+        self._root.bind('<Control-z>', lambda e: self.__draw(e).undo())
 
     @reset
     def event_move(self,
@@ -208,27 +207,6 @@ class Events:
         for event in ('<ButtonPress-1>', '<ButtonRelease-1>', '<B1-Motion>'):
             self._root.bind(event, lambda e, ms=mouse_speed:
                             self.__draw(e).move(mouse_speed=ms))
-
-    @reset
-    def event_btnEraser(self,
-                        *,
-                        size = DEFAULT_ERASER_SIZE):
-        """ Событе для кнопки btnEraser
-
-            Аргументы:
-                ** size: int - размер точки (линии)
-
-            Возвращает:
-                None
-
-            Побочный эффект:
-                Очищаются все бинды и создаётся новые бинды на <ButtonRelease-1>, <B1-Motion> - отрисовка
-                                                                                    последовательности линий (отрезков)
-        """
-
-        for event in ('<ButtonRelease-1>', '<B1-Motion>'):
-            self._root.bind(event, lambda e, s=size, clr=self._canvas['background']:
-                            self.__draw(e).point(size=s, color=clr, eraser=True, debug_mode=False))
 
     @reset
     def event_btnFill(self,
@@ -274,3 +252,17 @@ class Events:
 
         for event in ('<Enter>', '<Leave>'):
             self._canvas.bind(event, lambda e: self.__draw(e).on_canvas())
+
+    @reset
+    def event_btnThickness(self,
+                           *,
+                           thickness = DEFAULT_THICKNESS):
+
+        self._root.bind('<ButtonPress-1>', lambda e, t=thickness: self.__draw(e).thickness_objects(thickness=t))
+
+    @reset
+    def event_btnOutlineColor(self,
+                              *,
+                              color = DEFAULT_CHANGE_COLOR):
+
+        self._root.bind('<ButtonPress-1>', lambda e, clr=color: self.__draw(e).outline_color_objects(color=clr))

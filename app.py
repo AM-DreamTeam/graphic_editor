@@ -2,7 +2,7 @@
 from graphic_lib import _graphic_core as gcore
 from tkinter import *
 from PIL import Image, ImageTk
-from random import choice
+from random import choice, sample
 
 
 class App:
@@ -22,6 +22,7 @@ class App:
         frame_main.pack()
 
         colors = ('red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet')
+        thickness_list = sample(range(5, 20), 6)
 
         canvas = gcore.CustomCanvas(frame_main, width=gcore.DEFAULT_CANVAS_W, height=gcore.DEFAULT_CANVAS_H, bg=gcore.DEFAULT_CANVAS_BG)
         canvas.pack(side=RIGHT)
@@ -29,6 +30,7 @@ class App:
         events = gcore.Events(root, gcore.DEFAULT_USED_EVENTS, canvas)
 
         events.event_onCanvas()
+        events.event_undo()
 
         btnClear = Button(frame_main, text='*отчистить*', command=events.event_btnClear)
         btnClear.pack(side=TOP, pady=5)
@@ -37,11 +39,6 @@ class App:
                          command=lambda ms=gcore.DEFAULT_MOUSE_SPEED:
                          events.event_move(mouse_speed=ms))
         btnMove.pack(side=TOP, pady=5)
-
-        btnEraser = Button(frame_main, text='*ластик*',
-                           command=lambda s=gcore.DEFAULT_ERASER_SIZE:
-                           events.event_btnEraser(size=s))
-        btnEraser.pack(side=TOP, pady=5)
 
         btnQuickEraser = Button(frame_main, text='*быстрый ластик*',
                                 command=events.event_btnQuickEraser)
@@ -56,6 +53,15 @@ class App:
                          command=lambda c=colors:
                          events.event_btnFill(color=choice(c)))
         btnFill.pack(side=TOP, pady=5)
+
+        btnOutlineColor = Button(frame_main, text='*обводка*',
+                                 command=lambda c=colors:
+                                 events.event_btnOutlineColor(color=choice(colors)))
+        btnOutlineColor.pack()
+
+        btnThickness = Button(frame_main, text='*толщина*',
+                                       command=lambda t=thickness_list: events.event_btnThickness(thickness=choice(t)))
+        btnThickness.pack(side=TOP, pady=5)
 
         btnCreateLine = Button(frame_main, text='*линия*',
                                command=lambda t=gcore.DEFAULT_THICKNESS, clr=gcore.DEFAULT_FIRST_COLOR:
@@ -81,8 +87,7 @@ class App:
         btnCreateRectangle.pack(side=TOP, pady=5)
 
         root.bind('<Control-x>', quit)
-        root.bind('<Control-z>', lambda event: events.event_undo())
-        root.bind('<Control-s>', lambda event: print(canvas.obj_storage))
+        root.bind('<Control-s>', lambda event: print(canvas.modified_objs, canvas.obj_storage))
 
 
 root = Tk(className='Visualist')

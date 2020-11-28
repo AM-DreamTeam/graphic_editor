@@ -143,12 +143,12 @@ def detect_object(event, canvas):
     x, y = canvas.canvasx(event.x), canvas.canvasy(event.y)
     storage = canvas.obj_storage
 
-    obj, coords = list(storage.keys()), list(storage.values())
+    obj, coords = list(storage.keys()), list(map(lambda ds: ds['coords'][-1], storage.values()))
     obj_lst = []
 
     for obj_coords in coords:
-        x1, y1, x2, y2 = obj_coords[0:4]
-        if (x1 > x > x2 or x2 > x > x1) and (y1 > y > y2 or y2 > y > y1):
+        xs, ys = obj_coords[0::2], obj_coords[1::2]
+        if min(xs) < x < max(xs) and min(ys) < y < max(ys):
             obj_lst.append(obj[coords.index(obj_coords)])
 
     return obj_lst[-1] if obj_lst else None
