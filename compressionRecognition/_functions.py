@@ -45,7 +45,7 @@ class Features:
         if quality.isdigit():
             quality = int(quality)
         else:
-            quality = 30
+            quality = 30 # качество сжатия, если пользователь не указал его
 
         files = filedialog.askopenfilenames()
         for image in files:
