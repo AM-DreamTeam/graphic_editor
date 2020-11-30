@@ -1,181 +1,180 @@
-from tkinter import Canvas, messagebox, filedialog, ALL
+from tkinter import messagebox, filedialog, ALL
 from PIL import Image, ImageTk, UnidentifiedImageError, EpsImagePlugin, ImageFilter, ImageEnhance
 from io import BytesIO
 from random import choices, randint
-from pprint import pprint
-# from ._custom_objects import *
 
 
+# флаг, показывающий, было ли что-то нарисовано на холсте
+drawQ = False
 
-EpsImagePlugin.gs_windows_binary =  r'C:\Program Files\gs\gs9.53.3\bin\gswin64c'
+# нужно для сохранения изображения, если drawQ == True, так как в этом случае используется метод Canvas.postscript,
+# который генерирует изображение в .eps формате. Для обработки этого формата PIL нужен модуль GhostScript (который
+# как-то странно работает и у всех по разному, и в некоторых случаях нужно скачивать .exe файл с этим модулем, путь к
+# которому как раз таки и указывается в следующей строке (хотя у Егора, например, этого не было)
+EpsImagePlugin.gs_windows_binary = r'C:\Program Files\gs\gs9.53.3\bin\gswin64c'
+
 
 def random_color():
-    r = lambda: randint(0,255)
-    return '#%02X%02X%02X' % (r(),r(),r())
-
+    """
+    герерирует случайный цвет в формате hex
+    """
+    def r():
+        return randint(0, 255)
+    return '#%02X%02X%02X' % (r(), r(), r())
 
 
 class Img:
-    def __init__(self, notebook, canvas, scroll_x, scroll_y):
-        self.notebook = notebook
-        canvas.configure(yscrollincrement='11', xscrollincrement='11')
-
-        self.canvases = {1: {"cnv": canvas, "imgs": [], "cr_img": None, "img_size": (800, 600), "ph": None}}
-        self.canvas_id = 1
-
+    def __init__(self, canvas):
+        self.canvas = canvas
         self.types = (("Изображение", "*.jpg *.gif *.png *.jpeg"),)
-
-        self.scroll_x = scroll_x
-        self.scroll_y = scroll_y
-        self.scale = 1.0
-
-    def create_new_canvas(self):
-        """
-        Создает новую вкладку на notebook и размещает на нем новый холст
-        """
-
-        canvas = Canvas(self.notebook, width=800, height=600, bg=random_color(),xscrollcommand=self.scroll_x.set, yscrollcommand=self.scroll_y.set)
-        canvas.configure(yscrollincrement='11', xscrollincrement='11')
-        self.scroll_x.config(command=canvas.xview)
-        self.scroll_y.config(command=canvas.yview)
-
-        self.canvas_id = len(self.canvases) + 1
-        self.notebook.add(canvas, text=f"Холст {self.canvas_id}")
-        self.notebook.select(self.canvas_id - 1)
-        self.canvases[self.canvas_id] = {"cnv": canvas, "imgs": [], "cr_img": None, "img_size": (800, 600), "ph": None}
-        # pprint(self.canvases)
-
-
-    def select_curr_tab(self, event):
-        """
-        Изменяет self.canvas_id на номер текущей открытой вкладки
-        """
-        selected_tab = event.widget.select()
-        tab_name = event.widget.tab(selected_tab, "text")
-        self.canvas_id = int(tab_name[-1])
-        self.resize("<Configure>")
-
-
-    def grab(self, event):
-        """
-        Отлавливает начало перемещания холста (инструмент "рука", и изменяет
-        текущее значение координат курсора для правильного перемещения
-        """
-        # print("grab")
-        self._y = event.y
-        self._x = event.x
-
-
-    def drag(self,event):
-        """
-        Осуществляет движение холста (инструмент "рука")
-        """
-        # print("drag")
-        canvas = self.canvases[self.canvas_id]["cnv"]
-        if (self._y-event.y < 0):
-            canvas.yview("scroll",-1,"units")
-        elif (self._y-event.y > 0):
-            canvas.yview("scroll",1,"units")
-        if (self._x-event.x < 0):
-            canvas.xview("scroll",-1,"units")
-        elif (self._x-event.x > 0):
-            canvas.xview("scroll",1,"units")
-        self._x = event.x
-        self._y = event.y
-
-
-    def resize(self, event):
-        """
-        Метод resize обрабатывает событие изменения размера окна и обновляет
-        параметр scrollregion, определяющий область Canvas, которую можно
-        скроллить.
-        """
-
-        try:
-            page = self.canvases[self.canvas_id]
-            page["cnv"].configure(scrollregion=(0, 0) + page["img_size"])
-            self.scroll_x.config(command=page["cnv"].xview)
-            self.scroll_y.config(command=page["cnv"].yview)
-        except KeyError:
-            pass
-
-
-    def set_bg(self):
-        page = self.canvases[self.canvas_id]
-        canvas = page["cnv"]
-        canvas["bg"]=random_color()
-
+        self._y = None
+        self._x = None
 
     def set_image(self):
-
         """
-        Устанавливает изображение на холст
+        Устанавливает изображение на холст, если его еще нет, а если есть, то изменяет текущее
         """
         try:
-            page = self.canvases[self.canvas_id]
-            canvas = page["cnv"]
-
-            image = Image.open(filedialog.askopenfilename(title="Open image",
-                                                                filetypes=self.types))
-
+            page = self.canvas.img
+            image = Image.open(filedialog.askopenfilename(title="Open image", filetypes=self.types))
             page["imgs"].append(image)
-            page["ph"] = ImageTk.PhotoImage(image)
+            photo = ImageTk.PhotoImage(image)
             im_size = image.size
+            if len(self.canvas.img["imgs"]) == 1:
+                page["cr_img"] = self.canvas.create_image(0, 0, anchor='nw', image=photo)
+            else:
+                self.canvas.itemconfig(page["cr_img"], image=photo)
+            self.canvas.config(width=im_size[0], height=im_size[1])
+            self.canvas.configure(scrollregion=(0, 0) + im_size)
+
+            page["ph"] = photo
             page["img_size"] = im_size
-
-
-            page["cr_img"] = page["cnv"].create_image(0, 0, anchor='nw',
-                                                        image=page["ph"])
-            # pprint(self.canvases)
-            canvas.config(width=im_size[0], height=im_size[1])
-            canvas.configure(scrollregion=(0, 0) + im_size)
-
+            page["scale_size"] = im_size
+            page["scale"] = 1.0
 
         except UnidentifiedImageError:
             messagebox.showerror('Ошибка!', 'Не удалось загузить фотографию')
         except AttributeError:
             pass
 
+    def get_info(self):
+        """
+        Получение информации о текущем холсте - служебный метод для отладки
+        """
+        print(self.canvas.img)
 
     def save_image(self):
         """
-        Сохраняет изображение с холста
+        Сохраняет изображение с холста. Если drawQ, то сохраняет через postscipt, если нет, то просто
+        последнее изображение из списка изображений
         """
         new_file = filedialog.asksaveasfilename(title="Сохранить файл",
                                                 defaultextension=".jpg",
                                                 filetypes=self.types)
-        page = self.canvases[self.canvas_id]
-        ps = page["cnv"].postscript(colormode="color",
-                                    height=page["cnv"]["height"],
-                                    width=page["cnv"]["width"],
-                                    x = '0.c', y = '0.c')
-        image = Image.open(BytesIO(ps.encode('utf-8'))).resize([_ + 0 for _ in page["img_size"]])
-        image = image.crop((5, 5, page["img_size"][0] - 5, page["img_size"][1] - 5))
+        page = self.canvas.img
+
+        if drawQ:
+            ps = self.canvas.postscript(colormode="color",
+                                        height=page["scale_size"][1],
+                                        width=page["scale_size"][0],
+                                        x='0.c', y='0.c')
+            image = Image.open(BytesIO(ps.encode('utf-8'))).resize([_ + 0 for _ in page["img_size"]])
+            image = image.crop((5, 5, page["img_size"][0] - 5, page["img_size"][1] - 5))
+        else:
+            image = page["imgs"][-1].resize([_ + 10 for _ in page["img_size"]])
+            image = image.crop((5, 5, page["img_size"][0] - 5, page["img_size"][1] - 5))
         if new_file:
             image.save(new_file)
 
-
     def return_image(self):
         """
-        Возвращает на холст предыдущее изображение
+        Возвращает на холст предыдущее изображение из списка изображений, а текущее удаляет
         """
-        page = self.canvases[self.canvas_id]
+
+        page = self.canvas.img
         if len(page["imgs"]) >= 2:
             del page["imgs"][-1]
             image = page["imgs"][-1]
             page["ph"] = ImageTk.PhotoImage(image)
-            page["cnv"].itemconfig(page["cr_img"], image=page["ph"])
+            self.canvas.itemconfig(page["cr_img"], image=page["ph"])
 
+    def set_bg(self):
+        """
+        Меняет цвет фона на текущем холсте
+        """
+        self.canvas["bg"] = random_color()
+
+    def grab(self, event):
+        """
+        Отлавливает начало перемещания холста (инструмент "рука"), и изменяет
+        текущее значение координат курсора для правильного перемещения
+        """
+        self._y = event.y
+        self._x = event.x
+
+    def drag(self, event):
+        """
+        Осуществляет движение холста (инструмент "рука"), то есть просто управляет скроллами
+        """
+
+        if self._y - event.y < 0:
+            self.canvas.yview("scroll", -1, "units")
+        elif self._y - event.y > 0:
+            self.canvas.yview("scroll", 1, "units")
+        if self._x - event.x < 0:
+            self.canvas.xview("scroll", -1, "units")
+        elif self._x - event.x > 0:
+            self.canvas.xview("scroll", 1, "units")
+        self._x = event.x
+        self._y = event.y
+
+    def zoom(self, event):
+        """
+        Расчитывает коэффициент масштабирования при прокрутке колоса мыши
+        """
+        page = self.canvas.img
+        if event.delta > 0:
+            page["scale"] = page["scale"] * 1.1 if page["scale"] < 8 else 8
+            self.redraw("in")
+        elif event.delta < 0:
+            page["scale"] = page["scale"] * 0.9 if page["scale"] > 0.125 else 0.125
+            self.redraw("on")
+
+    def redraw(self, direction="in"):
+        """
+        Осущесвляет масшабирование в соответствии с коэццициентом масштабирования
+        Перерисовывает текущее изображение и передвигает элеменеты на холсте с помощью метода Canvas.scale
+        """
+        page = self.canvas.img
+        if page["imgs"]:
+            iw, ih = page["img_size"]
+            page["scale_size"] = int(iw * page["scale"]), int(ih * page["scale"])
+            image = page["imgs"][-1]
+            page["ph"] = ImageTk.PhotoImage(image.resize(page["scale_size"]))
+            self.canvas.itemconfig(page["cr_img"], image=page["ph"])
+
+            self.canvas.configure(scrollregion=(0, 0) + page["scale_size"])
+
+        self.canvas.config(width=page["scale_size"][0], height=page["scale_size"][1])
+        scroll_speed = str(int(page["scroll_speed"] * pow(page["scale"], 1)))
+        print(scroll_speed)
+        self.canvas.configure(yscrollincrement=scroll_speed, xscrollincrement=scroll_speed)
+
+        if direction == "in":
+            self.canvas.scale(ALL, 0, 0, 1.1, 1.1)
+        elif direction == "on":
+            self.canvas.scale(ALL, 0, 0, 0.9, 0.9)
 
     def apply_filter_1(self, f):
         """
         Прирменяет к изображению с холста фильтр из первой группы
         (DEFAULT_FILTERS_1)
         """
-        page = self.canvases[self.canvas_id]
+        page = self.canvas.img
         if page["imgs"]:
             image = page["imgs"][-1]
             fltr = f.get()
+            image_new = None
             if fltr == "blur":
                 image_new = image.filter(ImageFilter.BLUR)
             elif fltr == "contour":
@@ -192,26 +191,24 @@ class Img:
                 image_new = image.filter(ImageFilter.SHARPEN)
             elif fltr == "smooth":
                 image_new = image.filter(ImageFilter.SMOOTH)
-            else:
-                pass
             page["imgs"].append(image_new)
-            page["ph"] = ImageTk.PhotoImage(image_new)
-            page["cnv"].itemconfig(page["cr_img"], image=page["ph"])
+            page["ph"] = ImageTk.PhotoImage(image_new.resize(page["scale_size"]))
+            self.canvas.itemconfig(page["cr_img"], image=page["ph"])
         else:
             messagebox.showwarning("Внимание!", "Сначала загрузите изображение")
-
 
     def apply_filter_2(self, f, per):
         """
         Прирменяет к изображению с холста фильтр из второй группы
         (DEFAULT_FILTERS_2)
         """
-        page = self.canvases[self.canvas_id]
+        page = self.canvas.img
         if page["imgs"]:
             if per.get().lstrip("-").isnumeric():
-                percent = float(per.get())/100
+                percent = float(per.get()) / 100
                 fltr = f.get()
                 image = page["imgs"][-1]
+                image_new = None
                 if fltr == "color":
                     image_new = ImageEnhance.Color(image).enhance(percent)
                 elif fltr == "contrast":
@@ -223,24 +220,27 @@ class Img:
                 else:
                     pass
                 page["imgs"].append(image_new)
-                page["ph"] = ImageTk.PhotoImage(image_new)
-                page["cnv"].itemconfig(page["cr_img"], image=page["ph"])
+                page["ph"] = ImageTk.PhotoImage(image_new.resize(page["scale_size"]))
+                self.canvas.itemconfig(page["cr_img"], image=page["ph"])
             else:
                 messagebox.showerror("Внимание!", "Значение должно быть числовым")
         else:
             messagebox.showwarning("Внимание!", "Сначала загрузите изображение")
-
 
     def apply_filter_3(self, f):
         """
         Прирменяет к изображению с холста фильтр из третьей группы
         (DEFAULT_FILTERS_3)
         """
-        page = self.canvases[self.canvas_id]
+        page = self.canvas.img
         if page["imgs"]:
             fltr = f.get()
             w, h = page["img_size"][0], page["img_size"][1]
             image = page["imgs"][-1]
+            mode = None
+            if image.mode != "RGB":
+                mode = image.mode
+                image = image.convert("RGB")
             image_new = Image.new('RGB', (w, h))
 
             if fltr == "negative":
@@ -274,23 +274,24 @@ class Img:
                         image_new.putpixel((x, y), (red, green, blue))
             else:
                 pass
+            if mode:
+                image = image.convert(mode)
             page["imgs"].append(image_new)
-            page["ph"] = ImageTk.PhotoImage(image_new)
-            page["cnv"].itemconfig(page["cr_img"], image=page["ph"])
+            page["ph"] = ImageTk.PhotoImage(image_new.resize(page["scale_size"]))
+            self.canvas.itemconfig(page["cr_img"], image=page["ph"])
         else:
             messagebox.showwarning("Внимание!", "Сначала загрузите изображение")
 
-
     def apply_filter_4(self):
-        page = self.canvases[self.canvas_id]
+        page = self.canvas.img
         if page["imgs"]:
             try:
                 colors = page["imgs"][-1].split()
                 sample = choices(colors, k=len(colors))
                 image_new = Image.merge(page["imgs"][-1].mode, sample)
                 page["imgs"].append(image_new)
-                page["ph"] = ImageTk.PhotoImage(image_new)
-                page["cnv"].itemconfig(page["cr_img"], image=page["ph"])
+                page["ph"] = ImageTk.PhotoImage(image_new.resize(page["scale_size"]))
+                self.canvas.itemconfig(page["cr_img"], image=page["ph"])
             except ValueError:
                 messagebox.showerror("Ошибка!", "Применить фильтр не удалось")
         else:
