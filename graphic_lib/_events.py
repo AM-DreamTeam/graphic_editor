@@ -238,7 +238,7 @@ class Events:
                 Очищает все бинды и создаёт новый бинд <ButtonPress-1> - удаляет графический примитив с canvas'а (слоя)
         """
 
-        self._root.bind('<ButtonPress-1>', lambda e: self.__draw(e).quick_eraser())
+        self._root.bind('<B1-Motion>', lambda e: self.__draw(e).quick_eraser())
 
     def event_onCanvas(self):
         """ Событие для canvas'а

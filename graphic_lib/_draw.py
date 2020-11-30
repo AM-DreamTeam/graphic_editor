@@ -383,7 +383,7 @@ class Draw:
         canvas.obj_tag = detect_object(event, canvas)
         if canvas.obj_tag:
             canvas.modified_objs = [obj for obj in canvas.modified_objs if obj != canvas.obj_tag]
-        del canvas.obj_storage[canvas.obj_tag]
+            del canvas.obj_storage[canvas.obj_tag]
         canvas.delete(canvas.obj_tag)
 
     def on_canvas(self):
