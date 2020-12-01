@@ -15,8 +15,8 @@
 ## Распределение сфер деятельности:
 |                 Участник               | Ветка в репозитории |                                    Сфера деятельности                                              |Последний коммит|
 |----------------------------------------|---------------------|----------------------------------------------------------------------------------------------------|----------------|
-| [**`Егор`**](https://github.com/endygamedev) |  `egor's-branch`    | Разработка модуля для работы с графическими примитивами                                            |![GitHub last commit (branch)](https://img.shields.io/github/last-commit/AM-DreamTeam/graphic_editor/egor's-branch)|
-| [**`Рома`**](https://github.com/arti-shok)   |  `arti's-branch`    | Разработка модуля для работы с фотографиями                                                        |![GitHub last commit (branch)](https://img.shields.io/github/last-commit/AM-DreamTeam/graphic_editor/arti's-branch)|
+| [**`Егор`**](https://github.com/endygamedev) |  `egor's-branch`    | Разработка модуля для работы с графическими примитивами                                            |![GitHub last commit (branch)](https://img.shields.io/github/last-commit/AM-DreamTeam/graphic_editor/egor's-branch) ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/AM-DreamTeam/graphic_editor/egor's-debug-branch)|
+| [**`Рома`**](https://github.com/arti-shok)   |  `arti's-branch`    | Разработка модуля для работы с фотографиями                                                        |![GitHub last commit (branch)](https://img.shields.io/github/last-commit/AM-DreamTeam/graphic_editor/arti's-branch) ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/AM-DreamTeam/graphic_editor/arti's-debug-branch)|
 | [**`Андрей`**](https://github.com/SaintOops) |  `andrey's-branch`  | Разработка и вёрстка графического интерфейса                                                       |![GitHub last commit (branch)](https://img.shields.io/github/last-commit/AM-DreamTeam/graphic_editor/andrey's-branch)|
 | [**`Мурад`**](https://github.com/AkselMath)  |  `murad's-branch`   | Исследовательская деятельность; добавдение фичей с машинным обучением, алгоритмами сжатия и т.д.   |![GitHub last commit (branch)](https://img.shields.io/github/last-commit/AM-DreamTeam/graphic_editor/murad's-branch)|
 
@@ -29,4 +29,4 @@
 
 <sub> Проект по ЯиМП: 2 курс (1 семестр) </sub>
 <br>
-<sub> 🚧 Последнее обновление: 21.11.2020 </sub>
+<sub> 🚧 Последнее обновление: 1.12.2020 </sub>
