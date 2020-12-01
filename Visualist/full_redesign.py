@@ -6,6 +6,7 @@ from PIL import Image, ImageTk
 import tkinter.colorchooser
 
 from graphic_lib import _graphic_core as gcore
+from image_lib import _image_core as core
 
 
 class MenuBar(Menu):
@@ -84,10 +85,11 @@ class App(Tk):
         # GUI виджеты
         self.nb = ttk.Notebook(self.frame_main, width=900, height=90)
         self.toolbar_1 = ttk.Frame(self.nb)
-        self.nb.add(self.toolbar_1, text='Инструменты')
+        self.toolbar_2 = ttk.Frame(self.nb)
+        self.nb.add(self.toolbar_1, text='graphic_lib')
+        self.nb.add(self.toolbar_2, text='image_lib')
 
-        self.tool_frame = ttk.PanedWindow(self.toolbar_1)
-
+        # страница 1
 
         self.im_brush = image_resize((30, 30), f"images/{self.dir}/brush.jpg")
         self.btn_brush = ttk.Button(self.toolbar_1, style="TButton", image=self.im_brush,
@@ -154,24 +156,51 @@ class App(Tk):
                                    style="TButton")
 
         self.pic_polygon = image_resize((25, 20), f"images/{self.dir}/polygon.jpg")
-        self.btn_polygon = ttk.Button(self.figure_labelframe, image=self.pic_polygon,
+        self.btn_polygon = ttk.Button(self.figure_labelframe, image=self.pic_polygon, style="TButton",
                                   command=lambda t=gcore.DEFAULT_THICKNESS, outclr=gcore.DEFAULT_FIRST_COLOR,
                                                  bgclr=gcore.DEFAULT_SECOND_COLOR:
-                                  events.event_btnCreatePolygon(thickness=t, bgcolor=bgclr, outcolor=outclr),
-                                  style="TButton")
+                                  events.event_btnCreatePolygon(thickness=t, bgcolor=bgclr, outcolor=outclr))
 
+        # страница 2
 
+        self.im_return = image_resize((30, 30), f"images/{self.dir}/return.jpg")
+        self.btn_return = ttk.Button(self.toolbar_2, image=self.im_return, style="TButton")
 
+        self.im_add_list = image_resize((30, 30), f"images/{self.dir}/add_list.jpg")
+        self.btn_add_list = ttk.Button(self.toolbar_2, text="Добавить холст", image=self.im_add_list, compound=LEFT, style="TButton")
 
+        self.filters_labelframe = ttk.Labelframe(self.toolbar_2, text="Фильтры", style="Red.TLabelframe")
 
+        self.frame_filter1 = ttk.Frame(self.filters_labelframe)
+        self.variable_filter_1 = StringVar(self.frame_filter1)
+        self.variable_filter_1.set(core.DEFAULT_FILTERS_1[0])
+        self.filters1 = ttk.OptionMenu(self.frame_filter1,self.variable_filter_1,*core.DEFAULT_FILTERS_1)
+        self.btn_apply_filter1 = ttk.Button(self.frame_filter1, text="Применить")
 
+        self.frame_filter3 = ttk.Frame(self.filters_labelframe)
+        self.variable_filter_3 = StringVar(self.frame_filter3)
+        self.variable_filter_3.set(core.DEFAULT_FILTERS_3[0])
+        self.filters3 = ttk.OptionMenu(self.frame_filter3, self.variable_filter_3, *core.DEFAULT_FILTERS_3)
+        self.btn_apply_filter3 = ttk.Button(self.frame_filter3, text="Применить")
+
+        self.frame_filter2 = ttk.Frame(self.filters_labelframe)
+        self.variable_filter_2 = StringVar(self.frame_filter2)
+        self.variable_filter_2.set(core.DEFAULT_FILTERS_2[0])
+        self.filters2 = ttk.OptionMenu(self.frame_filter2,self.variable_filter_2,*core.DEFAULT_FILTERS_2)
+        self.btn_apply_filter2 = ttk.Button(self.frame_filter2, text="Применить")
+
+        def ttk_slider_callback(value):
+            self.value_label.config(text=round(float(value)))
+
+        self.value_label = ttk.Label(self.frame_filter2, text=100)
+        self.scale = ttk.Scale(self.frame_filter2, length=150, from_=100, to=500, command=ttk_slider_callback)
+        self.ticks_label = ttk.Label(self.frame_filter2, text='100     200     300     400     500')
 
 
 
         # упаковка виджетов
         self.nb.pack(side=TOP, anchor=NW)
 
-        self.tool_frame.grid(column=0, row=0, sticky="NSWE")
         self.btn_brush.grid(column=0, row=0, sticky="NSWE")
         self.btn_fill.grid(column=1, row=0, sticky="NSWE")
         self.btn_fasteraser.grid(column=0, row=1, sticky="NSWE")
@@ -195,6 +224,27 @@ class App(Tk):
         self.btn_line.grid(row=0, column=1)
         self.btn_ellipsis.grid(row=0, column=2)
         self.btn_polygon.grid(row=1, column=1)
+
+        self.btn_return.grid(column=0, row=0, rowspan=2, sticky="NS")
+        self.btn_add_list.grid(column=1, row=0, rowspan=2, sticky="NS")
+
+        self.filters_labelframe.grid(column=2, row=0, rowspan=2, sticky="NS")
+
+        self.filters1.grid(row=0, sticky="we")
+        self.btn_apply_filter1.grid(row=1, sticky="e")
+        self.frame_filter1.grid(column=0, row=0, sticky="NSWE")
+
+        self.filters3.grid(row=0, sticky="we")
+        self.btn_apply_filter3.grid(row=1, sticky="e")
+        self.frame_filter3.grid(column=2, row=0, sticky="NSWE")
+
+        self.filters2.grid(row=0, sticky="we")
+        self.btn_apply_filter2.grid(row=1, sticky="e")
+        self.frame_filter2.grid(column=3, row=0, sticky="NSWE")
+
+        self.scale.grid(column=4, row=0, sticky="NSWE")
+        self.value_label.grid(column=5, row=0, sticky="NSWE")
+        self.ticks_label.grid(column=4, row=1, sticky="NSWE")
 
 
 
