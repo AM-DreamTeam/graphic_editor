@@ -19,6 +19,8 @@ class Draw:
             * rectangle(*, thickness: int or float = DEFAULT_THICKNESS, bgcolor: str = DEFAULT_SECOND_COLOR, outcolor: str = DEFAULT_FIRST_COLOR) -> None
             * move(*, mouse_speed: int = DEFAULT_MOUSE_SPEED) -> None
             * fill_objects(self, *, color: str = DEFAULT_CHANGE_COLOR) -> None
+            * thickness_objects(self, *, thickness: int or float = DEFAULT_THICKNESS) -> None
+            * outline_color_objects(self, *, color: str = DEFAULT_CHANGE_COLOR) -> None
             * quick_eraser(self) -> None
             * on_canvas(self) -> None
             * undo(self) -> None
@@ -56,7 +58,6 @@ class Draw:
             x_min, y_min, x_max, y_max = transform_line_sequence(canvas.line_sequences)
             canvas.obj_storage[tag] = {'coords': [(x_min-size, y_min-size, x_max+size, y_max+size)], 'color': [color], 'size': [size], 'modifications': ['creation']}
             canvas.modified_objs.append(tag)
-            canvas.line_storage = []
             if debug_mode:
                 canvas.create_rectangle(x_min-size, y_min-size, x_max+size, y_max+size, dash=(5, 3), tags=tag)
             canvas.addtag_enclosed(tag, x_min-size, y_min-size, x_max+size, y_max+size)
@@ -64,7 +65,6 @@ class Draw:
         elif str(event.type) == 'Motion' and canvas.hover:
             if canvas.old_point:
                 x2, y2 = canvas.old_point
-                canvas.line_storage.append((x2, y2, x1, y1))
                 canvas.create_line(x1, y1, x2, y2, width=size, fill=color, smooth=TRUE, capstyle=ROUND)
                 canvas.line_sequences.append([(x1, y1), (x2, y2)])
             canvas.old_point = x1, y1
@@ -294,7 +294,7 @@ class Draw:
         """ Заливка объекта на canvas'е (слое)
 
             Аргументы:
-                ** color: str - цвет в который будет перекрашен объект
+                ** color: str - цвет, в который будет перекрашен объект
 
             Возвращает:
                 None
@@ -321,20 +321,19 @@ class Draw:
         elif canvas.hover:
             canvas['background'] = color
 
-
     def thickness_objects(self,
                           *,
                           thickness):
         """ Толщина объекта на canvas'е (слое)
 
             Аргументы:
-                ** thickness: int or float - жирность обводки многоугольника
+                ** thickness: int or float - жирность обводки объекта
 
             Возвращает:
                 None
 
             Побочный эффект:
-                Изменяет жиность обводки объекта
+                Изменяет жирность обводки объекта
         """
 
         event, canvas = self._event, self._canvas
@@ -352,10 +351,20 @@ class Draw:
                 canvas.obj_storage[canvas.obj_tag]['thickness'].append(thickness)
             canvas.obj_storage[canvas.obj_tag]['modifications'].append('thickness')
 
-
     def outline_color_objects(self,
                               *,
                               color):
+        """ Цвет обводки объекта на canvas'е (слое)
+
+            Аргументы:
+                ** color: str - цвет, в который будет перекрашена обводка объекта
+
+            Возвращает:
+                None
+
+            Побочный эффект:
+                Изменяет цвет обводки объекта
+        """
 
         event, canvas = self._event, self._canvas
         canvas.obj_tag = detect_object(event, canvas)
@@ -396,7 +405,6 @@ class Draw:
         """
 
         event, canvas = self._event, self._canvas
-
         if str(event.type) == 'Leave':
             canvas.hover = False
         elif str(event.type) == 'Enter':

@@ -1,6 +1,6 @@
 # Импортированные модули
 from ._draw import *
-from image_lib._defaults import *
+from core._defaults import *
 
 
 class Events:
@@ -13,15 +13,16 @@ class Events:
 
         Методы:
             * event_btnClear() -> None
-            * event_btnBrush_Event(*, size: int = DEFAULT_SIZE, color: str = DEFAULT_FIRST_COLOR) -> None
-            * event_btnCreateLine(*, thickness: int = DEFAULT_THICKNESS, color: str = DEFAULT_FIRST_COLOR) -> None
-            * event_btnCreateOval(*, thickness: int = DEFAULT_THICKNESS, bgcolor: str = DEFAULT_SECOND_COLOR, outcolor: str = DEFAULT_FIRST_COLOR) -> None
-            * event_btnCreateRectangle(*, thickness: int = DEFAULT_THICKNESS, bgcolor: str = DEFAULT_SECOND_COLOR, outcolor: str = DEFAULT_FIRST_COLOR) -> None
-            * event_btnCreatePolygon(self, *, thickness: int = DEFAULT_THICKNESS, bgcolor: str = DEFAULT_SECOND_COLOR, outcolor: str = DEFAULT_FIRST_COLOR) -> None
+            * event_btnBrush(*, size: int or float = DEFAULT_SIZE, color: str = DEFAULT_FIRST_COLOR) -> None
+            * event_btnCreateLine(*, thickness: int or float = DEFAULT_THICKNESS, color: str = DEFAULT_FIRST_COLOR) -> None
+            * event_btnCreateOval(*, thickness: int or float = DEFAULT_THICKNESS, bgcolor: str = DEFAULT_SECOND_COLOR, outcolor: str = DEFAULT_FIRST_COLOR) -> None
+            * event_btnCreateRectangle(*, thickness: int or float = DEFAULT_THICKNESS, bgcolor: str = DEFAULT_SECOND_COLOR, outcolor: str = DEFAULT_FIRST_COLOR) -> None
+            * event_btnCreatePolygon(self, *, thickness: int or float = DEFAULT_THICKNESS, bgcolor: str = DEFAULT_SECOND_COLOR, outcolor: str = DEFAULT_FIRST_COLOR) -> None
             * event_undo() -> None
             * event_move(*, mouse_speed: int = DEFAULT_MOUSE_SPEED) -> None
-            * event_btnEraser(self, *, size: int = DEFAULT_SIZE) -> None
             * event_btnFill(self, *, color: str = DEFAULT_CHANGE_COLOR) -> None
+            * event_btnThickness(self, *, thickness: int or float = DEFAULT_THICKNESS) -> None
+            * event_btnOutlineColor(self, *, color: str = DEFAULT_CHANGE_COLOR) -> None
             * event_btnQuickEraser(self) -> None
             * event_onCanvas(self) -> None
     """
@@ -96,7 +97,6 @@ class Events:
         for event in ('<ButtonPress-1>', '<ButtonRelease-1>', '<B1-Motion>', '<KeyPress-Control_L>','<KeyRelease-Control_L>'):
             self._root.bind(event, lambda e, t=thickness, clr=color:
                             self.__draw(e).line(thickness=t, color=clr))
-
 
     @reset
     def event_btnCreateOval(self,
@@ -257,6 +257,14 @@ class Events:
     def event_btnThickness(self,
                            *,
                            thickness = DEFAULT_THICKNESS):
+        """ Событие для кнопки btnThickness
+
+            Возвращает:
+                None
+
+            Побочный эффект:
+                Очищает все бинды и создаёт новый бинд <ButtonPress-1> - изменение жирности обводки графического примитива
+        """
 
         self._root.bind('<ButtonPress-1>', lambda e, t=thickness: self.__draw(e).thickness_objects(thickness=t))
 
@@ -264,5 +272,13 @@ class Events:
     def event_btnOutlineColor(self,
                               *,
                               color = DEFAULT_CHANGE_COLOR):
+        """ Событие для кнопки btnOutlineColor
+
+            Возвращает:
+                None
+
+            Побочный эффект:
+                Очищает все бинды и создаёт новый бинд <ButtonPress-1> - изменение цвета обводки графического примитива
+        """
 
         self._root.bind('<ButtonPress-1>', lambda e, clr=color: self.__draw(e).outline_color_objects(color=clr))

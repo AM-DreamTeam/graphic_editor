@@ -1,45 +1,91 @@
+""" Хранит класс-ядро для работы с изображениями
+
+    Переменные:
+        * drawQ: bool - флаг, показывающий, было ли что-то нарисовано на холсте
+
+    Функции:
+        * random_color(): -> str
+
+    Класс:
+        * Img(canvas: _custom_objects.CustomCanvas)
+"""
+
+
+# Импортированные модули
 from tkinter import messagebox, filedialog, ALL
 from PIL import Image, ImageTk, UnidentifiedImageError, EpsImagePlugin, ImageFilter, ImageEnhance
 from io import BytesIO
 from random import choices, randint
 
+"""
+    > Нужно для сохранения изображения
+    Если drawQ == True, так как в этом случае используется метод Canvas.postscript,
+    который генерирует изображение в .eps формате. Для обработки этого формата PIL нужен модуль GhostScript (который
+    как-то странно работает и у всех по разному, и в некоторых случаях нужно скачивать .exe файл с этим модулем, путь к
+    которому как раз таки и указывается в следующей строке (хотя у Егора, например, этого не было)
+"""
 
-# флаг, показывающий, было ли что-то нарисовано на холсте
-drawQ = True
-
-# нужно для сохранения изображения, если drawQ == True, так как в этом случае используется метод Canvas.postscript,
-# который генерирует изображение в .eps формате. Для обработки этого формата PIL нужен модуль GhostScript (который
-# как-то странно работает и у всех по разному, и в некоторых случаях нужно скачивать .exe файл с этим модулем, путь к
-# которому как раз таки и указывается в следующей строке (хотя у Егора, например, этого не было)
 EpsImagePlugin.gs_windows_binary = r'C:\Program Files\gs\gs9.53.3\bin\gswin64c'
 
 
 def random_color():
+    """ Герерирует случайный цвет в формате hex
+
+        Возвращает:
+            str - строку цвета в hex-формате
     """
-    герерирует случайный цвет в формате hex
-    """
+
     def r():
         return randint(0, 255)
     return '#%02X%02X%02X' % (r(), r(), r())
 
 
 class Img:
+    """
+        Img - содержит все события для работы с изображениями
+
+        Аргументы:
+            * canvas: _custom_objects.CustomCanvas - canvas (слой), на котором происходит отрисовка
+
+        Методы:
+            * set_image(self) -> None
+            * get_info(self) -> None
+            * save_image(self) -> None
+            * return_image(self) -> None
+            * set_bg(self) -> None
+            * grab(self, event: tkinter.Event) -> None
+            * drag(self, event: tkinter.Event) -> None
+            * zoom(self, event: tkinter.Event) -> None
+            * redraw(self, direction: str = "in") -> None
+            * apply_filter_1(self, f: tkinter.StringVar) -> None
+            * apply_filter_2(self, f: tkinter.StringVar, per: tkinter.StringVar) -> None
+            * apply_filter_3(self, f: tkinter.StringVar) -> None
+            * apply_filter_4(self) -> None
+    """
+
     def __init__(self, canvas):
         self._canvas = canvas
-        self._types = (("Изображение", "*.jpg *.gif *.png *.jpeg *.jfif"),)
+        self._types = (("Изображение", "*.jpg *.gif *.png *.jpeg"),)
         self._y = None
         self._x = None
 
     def set_image(self):
-        """
-        Устанавливает изображение на холст, если его еще нет, а если есть, то изменяет текущее
+        """ Устанавливает изображение на холст, если его еще нет, а если есть, то изменяет текущее
+
+            Возвращает:
+                None
         """
         try:
             __page = self._canvas.img
             __image = Image.open(filedialog.askopenfilename(title="Open image", filetypes=self._types))
             __page["imgs"].append(__image)
-            __photo = ImageTk.PhotoImage(__image)
             __im_size = __image.size
+            __page["img_size"] = __im_size
+
+            __page["scale_size"] = int(__im_size[0] * __page["scale"]), int(__im_size[1] * __page["scale"])
+            __photo = ImageTk.PhotoImage(__image.resize(__page["scale_size"]))
+            __page["ph"] = __photo
+
             if len(self._canvas.img["imgs"]) == 1:
                 __page["cr_img"] = self._canvas.create_image(0, 0, anchor='nw', image=__photo)
             else:
@@ -47,27 +93,39 @@ class Img:
             self._canvas.config(width=__im_size[0], height=__im_size[1])
             self._canvas.configure(scrollregion=(0, 0) + __im_size)
 
-            __page["ph"] = __photo
-            __page["img_size"] = __im_size
-            __page["scale_size"] = __im_size
-            __page["scale"] = 1.0
-
         except UnidentifiedImageError:
             messagebox.showerror('Ошибка!', 'Не удалось загузить фотографию')
         except AttributeError:
             pass
 
+        except UnidentifiedImageError:
+            messagebox.showerror("Ошибка!", "Не удалось загузить фотографию")
+        except AttributeError:
+            pass
+
     def get_info(self):
+        """ Служебный метод для отладки
+
+            Возвращает:
+                None
+
+            Побочный эффект:
+                Печатает в консоль информацию о текущем холсте
         """
-        Получение информации о текущем холсте - служебный метод для отладки
-        """
+
         print(self._canvas.img)
 
     def save_image(self):
+        """ Сохраняет изображение с холста
+
+            Возвращает:
+                None
+
+            Побочный эффект:
+                Если drawQ, то сохраняет изображение через postscipt, если нет, то просто последнее изображение из
+                списка изображений
         """
-        Сохраняет изображение с холста. Если drawQ, то сохраняет через postscipt, если нет, то просто
-        последнее изображение из списка изображений
-        """
+
         __new_file = filedialog.asksaveasfilename(title="Сохранить файл",
                                                   defaultextension=".jpg",
                                                   filetypes=self._types
@@ -79,9 +137,10 @@ class Img:
                 __img = __page["imgs"][-1]
                 __page["ph"] = ImageTk.PhotoImage(__img)
                 self._canvas.itemconfig(__page["cr_img"], image=__page["ph"])
-            self._canvas.scale(ALL, 0, 0, 1/__page["scale"], 1/__page["scale"])
-            __page["scale_size"] = __page["img_size"][:]
-            __page["scale"] = 1.0
+            if self._canvas.drawQ:
+                self._canvas.scale(ALL, 0, 0, 1 / __page["scale"], 1 / __page["scale"])
+                __page["scale_size"] = __page["img_size"][:]
+                __page["scale"] = 1.0
 
             __image = None
             if self._canvas.drawQ:
@@ -110,8 +169,10 @@ class Img:
             __image.save(__new_file)
 
     def return_image(self):
-        """
-        Возвращает на холст предыдущее изображение из списка изображений, а текущее удаляет
+        """ Возвращает на холст предыдущее изображение из списка изображений, а текущее удаляет
+
+            Возвращает:
+                None
         """
 
         __page = self._canvas.img
@@ -122,22 +183,41 @@ class Img:
             self._canvas.itemconfig(__page["cr_img"], image=__page["ph"])
 
     def set_bg(self):
+        """ Меняет цвет фона на текущем холсте
+
+            Возвращает:
+                None
         """
-        Меняет цвет фона на текущем холсте
-        """
+
         self._canvas["bg"] = random_color()
 
     def grab(self, event):
+        """ Отлавливает начало перемещение холста (инструмент "рука")
+
+            Аргументы:
+                * event: tkinter.Event - событие, по которому считывается положение курсора
+
+            Возращает:
+                None
+
+            Побочный эффект:
+                Изменяет текущее значение координат курсора для правильного перемещения
         """
-        Отлавливает начало перемещания холста (инструмент "рука"), и изменяет
-        текущее значение координат курсора для правильного перемещения
-        """
+
         self._y = event.y
         self._x = event.x
 
     def drag(self, event):
-        """
-        Осуществляет движение холста (инструмент "рука"), то есть просто управляет скроллами
+        """ Управление скроллами
+
+            Аргументы:
+                * event: tkinter.Event - событие, по которому считывается положение курсора
+
+            Возращает:
+                None
+
+            Побочный эффект:
+                Осуществляет движение холста (инструмент "рука"), то есть просто управляет скроллами
         """
 
         if self._y - event.y < 0:
@@ -152,9 +232,15 @@ class Img:
         self._y = event.y
 
     def zoom(self, event):
+        """ Расчитывает коэффициент масштабирования при прокрутке колеса мыши
+
+            Аргументы:
+                * event: tkinter.Event - событие, по которому считывается положение курсора
+
+            Возращает:
+                None
         """
-        Расчитывает коэффициент масштабирования при прокрутке колоса мыши
-        """
+
         __page = self._canvas.img
         if self._canvas.drawQ or __page["imgs"]:
             if event.delta > 0:
@@ -165,10 +251,18 @@ class Img:
                 self.redraw("on")
 
     def redraw(self, direction="in"):
+        """ Осущесвляет масшабирование в соответствии с коэффициентом масштабирования
+
+            Аргументы:
+                * direction: str - указывает направление увеличения/уменьшения масштабирования
+
+            Возращает:
+                None
+
+            Побочный эффект:
+                Перерисовывает текущее изображение и передвигает элементы на холсте с помощью метода canvas.scale
         """
-        Осущесвляет масшабирование в соответствии с коэццициентом масштабирования
-        Перерисовывает текущее изображение и передвигает элеменеты на холсте с помощью метода Canvas.scale
-        """
+
         __page = self._canvas.img
         if __page["imgs"]:
             __iw, __ih = __page["img_size"]
@@ -179,22 +273,25 @@ class Img:
 
             self._canvas.configure(scrollregion=(0, 0) + __page["scale_size"])
 
-        print(self._canvas.bbox(ALL))
         # self._canvas.config(width=__page["scale_size"][0], height=__page["scale_size"][1])
-        __scroll_speed = str(float(__page["scroll_speed"]) * pow(__page["scale"], 1/6))
+        __scroll_speed = str(float(__page["scroll_speed"]) * pow(__page["scale"], 1 / 6))
         self._canvas.configure(yscrollincrement=__scroll_speed, xscrollincrement=__scroll_speed)
         if 0.125 < __page["scale"] < 8:
             if direction == "in":
                 self._canvas.scale(ALL, 0, 0, 1.1, 1.1)
             elif direction == "on":
                 self._canvas.scale(ALL, 0, 0, 0.9, 0.9)
-        print(__page["scale"])
 
     def apply_filter_1(self, f):
+        """ Применяет к изображению с холста фильтр из первой группы (DEFAULT_FILTERS_1)
+
+            Аргументы:
+                f: tkinter.StringVar - строковая переменная tkinter, в которой содержится выбранный фильтр
+
+            Возвращает:
+                None
         """
-        Прирменяет к изображению с холста фильтр из первой группы
-        (DEFAULT_FILTERS_1)
-        """
+
         __page = self._canvas.img
         if __page["imgs"]:
             __image = __page["imgs"][-1]
@@ -223,10 +320,16 @@ class Img:
             messagebox.showwarning("Внимание!", "Сначала загрузите изображение")
 
     def apply_filter_2(self, f, per):
+        """ Применяет к изображению с холста фильтр из второй группы (DEFAULT_FILTERS_2)
+
+            Аргументы:
+                f: tkinter.StringVar - строковая переменная tkinter, в которой содержится выбранный фильтр
+                per: tkinter.StringVat - строковая переменная tkinter, в которой содержится процент применения фильтра
+
+            Возвращает:
+                None
         """
-        Прирменяет к изображению с холста фильтр из второй группы
-        (DEFAULT_FILTERS_2)
-        """
+
         __page = self._canvas.img
         if __page["imgs"]:
             if per.get().lstrip("-").isnumeric():
@@ -253,10 +356,15 @@ class Img:
             messagebox.showwarning("Внимание!", "Сначала загрузите изображение")
 
     def apply_filter_3(self, f):
+        """ Применяет к изображению с холста фильтр из третьей группы (DEFAULT_FILTERS_3)
+
+            Аргументы:
+                f: tkinter.StringVar - строковая переменная tkinter, в которой содержится выбранный фильтр
+
+            Возвращает:
+                None
         """
-        Прирменяет к изображению с холста фильтр из третьей группы
-        (DEFAULT_FILTERS_3)
-        """
+
         __page = self._canvas.img
         if __page["imgs"]:
             __fltr = f.get()
@@ -308,6 +416,12 @@ class Img:
             messagebox.showwarning("Внимание!", "Сначала загрузите изображение")
 
     def apply_filter_4(self):
+        """ Применяет к изображению с холста ванильный-фильтр
+
+            Возвращает:
+                None
+        """
+
         __page = self._canvas.img
         if __page["imgs"]:
             try:

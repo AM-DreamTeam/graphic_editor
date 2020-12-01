@@ -1,34 +1,29 @@
 from tkinter import *
-from tkinter.ttk import Notebook
-from image_lib import _image_core as imcore
-from graphic_lib import _graphic_core as gcore
+from core import core
 from random import choice, sample
+from tkinter.ttk import Notebook
 
 
 class App:
     def __init__(self, root):
         root.geometry('800x600')
-        # root.state('zoomed')
+        root.state('zoomed')
 
+        toolbar = Notebook(root)
         # фрейм для кпопок
-        nb = Notebook(root)
-
-
-        frame_img = Frame(nb)
-        frame_graphic = Frame(nb)
-        nb.grid(row=0,
-                column=0, rowspan=2, sticky="nswe")
-        nb.add(frame_img, text="IMAGE")
-
+        frame_img = LabelFrame(toolbar, text='Изображения')
+        frame_graphic = LabelFrame(toolbar, text='Графические примитивы')
+        toolbar.grid(row=0, column=0, rowspan=2, sticky="nswe")
 
         # инициализуем Notebook
-        notebook = imcore.CustomNotebook(root)
+        notebook = core.CustomNotebook(root)
         notebook.grid(row=0, column=1, rowspan=2, sticky="nswe")
 
+        toolbar.add(frame_img, text="IMAGE")
         # кнопка возврата предыдущего изображения
         Button(frame_img,
                text="return image",
-               command=lambda: notebook.image_processing.return_image()
+               command=notebook.image_processing.return_image
                ).pack(pady=10)
 
         # кнопка создания новой вкладки
@@ -54,10 +49,10 @@ class App:
         # создаем выпадающее меню
         frame_filter1 = Frame(frame_img)
         variable_filter_1 = StringVar(frame_filter1)
-        variable_filter_1.set(imcore.DEFAULT_FILTERS_1[0])
+        variable_filter_1.set(core.DEFAULT_FILTERS_1[0])
         filters1 = OptionMenu(frame_filter1,
                               variable_filter_1,
-                              *imcore.DEFAULT_FILTERS_1)
+                              *core.DEFAULT_FILTERS_1)
         filters1.grid(row=0, sticky="we")
 
         # применяет тот фильтр, который выбран в меню выше
@@ -75,10 +70,10 @@ class App:
         # при котором происходит фильтрация
         frame_filter2 = Frame(frame_img)
         variable_filter_2 = StringVar(frame_filter2)
-        variable_filter_2.set(imcore.DEFAULT_FILTERS_2[0])
+        variable_filter_2.set(core.DEFAULT_FILTERS_2[0])
         filters2 = OptionMenu(frame_filter2,
                               variable_filter_2,
-                              *imcore.DEFAULT_FILTERS_2
+                              *core.DEFAULT_FILTERS_2
                               )
         filters2.grid(row=0, sticky="we", columnspan=2)
 
@@ -103,10 +98,10 @@ class App:
         # кнопки фильтра 3
         frame_filter3 = Frame(frame_img)
         variable_filter_3 = StringVar(frame_filter1)
-        variable_filter_3.set(imcore.DEFAULT_FILTERS_3[0])
+        variable_filter_3.set(core.DEFAULT_FILTERS_3[0])
         filters3 = OptionMenu(frame_filter3,
                               variable_filter_3,
-                              *imcore.DEFAULT_FILTERS_3
+                              *core.DEFAULT_FILTERS_3
                               )
         filters3.grid(row=0, column=0, columnspan=2, sticky="we")
 
@@ -124,9 +119,9 @@ class App:
                command=lambda: notebook.image_processing.apply_filter_4()
                ).pack(pady=10)
 
-        # frame_img.grid(sticky="nsew")
+        # frame_img.grid(row=0, column=0, sticky="nsew")
 
-        nb.add(frame_graphic, text="GRAPHIC")
+        toolbar.add(frame_graphic, text="GRAPHIC")
         colors = ('red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet')
         thickness_list = sample(range(5, 20), 6)
 
@@ -134,7 +129,7 @@ class App:
         btnClear.pack(side=TOP, pady=5)
 
         btnMove = Button(frame_graphic, text='*подвинуть*',
-                         command=lambda ms=imcore.DEFAULT_MOUSE_SPEED:
+                         command=lambda ms=core.DEFAULT_MOUSE_SPEED:
                          notebook.events.event_move(mouse_speed=ms))
         btnMove.pack(side=TOP, pady=5)
 
@@ -143,7 +138,7 @@ class App:
         btnQuickEraser.pack(side=TOP, pady=5)
 
         btnBrush = Button(frame_graphic, text='*кисть*',
-                          command=lambda s=imcore.DEFAULT_BRUSH_SIZE, clr=imcore.DEFAULT_FIRST_COLOR:
+                          command=lambda s=core.DEFAULT_BRUSH_SIZE, clr=core.DEFAULT_FIRST_COLOR:
                           notebook.events.event_btnBrush(size=s, color=clr, debug_mode=False))
         btnBrush.pack(side=TOP, pady=5)
 
@@ -162,28 +157,28 @@ class App:
         btnThickness.pack(side=TOP, pady=5)
 
         btnCreateLine = Button(frame_graphic, text='*линия*',
-                               command=lambda t=imcore.DEFAULT_THICKNESS, clr=imcore.DEFAULT_FIRST_COLOR:
+                               command=lambda t=core.DEFAULT_THICKNESS, clr=core.DEFAULT_FIRST_COLOR:
                                notebook.events.event_btnCreateLine(thickness=t, color=clr))
         btnCreateLine.pack(side=TOP, pady=5)
 
         btnCreatePolygon = Button(frame_graphic, text='*многоугольник*',
-                                  command=lambda t=imcore.DEFAULT_THICKNESS, outclr=imcore.DEFAULT_FIRST_COLOR,
-                                                 bgclr=imcore.DEFAULT_SECOND_COLOR:
+                                  command=lambda t=core.DEFAULT_THICKNESS, outclr=core.DEFAULT_FIRST_COLOR,
+                                                 bgclr=core.DEFAULT_SECOND_COLOR:
                                   notebook.events.event_btnCreatePolygon(thickness=t, bgcolor=bgclr, outcolor=outclr))
         btnCreatePolygon.pack(side=TOP, pady=5)
 
         btnCreateOval = Button(frame_graphic, text='*эллипс*',
-                               command=lambda t=imcore.DEFAULT_THICKNESS, outclr=imcore.DEFAULT_FIRST_COLOR,
-                                              bgclr=imcore.DEFAULT_SECOND_COLOR:
+                               command=lambda t=core.DEFAULT_THICKNESS, outclr=core.DEFAULT_FIRST_COLOR,
+                                              bgclr=core.DEFAULT_SECOND_COLOR:
                                notebook.events.event_btnCreateOval(thickness=t, bgcolor=bgclr, outcolor=outclr))
         btnCreateOval.pack(side=TOP, pady=5)
 
         btnCreateRectangle = Button(frame_graphic, text='*прямоугольник*',
-                                    command=lambda t=imcore.DEFAULT_THICKNESS, outclr=imcore.DEFAULT_FIRST_COLOR,
-                                                   bgclr=imcore.DEFAULT_SECOND_COLOR:
+                                    command=lambda t=core.DEFAULT_THICKNESS, outclr=core.DEFAULT_FIRST_COLOR,
+                                                   bgclr=core.DEFAULT_SECOND_COLOR:
                                     notebook.events.event_btnCreateRectangle(thickness=t, bgcolor=bgclr, outcolor=outclr))
         btnCreateRectangle.pack(side=TOP, pady=5)
-        # frame_graphic.grid(sticky="nsew")
+        # frame_graphic.grid(row=1, column=0, sticky="nsew")
 
         # для корректного отображения canvas'а
         root.rowconfigure(0, weight=1)
@@ -203,6 +198,8 @@ class App:
 
         notebook.bind("<<NotebookTabChanged>>", notebook.select_curr_tab)
 
+        root.bind('<Control-x>', quit)
+        root.bind('<Control-s>', lambda event: print(__canvas.modified_objs, __canvas.obj_storage))
 
 
 if __name__ == "__main__":
