@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter.ttk import Notebook
 from image_lib import _image_core as imcore
 from graphic_lib import _graphic_core as gcore
 from random import choice, sample
@@ -10,8 +11,15 @@ class App:
         # root.state('zoomed')
 
         # фрейм для кпопок
-        frame_img = LabelFrame(root, text='Изображения')
-        frame_graphic = LabelFrame(root, text='Графические примитивы')
+        nb = Notebook(root)
+
+
+        frame_img = Frame(nb)
+        frame_graphic = Frame(nb)
+        nb.grid(row=0,
+                column=0, rowspan=2, sticky="nswe")
+        nb.add(frame_img, text="IMAGE")
+
 
         # инициализуем Notebook
         notebook = imcore.CustomNotebook(root)
@@ -20,7 +28,7 @@ class App:
         # кнопка возврата предыдущего изображения
         Button(frame_img,
                text="return image",
-               command=notebook.image_processing.return_image
+               command=lambda: notebook.image_processing.return_image()
                ).pack(pady=10)
 
         # кнопка создания новой вкладки
@@ -116,9 +124,9 @@ class App:
                command=lambda: notebook.image_processing.apply_filter_4()
                ).pack(pady=10)
 
-        frame_img.grid(row=0, column=0, sticky="nsew")
+        # frame_img.grid(sticky="nsew")
 
-
+        nb.add(frame_graphic, text="GRAPHIC")
         colors = ('red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet')
         thickness_list = sample(range(5, 20), 6)
 
@@ -175,7 +183,7 @@ class App:
                                                    bgclr=imcore.DEFAULT_SECOND_COLOR:
                                     notebook.events.event_btnCreateRectangle(thickness=t, bgcolor=bgclr, outcolor=outclr))
         btnCreateRectangle.pack(side=TOP, pady=5)
-        frame_graphic.grid(row=1, column=0, sticky="nsew")
+        # frame_graphic.grid(sticky="nsew")
 
         # для корректного отображения canvas'а
         root.rowconfigure(0, weight=1)
@@ -194,6 +202,7 @@ class App:
         root.config(menu=menubar)
 
         notebook.bind("<<NotebookTabChanged>>", notebook.select_curr_tab)
+
 
 
 if __name__ == "__main__":

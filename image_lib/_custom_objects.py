@@ -52,8 +52,10 @@ class CustomCanvas(Canvas):
              "ph": None,  # объект ImageTk, который лежит в create_image
              "scale": 1.0,  # коэффициент масштабирования
              "scale_size": (DEFAULT_CANVAS_W, DEFAULT_CANVAS_H),  # размеры изображения при масштабировании
-             "scroll_speed": 11.  # скорость прокрутки скроллов
+             "scroll_speed": 10.  # скорость прокрутки скроллов
              }
+
+        self.drawQ = True
 
 
 class CustomNotebook(Notebook):
@@ -85,18 +87,17 @@ class CustomNotebook(Notebook):
         scroll_y.grid(column=1, row=0, sticky="ns")
         frame.rowconfigure(0, weight=1)
         frame.columnconfigure(0, weight=1)
-        canvas.configure(yscrollincrement='11', xscrollincrement='11')
+        canvas.configure(yscrollincrement='10.', xscrollincrement='10.')
 
         # привязываем события к холсту
-        # canvas.bind("<Button 3>", lambda event: self.image_processing.grab(event))
-        # canvas.bind("<B3-Motion>", lambda event: self.image_processing.drag(event))
-        # canvas.bind("<MouseWheel>", lambda event: self.image_processing.zoom(event))
+        canvas.bind("<Button 3>", lambda event: self.image_processing.grab(event))
+        canvas.bind("<B3-Motion>", lambda event: self.image_processing.drag(event))
+        canvas.bind("<MouseWheel>", lambda event: self.image_processing.zoom(event))
 
         self.count = 1
         canvas.img["id"] = self.count
         self.image_processing = Img(canvas)
         self.canvases = [canvas]
-
 
         self.root.bind('<Control-x>', quit)
         self.root.bind('<Control-s>', lambda event: print(canvas.modified_objs, canvas.obj_storage))
@@ -138,7 +139,6 @@ class CustomNotebook(Notebook):
         canvas.bind("<Button 3>", lambda event: self.image_processing.grab(event))
         canvas.bind("<B3-Motion>", lambda event: self.image_processing.drag(event))
         canvas.bind("<MouseWheel>", lambda event: self.image_processing.zoom(event))
-
 
         self.root.bind('<Control-x>', quit)
         self.root.bind('<Control-s>', lambda event: print(canvas.modified_objs, canvas.obj_storage))

@@ -5,7 +5,7 @@ from random import choices, randint
 
 
 # флаг, показывающий, было ли что-то нарисовано на холсте
-drawQ = False
+drawQ = True
 
 # нужно для сохранения изображения, если drawQ == True, так как в этом случае используется метод Canvas.postscript,
 # который генерирует изображение в .eps формате. Для обработки этого формата PIL нужен модуль GhostScript (который
@@ -25,8 +25,8 @@ def random_color():
 
 class Img:
     def __init__(self, canvas):
-        self.canvas = canvas
-        self.types = (("Изображение", "*.jpg *.gif *.png *.jpeg"),)
+        self._canvas = canvas
+        self._types = (("Изображение", "*.jpg *.gif *.png *.jpeg *.jfif"),)
         self._y = None
         self._x = None
 
@@ -35,22 +35,22 @@ class Img:
         Устанавливает изображение на холст, если его еще нет, а если есть, то изменяет текущее
         """
         try:
-            page = self.canvas.img
-            image = Image.open(filedialog.askopenfilename(title="Open image", filetypes=self.types))
-            page["imgs"].append(image)
-            photo = ImageTk.PhotoImage(image)
-            im_size = image.size
-            if len(self.canvas.img["imgs"]) == 1:
-                page["cr_img"] = self.canvas.create_image(0, 0, anchor='nw', image=photo)
+            __page = self._canvas.img
+            __image = Image.open(filedialog.askopenfilename(title="Open image", filetypes=self._types))
+            __page["imgs"].append(__image)
+            __photo = ImageTk.PhotoImage(__image)
+            __im_size = __image.size
+            if len(self._canvas.img["imgs"]) == 1:
+                __page["cr_img"] = self._canvas.create_image(0, 0, anchor='nw', image=__photo)
             else:
-                self.canvas.itemconfig(page["cr_img"], image=photo)
-            self.canvas.config(width=im_size[0], height=im_size[1])
-            self.canvas.configure(scrollregion=(0, 0) + im_size)
+                self._canvas.itemconfig(__page["cr_img"], image=__photo)
+            self._canvas.config(width=__im_size[0], height=__im_size[1])
+            self._canvas.configure(scrollregion=(0, 0) + __im_size)
 
-            page["ph"] = photo
-            page["img_size"] = im_size
-            page["scale_size"] = im_size
-            page["scale"] = 1.0
+            __page["ph"] = __photo
+            __page["img_size"] = __im_size
+            __page["scale_size"] = __im_size
+            __page["scale"] = 1.0
 
         except UnidentifiedImageError:
             messagebox.showerror('Ошибка!', 'Не удалось загузить фотографию')
@@ -61,48 +61,71 @@ class Img:
         """
         Получение информации о текущем холсте - служебный метод для отладки
         """
-        print(self.canvas.img)
+        print(self._canvas.img)
 
     def save_image(self):
         """
         Сохраняет изображение с холста. Если drawQ, то сохраняет через postscipt, если нет, то просто
         последнее изображение из списка изображений
         """
-        new_file = filedialog.asksaveasfilename(title="Сохранить файл",
-                                                defaultextension=".jpg",
-                                                filetypes=self.types)
-        page = self.canvas.img
+        __new_file = filedialog.asksaveasfilename(title="Сохранить файл",
+                                                  defaultextension=".jpg",
+                                                  filetypes=self._types
+                                                  )
 
-        if drawQ:
-            ps = self.canvas.postscript(colormode="color",
-                                        height=page["scale_size"][1],
-                                        width=page["scale_size"][0],
-                                        x='0.c', y='0.c')
-            image = Image.open(BytesIO(ps.encode('utf-8'))).resize([_ + 0 for _ in page["img_size"]])
-            image = image.crop((5, 5, page["img_size"][0] - 5, page["img_size"][1] - 5))
-        else:
-            image = page["imgs"][-1].resize([_ + 10 for _ in page["img_size"]])
-            image = image.crop((5, 5, page["img_size"][0] - 5, page["img_size"][1] - 5))
-        if new_file:
-            image.save(new_file)
+        if __new_file:
+            __page = self._canvas.img
+            if __page["imgs"]:
+                __img = __page["imgs"][-1]
+                __page["ph"] = ImageTk.PhotoImage(__img)
+                self._canvas.itemconfig(__page["cr_img"], image=__page["ph"])
+            self._canvas.scale(ALL, 0, 0, 1/__page["scale"], 1/__page["scale"])
+            __page["scale_size"] = __page["img_size"][:]
+            __page["scale"] = 1.0
+
+            __image = None
+            if self._canvas.drawQ:
+                if __page["imgs"]:
+                    __wigth = max(__page["scale_size"][0], self._canvas.bbox(ALL)[-2])
+                    __height = max(__page["scale_size"][1], self._canvas.bbox(ALL)[-1])
+                    ps = self._canvas.postscript(colormode="color",
+                                                 height=__height,
+                                                 width=__wigth,
+                                                 x='0.c', y='0.c')
+                    __image = Image.open(BytesIO(ps.encode('utf-8'))).resize([__wigth, __height])
+                else:
+                    __wigth = max(800, self._canvas.bbox(ALL)[-2])
+                    __height = max(600, self._canvas.bbox(ALL)[-1])
+                    ps = self._canvas.postscript(colormode="color",
+                                                 height=__height,
+                                                 width=__wigth,
+                                                 x='0.c', y='0.c')
+                    __image = Image.open(BytesIO(ps.encode('utf-8'))).resize([__wigth, __height])
+            else:
+                if __page["imgs"]:
+                    __image = __page["imgs"][-1].resize([_ + 4 for _ in __page["img_size"]])
+                    __image = __image.crop((2, 2, __image.size[0] - 2, __image.size[1] - 2))
+                else:
+                    __image = Image.new('RGB', (800, 600), color="white")
+            __image.save(__new_file)
 
     def return_image(self):
         """
         Возвращает на холст предыдущее изображение из списка изображений, а текущее удаляет
         """
 
-        page = self.canvas.img
-        if len(page["imgs"]) >= 2:
-            del page["imgs"][-1]
-            image = page["imgs"][-1]
-            page["ph"] = ImageTk.PhotoImage(image)
-            self.canvas.itemconfig(page["cr_img"], image=page["ph"])
+        __page = self._canvas.img
+        if len(__page["imgs"]) >= 2:
+            del __page["imgs"][-1]
+            __image = __page["imgs"][-1]
+            __page["ph"] = ImageTk.PhotoImage(__image.resize(__page["scale_size"]))
+            self._canvas.itemconfig(__page["cr_img"], image=__page["ph"])
 
     def set_bg(self):
         """
         Меняет цвет фона на текущем холсте
         """
-        self.canvas["bg"] = random_color()
+        self._canvas["bg"] = random_color()
 
     def grab(self, event):
         """
@@ -118,13 +141,13 @@ class Img:
         """
 
         if self._y - event.y < 0:
-            self.canvas.yview("scroll", -1, "units")
+            self._canvas.yview("scroll", -1, "units")
         elif self._y - event.y > 0:
-            self.canvas.yview("scroll", 1, "units")
+            self._canvas.yview("scroll", 1, "units")
         if self._x - event.x < 0:
-            self.canvas.xview("scroll", -1, "units")
+            self._canvas.xview("scroll", -1, "units")
         elif self._x - event.x > 0:
-            self.canvas.xview("scroll", 1, "units")
+            self._canvas.xview("scroll", 1, "units")
         self._x = event.x
         self._y = event.y
 
@@ -132,68 +155,70 @@ class Img:
         """
         Расчитывает коэффициент масштабирования при прокрутке колоса мыши
         """
-        page = self.canvas.img
-        if event.delta > 0:
-            page["scale"] = page["scale"] * 1.1 if page["scale"] < 8 else 8
-            self.redraw("in")
-        elif event.delta < 0:
-            page["scale"] = page["scale"] * 0.9 if page["scale"] > 0.125 else 0.125
-            self.redraw("on")
+        __page = self._canvas.img
+        if self._canvas.drawQ or __page["imgs"]:
+            if event.delta > 0:
+                __page["scale"] = __page["scale"] * 1.1 if __page["scale"] * 1.1 < 8 else 8
+                self.redraw("in")
+            elif event.delta < 0:
+                __page["scale"] = __page["scale"] * 0.9 if __page["scale"] * 0.9 > 0.125 else 0.125
+                self.redraw("on")
 
     def redraw(self, direction="in"):
         """
         Осущесвляет масшабирование в соответствии с коэццициентом масштабирования
         Перерисовывает текущее изображение и передвигает элеменеты на холсте с помощью метода Canvas.scale
         """
-        page = self.canvas.img
-        if page["imgs"]:
-            iw, ih = page["img_size"]
-            page["scale_size"] = int(iw * page["scale"]), int(ih * page["scale"])
-            image = page["imgs"][-1]
-            page["ph"] = ImageTk.PhotoImage(image.resize(page["scale_size"]))
-            self.canvas.itemconfig(page["cr_img"], image=page["ph"])
+        __page = self._canvas.img
+        if __page["imgs"]:
+            __iw, __ih = __page["img_size"]
+            __page["scale_size"] = int(__iw * __page["scale"]), int(__ih * __page["scale"])
+            __image = __page["imgs"][-1]
+            __page["ph"] = ImageTk.PhotoImage(__image.resize(__page["scale_size"]))
+            self._canvas.itemconfig(__page["cr_img"], image=__page["ph"])
 
-            self.canvas.configure(scrollregion=(0, 0) + page["scale_size"])
+            self._canvas.configure(scrollregion=(0, 0) + __page["scale_size"])
 
-        self.canvas.config(width=page["scale_size"][0], height=page["scale_size"][1])
-        scroll_speed = str(int(page["scroll_speed"] * pow(page["scale"], 1)))
-        print(scroll_speed)
-        self.canvas.configure(yscrollincrement=scroll_speed, xscrollincrement=scroll_speed)
-
-        if direction == "in":
-            self.canvas.scale(ALL, 0, 0, 1.1, 1.1)
-        elif direction == "on":
-            self.canvas.scale(ALL, 0, 0, 0.9, 0.9)
+        print(self._canvas.bbox(ALL))
+        # self._canvas.config(width=__page["scale_size"][0], height=__page["scale_size"][1])
+        __scroll_speed = str(float(__page["scroll_speed"]) * pow(__page["scale"], 1/6))
+        self._canvas.configure(yscrollincrement=__scroll_speed, xscrollincrement=__scroll_speed)
+        if 0.125 < __page["scale"] < 8:
+            if direction == "in":
+                self._canvas.scale(ALL, 0, 0, 1.1, 1.1)
+            elif direction == "on":
+                self._canvas.scale(ALL, 0, 0, 0.9, 0.9)
+        print(__page["scale"])
 
     def apply_filter_1(self, f):
         """
         Прирменяет к изображению с холста фильтр из первой группы
         (DEFAULT_FILTERS_1)
         """
-        page = self.canvas.img
-        if page["imgs"]:
-            image = page["imgs"][-1]
-            fltr = f.get()
-            image_new = None
-            if fltr == "blur":
-                image_new = image.filter(ImageFilter.BLUR)
-            elif fltr == "contour":
-                image_new = image.filter(ImageFilter.CONTOUR)
-            elif fltr == "detail":
-                image_new = image.filter(ImageFilter.DETAIL)
-            elif fltr == "edge enhance":
-                image_new = image.filter(ImageFilter.EDGE_ENHANCE)
-            elif fltr == "emboss":
-                image_new = image.filter(ImageFilter.EMBOSS)
-            elif fltr == "find edges":
-                image_new = image.filter(ImageFilter.FIND_EDGES)
-            elif fltr == "sharpen":
-                image_new = image.filter(ImageFilter.SHARPEN)
-            elif fltr == "smooth":
-                image_new = image.filter(ImageFilter.SMOOTH)
-            page["imgs"].append(image_new)
-            page["ph"] = ImageTk.PhotoImage(image_new.resize(page["scale_size"]))
-            self.canvas.itemconfig(page["cr_img"], image=page["ph"])
+        __page = self._canvas.img
+        if __page["imgs"]:
+            __image = __page["imgs"][-1]
+            __fltr = f.get()
+            __image_new = None
+            if __fltr == "blur":
+                __image_new = __image.filter(ImageFilter.BLUR)
+            elif __fltr == "contour":
+                __image_new = __image.filter(ImageFilter.CONTOUR)
+            elif __fltr == "detail":
+                __image_new = __image.filter(ImageFilter.DETAIL)
+            elif __fltr == "edge enhance":
+                __image_new = __image.filter(ImageFilter.EDGE_ENHANCE)
+            elif __fltr == "emboss":
+                __image_new = __image.filter(ImageFilter.EMBOSS)
+            elif __fltr == "find edges":
+                __image_new = __image.filter(ImageFilter.FIND_EDGES)
+            elif __fltr == "sharpen":
+                __image_new = __image.filter(ImageFilter.SHARPEN)
+            elif __fltr == "smooth":
+                __image_new = __image.filter(ImageFilter.SMOOTH)
+            __page["imgs"].append(__image_new)
+            __page["ph"] = ImageTk.PhotoImage(__image_new.resize(__page["scale_size"]))
+            self._canvas.itemconfig(__page["cr_img"], image=__page["ph"])
         else:
             messagebox.showwarning("Внимание!", "Сначала загрузите изображение")
 
@@ -202,26 +227,26 @@ class Img:
         Прирменяет к изображению с холста фильтр из второй группы
         (DEFAULT_FILTERS_2)
         """
-        page = self.canvas.img
-        if page["imgs"]:
+        __page = self._canvas.img
+        if __page["imgs"]:
             if per.get().lstrip("-").isnumeric():
-                percent = float(per.get()) / 100
-                fltr = f.get()
-                image = page["imgs"][-1]
-                image_new = None
-                if fltr == "color":
-                    image_new = ImageEnhance.Color(image).enhance(percent)
-                elif fltr == "contrast":
-                    image_new = ImageEnhance.Contrast(image).enhance(percent)
-                elif fltr == "brightness":
-                    image_new = ImageEnhance.Brightness(image).enhance(percent)
-                elif fltr == "sharpness":
-                    image_new = ImageEnhance.Sharpness(image).enhance(percent)
+                __percent = float(per.get()) / 100
+                __fltr = f.get()
+                __image = __page["imgs"][-1]
+                __image_new = None
+                if __fltr == "color":
+                    __image_new = ImageEnhance.Color(__image).enhance(__percent)
+                elif __fltr == "contrast":
+                    __image_new = ImageEnhance.Contrast(__image).enhance(__percent)
+                elif __fltr == "brightness":
+                    __image_new = ImageEnhance.Brightness(__image).enhance(__percent)
+                elif __fltr == "sharpness":
+                    __image_new = ImageEnhance.Sharpness(__image).enhance(__percent)
                 else:
                     pass
-                page["imgs"].append(image_new)
-                page["ph"] = ImageTk.PhotoImage(image_new.resize(page["scale_size"]))
-                self.canvas.itemconfig(page["cr_img"], image=page["ph"])
+                __page["imgs"].append(__image_new)
+                __page["ph"] = ImageTk.PhotoImage(__image_new.resize(__page["scale_size"]))
+                self._canvas.itemconfig(__page["cr_img"], image=__page["ph"])
             else:
                 messagebox.showerror("Внимание!", "Значение должно быть числовым")
         else:
@@ -232,66 +257,66 @@ class Img:
         Прирменяет к изображению с холста фильтр из третьей группы
         (DEFAULT_FILTERS_3)
         """
-        page = self.canvas.img
-        if page["imgs"]:
-            fltr = f.get()
-            w, h = page["img_size"][0], page["img_size"][1]
-            image = page["imgs"][-1]
-            mode = None
-            if image.mode != "RGB":
-                mode = image.mode
-                image = image.convert("RGB")
-            image_new = Image.new('RGB', (w, h))
+        __page = self._canvas.img
+        if __page["imgs"]:
+            __fltr = f.get()
+            __w, __h = __page["img_size"][0], __page["img_size"][1]
+            __image = __page["imgs"][-1]
+            __mode = None
+            if __image.mode != "RGB":
+                __mode = __image.mode
+                __image = __image.convert("RGB")
+            image_new = Image.new('RGB', (__w, __h))
 
-            if fltr == "negative":
-                for x in range(w):
-                    for y in range(h):
-                        r, g, b = image.getpixel((x, y))
+            if __fltr == "negative":
+                for x in range(__w):
+                    for y in range(__h):
+                        r, g, b = __image.getpixel((x, y))
                         image_new.putpixel((x, y), (255 - r, 255 - g, 255 - b))
-            elif fltr == "white-black":
+            elif __fltr == "white-black":
                 separator = 255 / 0.8 / 2 * 3
-                for x in range(w):
-                    for y in range(h):
-                        r, g, b = image.getpixel((x, y))
+                for x in range(__w):
+                    for y in range(__h):
+                        r, g, b = __image.getpixel((x, y))
                         total = r + g + b
                         if total > separator:
                             image_new.putpixel((x, y), (255, 255, 255))
                         else:
                             image_new.putpixel((x, y), (0, 0, 0))
-            elif fltr == "gray scale":
-                for x in range(w):
-                    for y in range(h):
-                        r, g, b = image.getpixel((x, y))
+            elif __fltr == "gray scale":
+                for x in range(__w):
+                    for y in range(__h):
+                        r, g, b = __image.getpixel((x, y))
                         gray = int(r * 0.2126 + g * 0.7152 + b * 0.0722)
                         image_new.putpixel((x, y), (gray, gray, gray))
-            elif fltr == "sepia":
-                for x in range(w):
-                    for y in range(h):
-                        r, g, b = image.getpixel((x, y))
+            elif __fltr == "sepia":
+                for x in range(__w):
+                    for y in range(__h):
+                        r, g, b = __image.getpixel((x, y))
                         red = int(r * 0.393 + g * 0.769 + b * 0.189)
                         green = int(r * 0.349 + g * 0.686 + b * 0.168)
                         blue = int(r * 0.272 + g * 0.534 + b * 0.131)
                         image_new.putpixel((x, y), (red, green, blue))
             else:
                 pass
-            if mode:
-                image = image.convert(mode)
-            page["imgs"].append(image_new)
-            page["ph"] = ImageTk.PhotoImage(image_new.resize(page["scale_size"]))
-            self.canvas.itemconfig(page["cr_img"], image=page["ph"])
+            if __mode:
+                __image = __image.convert(__mode)
+            __page["imgs"].append(image_new)
+            __page["ph"] = ImageTk.PhotoImage(image_new.resize(__page["scale_size"]))
+            self._canvas.itemconfig(__page["cr_img"], image=__page["ph"])
         else:
             messagebox.showwarning("Внимание!", "Сначала загрузите изображение")
 
     def apply_filter_4(self):
-        page = self.canvas.img
-        if page["imgs"]:
+        __page = self._canvas.img
+        if __page["imgs"]:
             try:
-                colors = page["imgs"][-1].split()
+                colors = __page["imgs"][-1].split()
                 sample = choices(colors, k=len(colors))
-                image_new = Image.merge(page["imgs"][-1].mode, sample)
-                page["imgs"].append(image_new)
-                page["ph"] = ImageTk.PhotoImage(image_new.resize(page["scale_size"]))
-                self.canvas.itemconfig(page["cr_img"], image=page["ph"])
+                image_new = Image.merge(__page["imgs"][-1].mode, sample)
+                __page["imgs"].append(image_new)
+                __page["ph"] = ImageTk.PhotoImage(image_new.resize(__page["scale_size"]))
+                self._canvas.itemconfig(__page["cr_img"], image=__page["ph"])
             except ValueError:
                 messagebox.showerror("Ошибка!", "Применить фильтр не удалось")
         else:
