@@ -17,7 +17,14 @@
 """
 
 
-DEFAULT_USED_EVENTS = ('<B1-Motion>', '<ButtonPress-1>','<ButtonRelease-1>', '<KeyPress-Control_L>', '<KeyRelease-Control_L>')
+""" ============= graphic_lib ============ """
+
+
+DEFAULT_USED_EVENTS = ('<B1-Motion>',
+                       '<ButtonPress-1>',
+                       '<ButtonRelease-1>',
+                       '<KeyPress-Control_L>',
+                       '<KeyRelease-Control_L>')
 
 DEFAULT_FIRST_COLOR = 'black'
 DEFAULT_SECOND_COLOR = ''
@@ -31,3 +38,32 @@ DEFAULT_MOUSE_SPEED = 5
 DEFAULT_CANVAS_W = 800
 DEFAULT_CANVAS_H = 600
 DEFAULT_CANVAS_BG = 'white'
+
+
+""" ============= image_lib ============ """
+
+
+DEFAULT_FILTERS_1 = [
+                    "blur",
+                    "contour",
+                    "detail",
+                    "edge enhance",
+                    "emboss",
+                    "find edges",
+                    "sharpen",
+                    "smooth"
+                    ]
+
+DEFAULT_FILTERS_2 = [
+                    "color",
+                    "contrast",
+                    "brightness",
+                    "sharpness"
+                    ]
+
+DEFAULT_FILTERS_3 = [
+                    "negative",
+                    "white-black",
+                    "gray scale",
+                    "sepia"
+                    ]
