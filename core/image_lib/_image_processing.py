@@ -87,7 +87,7 @@ class Img:
             __page["ph"] = __photo
 
             if len(self._canvas.img["imgs"]) == 1:
-                __page["cr_img"] = self._canvas.create_image(0, 0, anchor='nw', image=__photo)
+                __page["cr_img"] = self._canvas.create_image(0, 0, anchor='nw', image=__photo, tags="photo")
             else:
                 self._canvas.itemconfig(__page["cr_img"], image=__photo)
             self._canvas.config(width=__im_size[0], height=__im_size[1])
@@ -135,23 +135,31 @@ class Img:
             __page = self._canvas.img
             if __page["imgs"]:
                 __img = __page["imgs"][-1]
-                __page["ph"] = ImageTk.PhotoImage(__img)
+                __page["ph"] = ImageTk.PhotoImage(__img.resize((int(__img.size[0] * 1.333333), int(__img.size[1] * 1.333333))))
                 self._canvas.itemconfig(__page["cr_img"], image=__page["ph"])
             if self._canvas.drawQ:
-                self._canvas.scale(ALL, 0, 0, 1 / __page["scale"], 1 / __page["scale"])
-                __page["scale_size"] = __page["img_size"][:]
-                __page["scale"] = 1.0
+                self._canvas.scale(ALL, 0, 0, (1 / __page["scale"]) * 1.333333, (1 / __page["scale"]) * 1.333333)
+            __page["scale_size"] = tuple((int(_ * 1.333333) for _ in __page["img_size"]))
+            __page["scale"] = 1.333333
+            self._canvas.configure(scrollregion=self._canvas.bbox(ALL))
 
             __image = None
             if self._canvas.drawQ:
                 if __page["imgs"]:
-                    __wigth = max(__page["scale_size"][0], self._canvas.bbox(ALL)[-2])
-                    __height = max(__page["scale_size"][1], self._canvas.bbox(ALL)[-1])
+                    __bbox = self._canvas.bbox(ALL)
+                    # __wigth = max(__page["scale_size"][0], __bbox[-2])
+                    # __height = max(__page["scale_size"][1], __bbox[-1])
+                    print(self._canvas.bbox("photo"))
+                    print(self._canvas.bbox(ALL))
+                    print('\n')
                     ps = self._canvas.postscript(colormode="color",
-                                                 height=__height,
-                                                 width=__wigth,
-                                                 x='0.c', y='0.c')
-                    __image = Image.open(BytesIO(ps.encode('utf-8'))).resize([__wigth, __height])
+                                                 height=__bbox[2] - __bbox[0],
+                                                 width=__bbox[3] - __bbox[1],
+                                                 x=str(__bbox[0]), y=str(__bbox[1]))
+                    __image = Image.open(BytesIO(ps.encode('utf-8')))
+                    __image.show()
+                    __image = __image.resize([_ + 4 for _ in __image.size])
+                    __image = __image.crop((2, 2, __image.size[0] - 2, __image.size[1] - 2))
                 else:
                     __wigth = max(800, self._canvas.bbox(ALL)[-2])
                     __height = max(600, self._canvas.bbox(ALL)[-1])
@@ -159,7 +167,7 @@ class Img:
                                                  height=__height,
                                                  width=__wigth,
                                                  x='0.c', y='0.c')
-                    __image = Image.open(BytesIO(ps.encode('utf-8'))).resize([__wigth, __height])
+                    __image = Image.open(BytesIO(ps.encode('utf-8')))
             else:
                 if __page["imgs"]:
                     __image = __page["imgs"][-1].resize([_ + 4 for _ in __page["img_size"]])
@@ -332,26 +340,23 @@ class Img:
 
         __page = self._canvas.img
         if __page["imgs"]:
-            if per.get().lstrip("-").isnumeric():
-                __percent = float(per.get()) / 100
-                __fltr = f.get()
-                __image = __page["imgs"][-1]
-                __image_new = None
-                if __fltr == "color":
-                    __image_new = ImageEnhance.Color(__image).enhance(__percent)
-                elif __fltr == "contrast":
-                    __image_new = ImageEnhance.Contrast(__image).enhance(__percent)
-                elif __fltr == "brightness":
-                    __image_new = ImageEnhance.Brightness(__image).enhance(__percent)
-                elif __fltr == "sharpness":
-                    __image_new = ImageEnhance.Sharpness(__image).enhance(__percent)
-                else:
-                    pass
-                __page["imgs"].append(__image_new)
-                __page["ph"] = ImageTk.PhotoImage(__image_new.resize(__page["scale_size"]))
-                self._canvas.itemconfig(__page["cr_img"], image=__page["ph"])
+            __percent = float(per.get()) / 100
+            __fltr = f.get()
+            __image = __page["imgs"][-1]
+            __image_new = None
+            if __fltr == "color":
+                __image_new = ImageEnhance.Color(__image).enhance(__percent)
+            elif __fltr == "contrast":
+                __image_new = ImageEnhance.Contrast(__image).enhance(__percent)
+            elif __fltr == "brightness":
+                __image_new = ImageEnhance.Brightness(__image).enhance(__percent)
+            elif __fltr == "sharpness":
+                __image_new = ImageEnhance.Sharpness(__image).enhance(__percent)
             else:
-                messagebox.showerror("Внимание!", "Значение должно быть числовым")
+                pass
+            __page["imgs"].append(__image_new)
+            __page["ph"] = ImageTk.PhotoImage(__image_new.resize(__page["scale_size"]))
+            self._canvas.itemconfig(__page["cr_img"], image=__page["ph"])
         else:
             messagebox.showwarning("Внимание!", "Сначала загрузите изображение")
 
@@ -374,13 +379,13 @@ class Img:
             if __image.mode != "RGB":
                 __mode = __image.mode
                 __image = __image.convert("RGB")
-            image_new = Image.new('RGB', (__w, __h))
+            __image_new = Image.new('RGB', (__w, __h))
 
             if __fltr == "negative":
                 for x in range(__w):
                     for y in range(__h):
                         r, g, b = __image.getpixel((x, y))
-                        image_new.putpixel((x, y), (255 - r, 255 - g, 255 - b))
+                        __image_new.putpixel((x, y), (255 - r, 255 - g, 255 - b))
             elif __fltr == "white-black":
                 separator = 255 / 0.8 / 2 * 3
                 for x in range(__w):
@@ -388,15 +393,15 @@ class Img:
                         r, g, b = __image.getpixel((x, y))
                         total = r + g + b
                         if total > separator:
-                            image_new.putpixel((x, y), (255, 255, 255))
+                            __image_new.putpixel((x, y), (255, 255, 255))
                         else:
-                            image_new.putpixel((x, y), (0, 0, 0))
+                            __image_new.putpixel((x, y), (0, 0, 0))
             elif __fltr == "gray scale":
                 for x in range(__w):
                     for y in range(__h):
                         r, g, b = __image.getpixel((x, y))
                         gray = int(r * 0.2126 + g * 0.7152 + b * 0.0722)
-                        image_new.putpixel((x, y), (gray, gray, gray))
+                        __image_new.putpixel((x, y), (gray, gray, gray))
             elif __fltr == "sepia":
                 for x in range(__w):
                     for y in range(__h):
@@ -404,13 +409,13 @@ class Img:
                         red = int(r * 0.393 + g * 0.769 + b * 0.189)
                         green = int(r * 0.349 + g * 0.686 + b * 0.168)
                         blue = int(r * 0.272 + g * 0.534 + b * 0.131)
-                        image_new.putpixel((x, y), (red, green, blue))
+                        __image_new.putpixel((x, y), (red, green, blue))
             else:
                 pass
             if __mode:
-                __image = __image.convert(__mode)
-            __page["imgs"].append(image_new)
-            __page["ph"] = ImageTk.PhotoImage(image_new.resize(__page["scale_size"]))
+                __image_new = __image.convert(__mode)
+            __page["imgs"].append(__image_new)
+            __page["ph"] = ImageTk.PhotoImage(__image_new.resize(__page["scale_size"]))
             self._canvas.itemconfig(__page["cr_img"], image=__page["ph"])
         else:
             messagebox.showwarning("Внимание!", "Сначала загрузите изображение")
@@ -425,12 +430,71 @@ class Img:
         __page = self._canvas.img
         if __page["imgs"]:
             try:
-                colors = __page["imgs"][-1].split()
-                sample = choices(colors, k=len(colors))
-                image_new = Image.merge(__page["imgs"][-1].mode, sample)
-                __page["imgs"].append(image_new)
-                __page["ph"] = ImageTk.PhotoImage(image_new.resize(__page["scale_size"]))
+                __image = __page['imgs'][-1]
+
+                __mode = None
+                if __image.mode != 'RGB':
+                    __mode = __image.mode
+                    __image = __image.convert("RGB")
+
+                __colors = __image.split()
+                __sample = choices(__colors, k=len(__colors))
+                while __sample[0] == __sample[1] == __sample[2]:
+                    __sample = choices(__colors, k=len(__colors))
+                __image_new = Image.merge(__image.mode, __sample)
+
+                if __mode:
+                    __image_new = __image.convert(__mode)
+
+                __page["imgs"].append(__image_new)
+                __page["ph"] = ImageTk.PhotoImage(__image_new.resize(__page["scale_size"]))
                 self._canvas.itemconfig(__page["cr_img"], image=__page["ph"])
+            except ValueError:
+                messagebox.showerror("Ошибка!", "Применить фильтр не удалось")
+        else:
+            messagebox.showwarning("Внимание!", "Сначала загрузите изображение")
+
+    def change_layers(self, r, g, b):
+        """
+        Изменяет насыщенность каждого слоя в отдельности
+
+        Аргументы:
+                r: tkinter.StringVar - строковая переменная tkinter, в которой содержится значение для красного слоя
+                g: tkinter.StringVar - строковая переменная tkinter, в которой содержится значение для зеленого слоя
+                b tkinter.StringVar - строковая переменная tkinter, в которой содержится значение для синего слоя
+
+
+
+        Возвращает:
+                None
+        """
+        __page = self._canvas.img
+        if __page["imgs"]:
+            try:
+                __image = __page["imgs"][-1]
+                __mode = None
+                if __image.mode != 'RGB':
+                    __mode = __image.mode
+                    __image = __image.convert("RGB")
+                __r_value = float(r.get()) / 100.
+                __g_value = float(g.get()) / 100.
+                __b_value = float(b.get()) / 100.
+
+                __layers = __image.split()
+                __r_layer = __layers[0].point(lambda i: i * __r_value)
+                __g_layer = __layers[1].point(lambda i: i * __r_value)
+                __b_layer = __layers[2].point(lambda i: i * __r_value)
+
+                __image_new = Image.merge('RGB', (__r_layer, __g_layer, __b_layer))
+
+                if __mode:
+                    __image_new = __image.convert(__mode)
+
+                __page["imgs"].append(__image_new)
+                __page["ph"] = ImageTk.PhotoImage(__image_new.resize(__page["scale_size"]))
+                self._canvas.itemconfig(__page["cr_img"], image=__page["ph"])
+
+
             except ValueError:
                 messagebox.showerror("Ошибка!", "Применить фильтр не удалось")
         else:

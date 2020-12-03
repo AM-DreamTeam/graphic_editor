@@ -2,9 +2,9 @@
 
 
 # Импортированные модулей
+from core._custom_notebook import *
 from core.image_lib._image_processing import Img
 from core.graphic_lib._events import Events
-from tkinter.ttk import Notebook
 from core._defaults import *
 from tkinter import *
 
@@ -59,10 +59,10 @@ class CustomCanvas(Canvas):
                      "scroll_speed": 10.                                    # скорость прокрутки скроллов
                 }
 
-        self.drawQ = True                                                  # было ли что-то нарисовано?
+        self.drawQ = False                                                  # было ли что-то нарисовано?
 
 
-class CustomNotebook(Notebook):
+class CustomNotebook(NotebookTabs):
     """ CustomNotebook - расширенный, настраиваемый Notebook из модуля tkinter, чтобы не пачкать уже существующий
 
         Аргументы:
@@ -76,7 +76,8 @@ class CustomNotebook(Notebook):
     def __init__(self, root, **kwargs):
         super().__init__(root, **kwargs)
 
-        __frame = Frame(self)   # фрейм, в который мы складывает холст и скроллы
+        # фрейм, в который мы складывает холст и скроллы
+        __frame = Frame(self)
         self.add(__frame, text='Холст 1')
 
         __scroll_x = Scrollbar(__frame, orient=HORIZONTAL)
@@ -112,6 +113,8 @@ class CustomNotebook(Notebook):
         __canvas.bind("<Button 3>", lambda event: self.image_processing.grab(event))
         __canvas.bind("<B3-Motion>", lambda event: self.image_processing.drag(event))
         __canvas.bind("<MouseWheel>", lambda event: self.image_processing.zoom(event))
+
+        self.root.bind('<Control-s>', lambda event: print(__canvas.modified_objs, __canvas.obj_storage)) # TODO: Избавится от этого, нужно лишь для debug'a
 
         self.events = Events(self.root, DEFAULT_USED_EVENTS, __canvas)
         self.events.event_onCanvas()
@@ -161,7 +164,7 @@ class CustomNotebook(Notebook):
         self.events.event_undo()
 
         __canvas.img["id"] = self._count
-        self.select(self._count-1)
+        self.select(self.tabs()[-1])
         self._canvases.append(__canvas)
 
     def select_curr_tab(self, event):
@@ -176,12 +179,15 @@ class CustomNotebook(Notebook):
             Побочный эффект:
                 Обновляет графическое ядро и ядро для работы с фотографиями
         """
+        try:
+            __selected_canvas = event.widget.select()
+            __id = int(event.widget.tab(__selected_canvas, "text")[-1])
 
-        __selected_canvas = event.widget.select()
-        __id = int(event.widget.tab(__selected_canvas, "text")[-1])
+            __canvas = self._canvases[__id-1]
 
-        __canvas = self._canvases[__id-1]
+            self.image_processing = Img(__canvas)
+            self.events = Events(self.root, DEFAULT_USED_EVENTS, __canvas)
+            self.events.event_undo()
+        except _tkinter.TclError:
+            pass
 
-        self.image_processing = Img(__canvas)
-        self.events = Events(self.root, DEFAULT_USED_EVENTS, __canvas)
-        self.events.event_undo()
