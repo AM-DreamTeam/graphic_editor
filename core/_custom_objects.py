@@ -59,7 +59,7 @@ class CustomCanvas(Canvas):
                      "scroll_speed": 10.                                    # скорость прокрутки скроллов
                 }
 
-        self.drawQ = False                                                  # было ли что-то нарисовано?
+        self.drawQ = True                                                  # было ли что-то нарисовано?
 
 
 class CustomNotebook(NotebookTabs):

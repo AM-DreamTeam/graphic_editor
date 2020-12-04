@@ -24,7 +24,7 @@ class App:
         # кнопка возврата предыдущего изображения
         Button(frame_img,
                text="return image",
-               command=notebook.image_processing.return_image
+               command=lambda: notebook.image_processing.return_image()
                ).pack(pady=5)
 
         # кнопка смены цвета фона

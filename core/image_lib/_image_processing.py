@@ -482,8 +482,8 @@ class Img:
 
                 __layers = __image.split()
                 __r_layer = __layers[0].point(lambda i: i * __r_value)
-                __g_layer = __layers[1].point(lambda i: i * __r_value)
-                __b_layer = __layers[2].point(lambda i: i * __r_value)
+                __g_layer = __layers[1].point(lambda i: i * __g_value)
+                __b_layer = __layers[2].point(lambda i: i * __b_value)
 
                 __image_new = Image.merge('RGB', (__r_layer, __g_layer, __b_layer))
 
