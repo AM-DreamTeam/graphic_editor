@@ -46,11 +46,9 @@ DEFAULT_CANVAS_BG = 'white'
 DEFAULT_FILTERS_1 = [
                     "blur",
                     "contour",
-                    "detail",
                     "edge enhance",
                     "emboss",
                     "find edges",
-                    "sharpen",
                     "smooth"
                     ]
 

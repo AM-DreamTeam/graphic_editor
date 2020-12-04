@@ -303,16 +303,12 @@ class Img:
                 __image_new = __image.filter(ImageFilter.BLUR)
             elif __fltr == "contour":
                 __image_new = __image.filter(ImageFilter.CONTOUR)
-            elif __fltr == "detail":
-                __image_new = __image.filter(ImageFilter.DETAIL)
             elif __fltr == "edge enhance":
                 __image_new = __image.filter(ImageFilter.EDGE_ENHANCE)
             elif __fltr == "emboss":
                 __image_new = __image.filter(ImageFilter.EMBOSS)
             elif __fltr == "find edges":
                 __image_new = __image.filter(ImageFilter.FIND_EDGES)
-            elif __fltr == "sharpen":
-                __image_new = __image.filter(ImageFilter.SHARPEN)
             elif __fltr == "smooth":
                 __image_new = __image.filter(ImageFilter.SMOOTH)
             __page["imgs"].append(__image_new)
