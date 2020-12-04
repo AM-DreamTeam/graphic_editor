@@ -63,7 +63,6 @@ DEFAULT_FILTERS_2 = [
 
 DEFAULT_FILTERS_3 = [
                     "negative",
-                    "white-black",
                     "gray scale",
-                    "sepia"
+                    "solarize"
                     ]

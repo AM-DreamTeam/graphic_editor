@@ -56,8 +56,9 @@ class CustomCanvas(Canvas):
                      "ph": None,                                            # объект ImageTk, который лежит в create_image
                      "scale": 1.0,                                          # коэффициент масштабирования
                      "scale_size": (DEFAULT_CANVAS_W, DEFAULT_CANVAS_H),    # размеры изображения при масштабировании
-                     "scroll_speed": 10.                                    # скорость прокрутки скроллов
-                }
+                     "scroll_speed": 10.,                                   # скорость прокрутки скроллов
+                     "curr_img": None                                       # временное хранилище фотографии
+                    }
 
         self.drawQ = True                                                  # было ли что-то нарисовано?
 
@@ -190,4 +191,3 @@ class CustomNotebook(NotebookTabs):
             self.events.event_undo()
         except _tkinter.TclError:
             pass
-

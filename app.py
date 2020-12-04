@@ -25,19 +25,7 @@ class App:
         Button(frame_img,
                text="return image",
                command=lambda: notebook.image_processing.return_image()
-               ).pack(pady=5)
-
-        # кнопка смены цвета фона
-        Button(frame_img,
-               text="bg",
-               command=lambda: notebook.image_processing.set_bg()
-               ).pack(pady=5)
-
-        # выводит на экран информацию о текущем холсте - для отладки
-        Button(frame_img,
-               text="get info",
-               command=lambda: notebook.image_processing.get_info()
-               ).pack(pady=5)
+               ).pack()
 
         # кнопки фильтра 1
 
@@ -57,7 +45,7 @@ class App:
                                    notebook.image_processing.apply_filter_1(x)
                                    )
         btn_apply_filter1.grid(row=1, sticky="e")
-        frame_filter1.pack(pady=5)
+        frame_filter1.pack()
 
         # кнопки фильтра 2
 
@@ -72,19 +60,22 @@ class App:
                               )
         filters2.pack()
 
-        filter_2_percent = Scale(frame_filter2, from_=0, to=200, orient=HORIZONTAL)
-        filter_2_percent.set(100)
-        filter_2_percent.pack()
+        self.filter_2_percent = Scale(frame_filter2, from_=0, to=200, orient=HORIZONTAL)
+        self.filter_2_percent.set(100)
+        self.filter_2_percent.pack()
 
-        btn_apply_filter2 = Button(frame_filter2,
-                                   text="apply filter",
-                                   command=lambda
-                                   x=variable_filter_2,
-                                   y=filter_2_percent:
-                                   notebook.image_processing.apply_filter_2(x, y)
-                                   )
-        btn_apply_filter2.pack()
-        frame_filter2.pack(pady=5)
+        self.filter_2_percent.bind("<B1-Motion>", lambda
+                                   event,
+                                   filter=variable_filter_2,
+                                   scale=self.filter_2_percent:
+                                   notebook.image_processing.apply_filter_2(f=filter, per=scale, event=event))
+
+        Button(frame_filter2,
+               text='Apply',
+               command=
+               lambda : [notebook.image_processing.append_image(), self.reset_scales()]
+               ).pack()
+        frame_filter2.pack()
 
         # кнопки фильтра 3
         frame_filter3 = LabelFrame(frame_img, text='filter 3')
@@ -102,36 +93,116 @@ class App:
                                    notebook.image_processing.apply_filter_3(x)
                                    )
         btn_apply_filter3.grid(row=1, column=0, columnspan=2, sticky="e")
-        frame_filter3.pack(pady=5)
+        frame_filter3.pack()
 
-        # фильтр 4
-        Button(frame_img,
-               text="try your luck",
+        # кнопки фильтра 4
+        frame_filter4 = LabelFrame(frame_img, text='filter 4')
+        self.r_scale_box = Scale(frame_filter4, from_=0, to=200, orient=HORIZONTAL)
+        self.r_scale_box.set(100)
+        self.g_scale_box = Scale(frame_filter4, from_=0, to=200, orient=HORIZONTAL)
+        self.g_scale_box.set(100)
+        self.b_scale_box = Scale(frame_filter4, from_=0, to=200, orient=HORIZONTAL)
+        self.b_scale_box.set(100)
+        self.r_scale_box.pack()
+        self.g_scale_box.pack()
+        self.b_scale_box.pack()
+
+        self.r_scale_box.bind("<B1-Motion>",
+                              lambda
+                              event,
+                              r=self.r_scale_box,
+                              g=self.g_scale_box,
+                              b=self.b_scale_box:
+                               notebook.image_processing.change_layers(red=r, green=g, blue=b, event=event))
+        self.g_scale_box.bind("<B1-Motion>", lambda
+                              event,
+                              r=self.r_scale_box,
+                              g=self.g_scale_box,
+                              b=self.b_scale_box:
+                              notebook.image_processing.change_layers(red=r, green=g, blue=b, event=event))
+        self.b_scale_box.bind("<B1-Motion>", lambda
+                              event,
+                              r=self.r_scale_box,
+                              g=self.g_scale_box,
+                              b=self.b_scale_box:
+                              notebook.image_processing.change_layers(red=r, green=g, blue=b, event=event))
+
+        Button(frame_filter4,
+               text='Apply',
+               command=
+               lambda: [notebook.image_processing.append_image(), self.reset_scales()]
+               ).pack()
+        frame_filter4.pack()
+
+        # фильтр 5
+        frame_filter5 = LabelFrame(frame_img, text='filter 4')
+        Button(frame_filter5,
+               text="mix layers",
                command=lambda: notebook.image_processing.apply_filter_4()
-               ).pack(pady=10)
+               ).grid(column=0, row=0)
 
-        # кнопки фильтра 5
-        frame_filter5 = LabelFrame(frame_img, text='filter 5')
-        r_scale_box = Scale(frame_filter5, from_=0, to=200, orient=HORIZONTAL)
-        r_scale_box.set(100)
-        g_scale_box = Scale(frame_filter5, from_=0, to=200, orient=HORIZONTAL)
-        g_scale_box.set(100)
-        b_scale_box = Scale(frame_filter5, from_=0, to=200, orient=HORIZONTAL)
-        b_scale_box.set(100)
-        r_scale_box.pack()
-        g_scale_box.pack()
-        b_scale_box.pack()
+        Button(frame_filter5,
+               text="normalize",
+               command=lambda: notebook.image_processing.normalize_image()
+               ).grid(column=1, row=0)
+        frame_filter5.pack()
 
-        btn_apply_filter5 = Button(frame_filter5,
+        # отражение
+        frame_filter6 = LabelFrame(frame_img, text='reflect')
+        variable_filter_6 = StringVar(frame_filter6)
+        variable_filter_6.set('horizontal')
+        filters6 = OptionMenu(frame_filter6,
+                              variable_filter_6,
+                              "horizontal",
+                              'vertical'
+                              )
+        filters6.pack()
+
+        btn_apply_filter6 = Button(frame_filter6,
                                    text="apply filter",
-                                   command=lambda
-                                   r=r_scale_box,
-                                   g=g_scale_box,
-                                   b=b_scale_box:
-                                   notebook.image_processing.change_layers(r, g, b)
+                                   command=lambda x=variable_filter_6:
+                                   notebook.image_processing.reflect_image(x)
                                    )
-        btn_apply_filter5.pack()
-        frame_filter5.pack(pady=5)
+        btn_apply_filter6.pack()
+        frame_filter6.pack()
+
+        # отражение
+        frame_filter6 = LabelFrame(frame_img, text='reflect')
+        variable_filter_6 = StringVar(frame_filter6)
+        variable_filter_6.set('horizontal')
+        filters6 = OptionMenu(frame_filter6,
+                              variable_filter_6,
+                              "horizontal",
+                              'vertical'
+                              )
+        filters6.pack()
+
+        btn_apply_filter6 = Button(frame_filter6,
+                                   text="apply filter",
+                                   command=lambda x=variable_filter_6:
+                                   notebook.image_processing.reflect_image(x)
+                                   )
+        btn_apply_filter6.pack()
+        frame_filter6.pack()
+
+        # отражение
+        frame_filter7 = LabelFrame(frame_img, text='reflect')
+        variable_filter_7 = StringVar(frame_filter6)
+        variable_filter_7.set('90')
+        filters7 = OptionMenu(frame_filter7,
+                              variable_filter_7,
+                              "90",
+                              '-90'
+                              )
+        filters7.grid(column=0, row=0)
+
+        btn_apply_filter7 = Button(frame_filter7,
+                                   text="apply filter",
+                                   command=lambda x=variable_filter_7:
+                                   notebook.image_processing.rotate_image(x)
+                                   )
+        btn_apply_filter7.grid(column=1, row=0)
+        frame_filter7.pack()
 
         # frame_img.grid(row=0, column=0, sticky="nsew")
 
@@ -188,8 +259,10 @@ class App:
         btnCreateOval.pack(side=TOP, pady=5)
 
         btnCreateRectangle = Button(frame_graphic, text='*прямоугольник*',
-                                    command=lambda t=core.DEFAULT_THICKNESS, outclr=core.DEFAULT_FIRST_COLOR,
-                                                   bgclr=core.DEFAULT_SECOND_COLOR:
+                                    command=lambda
+                                    t=core.DEFAULT_THICKNESS,
+                                    outclr=core.DEFAULT_FIRST_COLOR,
+                                    bgclr=core.DEFAULT_SECOND_COLOR:
                                     notebook.events.event_btnCreateRectangle(thickness=t, bgcolor=bgclr, outcolor=outclr))
         btnCreateRectangle.pack(side=TOP, pady=5)
         # frame_graphic.grid(row=1, column=0, sticky="nsew")
@@ -211,14 +284,22 @@ class App:
 
         menubar.add_command(label='New canvas', command=notebook.create_new_canvas)
 
+        menubar.add_command(label='Info', command=lambda: notebook.image_processing.get_info())
 
         root.config(menu=menubar)
 
-
-
-        notebook.bind("<<NotebookTabChanged>>", notebook.select_curr_tab)
+        notebook.bind("<<NotebookTabChanged>>", lambda _: [notebook.select_curr_tab(_), self.reset_scales(_)])
 
         root.bind('<Control-x>', quit)
+
+    def reset_scales(self, _=None):
+        """
+        Сбрасывает значения Scale до 100 при смене вкладки
+        """
+        self.filter_2_percent.set(100)
+        self.r_scale_box.set(100)
+        self.g_scale_box.set(100)
+        self.b_scale_box.set(100)
 
 
 if __name__ == "__main__":
