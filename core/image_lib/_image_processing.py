@@ -13,12 +13,11 @@
 
 # Импортированные модули
 from tkinter import messagebox, filedialog, ALL
-from PIL import Image, ImageTk, UnidentifiedImageError, EpsImagePlugin, ImageFilter, ImageEnhance
+from PIL import Image, ImageTk, UnidentifiedImageError, EpsImagePlugin, ImageFilter, ImageEnhance, ImageOps
 from io import BytesIO
 from random import choices, randint
+from copy import copy
 
-
-drawQ = False
 
 """
     > Нужно для сохранения изображения
@@ -28,7 +27,7 @@ drawQ = False
     которому как раз таки и указывается в следующей строке (хотя у Егора, например, этого не было)
 """
 
-# EpsImagePlugin.gs_windows_binary = r'C:\Program Files\gs\gs9.53.3\bin\gswin64c'
+EpsImagePlugin.gs_windows_binary = r'C:\Program Files\gs\gs9.53.3\bin\gswin64c'
 
 
 def random_color():
@@ -38,7 +37,8 @@ def random_color():
             str - строку цвета в hex-формате
     """
 
-    r = lambda: randint(0, 255)
+    def r():
+        return randint(0, 255)
     return '#%02X%02X%02X' % (r(), r(), r())
 
 
@@ -77,27 +77,26 @@ class Img:
             Возвращает:
                 None
         """
-
         try:
-            page = self._canvas.img
-            image = Image.open(filedialog.askopenfilename(title="Open image", filetypes=self._types))
-            page["imgs"].append(image)
-            photo = ImageTk.PhotoImage(image)
-            im_size = image.size
-            if len(self._canvas.img["imgs"]) == 1:
-                page["cr_img"] = self._canvas.create_image(0, 0, anchor='nw', image=photo)
-            else:
-                self._canvas.itemconfig(page["cr_img"], image=photo)
-            self._canvas.config(width=im_size[0], height=im_size[1])
-            self._canvas.configure(scrollregion=(0, 0) + im_size)
+            __page = self._canvas.img
+            __image = Image.open(filedialog.askopenfilename(title="Open image", filetypes=self._types))
+            __page["imgs"].append(__image)
+            __im_size = __image.size
+            __page["img_size"] = __im_size
 
-            page["ph"] = photo
-            page["img_size"] = im_size
-            page["scale_size"] = im_size
-            page["scale"] = 1.0
+            __page["scale_size"] = int(__im_size[0] * __page["scale"]), int(__im_size[1] * __page["scale"])
+            __photo = ImageTk.PhotoImage(__image.resize(__page["scale_size"]))
+            __page["ph"] = __photo
+
+            if len(self._canvas.img["imgs"]) == 1:
+                __page["cr_img"] = self._canvas.create_image(0, 0, anchor='nw', image=__photo, tags="photo")
+            else:
+                self._canvas.itemconfig(__page["cr_img"], image=__photo)
+            self._canvas.config(width=__im_size[0], height=__im_size[1])
+            self._canvas.configure(scrollregion=(0, 0) + __im_size)
 
         except UnidentifiedImageError:
-            messagebox.showerror("Ошибка!", "Не удалось загузить фотографию")
+            messagebox.showerror('Ошибка!', 'Не удалось загузить фотографию')
         except AttributeError:
             pass
 
@@ -120,26 +119,59 @@ class Img:
                 None
 
             Побочный эффект:
-                Если drawQ, то сохраняет изображение через postscipt, если нет, то просто последнее изображение из списка изображений
+                Если drawQ, то сохраняет изображение через postscipt, если нет, то просто последнее изображение из
+                списка изображений
         """
 
-        new_file = filedialog.asksaveasfilename(title="Сохранить файл",
-                                                defaultextension=".jpg",
-                                                filetypes=self._types)
-        page = self._canvas.img
+        __new_file = filedialog.asksaveasfilename(title="Сохранить файл",
+                                                  defaultextension=".jpg",
+                                                  filetypes=self._types
+                                                  )
 
-        if drawQ:
-            ps = self._canvas.postscript(colormode="color",
-                                        height=page["scale_size"][1],
-                                        width=page["scale_size"][0],
-                                        x='0.c', y='0.c')
-            image = Image.open(BytesIO(ps.encode('utf-8'))).resize([_ + 0 for _ in page["img_size"]])
-            image = image.crop((5, 5, page["img_size"][0] - 5, page["img_size"][1] - 5))
-        else:
-            image = page["imgs"][-1].resize([_ + 10 for _ in page["img_size"]])
-            image = image.crop((5, 5, page["img_size"][0] - 5, page["img_size"][1] - 5))
-        if new_file:
-            image.save(new_file)
+        if __new_file:
+            __page = self._canvas.img
+            if __page["curr_img"]:
+                self.append_image()
+            if __page["imgs"]:
+                __img = __page["imgs"][-1]
+                __page["ph"] = ImageTk.PhotoImage(__img.resize((
+                                                                int(__img.size[0] * 1.333333),
+                                                                int(__img.size[1] * 1.333333))))
+                self._canvas.itemconfig(__page["cr_img"], image=__page["ph"])
+            if self._canvas.obj_storage == {}:
+                self._canvas.scale(ALL, 0, 0, (1 / __page["scale"]) * 1.333333, (1 / __page["scale"]) * 1.333333)
+            __page["scale_size"] = tuple((int(_ * 1.333333) for _ in __page["img_size"]))
+            __page["scale"] = 1.333333
+            __bbox = self._canvas.bbox(ALL)
+            self._canvas.configure(scrollregion=(0, 0, __bbox[2] - __bbox[0], __bbox[3] - __bbox[1]))
+
+            __image = None
+            if self._canvas.obj_storage:
+                if __page["imgs"]:
+                    ps = self._canvas.postscript(colormode="color",
+                                                 height=__bbox[3] - __bbox[1] + 10,
+                                                 width=__bbox[2] - __bbox[0] + 10,
+                                                 x=__bbox[0] - 5, y=__bbox[1] - 5)
+                    __image = Image.open(BytesIO(ps.encode('utf-8')))
+                    __image = __image.resize([_ + 4 for _ in __image.size])
+                    __image = __image.crop((2, 2, __image.size[0] - 2, __image.size[1] - 2))
+                else:
+                    __wigth = max(800, __bbox[-2])
+                    __height = max(600, __bbox[-1])
+                    ps = self._canvas.postscript(colormode="color",
+                                                 height=__height + 10,
+                                                 width=__wigth + 10,
+                                                 x=-5, y=-5
+                                                 )
+                    __image = Image.open(BytesIO(ps.encode('utf-8')))
+            else:
+                if __page["imgs"]:
+                    __image = __page["imgs"][-1].resize([_ + 4 for _ in __page["img_size"]])
+                    __image = __image.crop((2, 2, __image.size[0] - 2, __image.size[1] - 2))
+                else:
+                    __image = Image.new('RGB', (800, 600), color="white")
+            __image.show()
+            __image.save(__new_file)
 
     def return_image(self):
         """ Возвращает на холст предыдущее изображение из списка изображений, а текущее удаляет
@@ -148,21 +180,15 @@ class Img:
                 None
         """
 
-        page = self._canvas.img
-        if len(page["imgs"]) >= 2:
-            del page["imgs"][-1]
-            image = page["imgs"][-1]
-            page["ph"] = ImageTk.PhotoImage(image)
-            self._canvas.itemconfig(page["cr_img"], image=page["ph"])
+        __page = self._canvas.img
+        if len(__page["imgs"]) >= 2:
+            del __page["imgs"][-1]
+            __image = __page["imgs"][-1]
+            __iw, __ih = __image.size
+            __page["scale_size"] = int(__iw * __page["scale"]), int(__ih * __page["scale"])
 
-    def set_bg(self):
-        """ Меняет цвет фона на текущем холсте
-
-            Возвращает:
-                None
-        """
-
-        self._canvas["bg"] = random_color()
+            __page["ph"] = ImageTk.PhotoImage(__image.resize(__page["scale_size"]))
+            self._canvas.itemconfig(__page["cr_img"], image=__page["ph"])
 
     def grab(self, event):
         """ Отлавливает начало перемещение холста (инструмент "рука")
@@ -201,7 +227,6 @@ class Img:
             self._canvas.xview("scroll", -1, "units")
         elif self._x - event.x > 0:
             self._canvas.xview("scroll", 1, "units")
-
         self._x = event.x
         self._y = event.y
 
@@ -215,15 +240,16 @@ class Img:
                 None
         """
 
-        page = self._canvas.img
-        if event.delta > 0:
-            page["scale"] = page["scale"] * 1.1 if page["scale"] < 8 else 8
-            self.redraw("in")
-        elif event.delta < 0:
-            page["scale"] = page["scale"] * 0.9 if page["scale"] > 0.125 else 0.125
-            self.redraw("on")
+        __page = self._canvas.img
+        if self._canvas.drawQ or __page["imgs"]:
+            if event.delta > 0:
+                __page["scale"] = __page["scale"] * 1.1 if __page["scale"] * 1.1 < 8 else 8
+                self.redraw("in")
+            elif event.delta < 0:
+                __page["scale"] = __page["scale"] * 0.9 if __page["scale"] * 0.9 > 0.125 else 0.125
+                self.redraw("on")
 
-    def redraw(self, direction = "in"):
+    def redraw(self, direction="in"):
         """ Осущесвляет масшабирование в соответствии с коэффициентом масштабирования
 
             Аргументы:
@@ -236,25 +262,23 @@ class Img:
                 Перерисовывает текущее изображение и передвигает элементы на холсте с помощью метода canvas.scale
         """
 
-        page = self._canvas.img
-        if page["imgs"]:
-            iw, ih = page["img_size"]
-            page["scale_size"] = int(iw * page["scale"]), int(ih * page["scale"])
-            image = page["imgs"][-1]
-            page["ph"] = ImageTk.PhotoImage(image.resize(page["scale_size"]))
-            self._canvas.itemconfig(page["cr_img"], image=page["ph"])
+        __page = self._canvas.img
+        if __page["imgs"]:
+            __iw, __ih = __page["img_size"]
+            __page["scale_size"] = int(__iw * __page["scale"]), int(__ih * __page["scale"])
+            __image = __page["imgs"][-1]
+            __page["ph"] = ImageTk.PhotoImage(__image.resize(__page["scale_size"]))
+            self._canvas.itemconfig(__page["cr_img"], image=__page["ph"])
 
-            self._canvas.configure(scrollregion=(0, 0) + page["scale_size"])
+            self._canvas.configure(scrollregion=self._canvas.bbox(ALL))
 
-        self._canvas.config(width=page["scale_size"][0], height=page["scale_size"][1])
-        scroll_speed = str(int(page["scroll_speed"] * pow(page["scale"], 1)))
-        print(scroll_speed)
-        self._canvas.configure(yscrollincrement=scroll_speed, xscrollincrement=scroll_speed)
-
-        if direction == "in":
-            self._canvas.scale(ALL, 0, 0, 1.1, 1.1)
-        elif direction == "on":
-            self._canvas.scale(ALL, 0, 0, 0.9, 0.9)
+        __scroll_speed = str(float(__page["scroll_speed"]) * pow(__page["scale"], 1 / 6))
+        self._canvas.configure(yscrollincrement=__scroll_speed, xscrollincrement=__scroll_speed)
+        if 0.125 < __page["scale"] < 8:
+            if direction == "in":
+                self._canvas.scale(ALL, 0, 0, 1.1, 1.1)
+            elif direction == "on":
+                self._canvas.scale(ALL, 0, 0, 0.9, 0.9)
 
     def apply_filter_1(self, f):
         """ Применяет к изображению с холста фильтр из первой группы (DEFAULT_FILTERS_1)
@@ -266,34 +290,30 @@ class Img:
                 None
         """
 
-        page = self._canvas.img
-        if page["imgs"]:
-            image = page["imgs"][-1]
-            fltr = f.get()
-            image_new = None
-            if fltr == "blur":
-                image_new = image.filter(ImageFilter.BLUR)
-            elif fltr == "contour":
-                image_new = image.filter(ImageFilter.CONTOUR)
-            elif fltr == "detail":
-                image_new = image.filter(ImageFilter.DETAIL)
-            elif fltr == "edge enhance":
-                image_new = image.filter(ImageFilter.EDGE_ENHANCE)
-            elif fltr == "emboss":
-                image_new = image.filter(ImageFilter.EMBOSS)
-            elif fltr == "find edges":
-                image_new = image.filter(ImageFilter.FIND_EDGES)
-            elif fltr == "sharpen":
-                image_new = image.filter(ImageFilter.SHARPEN)
-            elif fltr == "smooth":
-                image_new = image.filter(ImageFilter.SMOOTH)
-            page["imgs"].append(image_new)
-            page["ph"] = ImageTk.PhotoImage(image_new.resize(page["scale_size"]))
-            self._canvas.itemconfig(page["cr_img"], image=page["ph"])
+        __page = self._canvas.img
+        if __page["imgs"]:
+            __image = __page["imgs"][-1]
+            __fltr = f.get()
+            __image_new = None
+            if __fltr == "blur":
+                __image_new = __image.filter(ImageFilter.BLUR)
+            elif __fltr == "contour":
+                __image_new = __image.filter(ImageFilter.CONTOUR)
+            elif __fltr == "edge enhance":
+                __image_new = __image.filter(ImageFilter.EDGE_ENHANCE)
+            elif __fltr == "emboss":
+                __image_new = __image.filter(ImageFilter.EMBOSS)
+            elif __fltr == "find edges":
+                __image_new = __image.filter(ImageFilter.FIND_EDGES)
+            elif __fltr == "smooth":
+                __image_new = __image.filter(ImageFilter.SMOOTH)
+            __page["imgs"].append(__image_new)
+            __page["ph"] = ImageTk.PhotoImage(__image_new.resize(__page["scale_size"]))
+            self._canvas.itemconfig(__page["cr_img"], image=__page["ph"])
         else:
             messagebox.showwarning("Внимание!", "Сначала загрузите изображение")
 
-    def apply_filter_2(self, f, per):
+    def apply_filter_2(self, f, per, event=None):
         """ Применяет к изображению с холста фильтр из второй группы (DEFAULT_FILTERS_2)
 
             Аргументы:
@@ -304,28 +324,25 @@ class Img:
                 None
         """
 
-        page = self._canvas.img
-        if page["imgs"]:
-            if per.get().lstrip("-").isnumeric():
-                percent = float(per.get()) / 100
-                fltr = f.get()
-                image = page["imgs"][-1]
-                image_new = None
-                if fltr == "color":
-                    image_new = ImageEnhance.Color(image).enhance(percent)
-                elif fltr == "contrast":
-                    image_new = ImageEnhance.Contrast(image).enhance(percent)
-                elif fltr == "brightness":
-                    image_new = ImageEnhance.Brightness(image).enhance(percent)
-                elif fltr == "sharpness":
-                    image_new = ImageEnhance.Sharpness(image).enhance(percent)
-                else:
-                    pass
-                page["imgs"].append(image_new)
-                page["ph"] = ImageTk.PhotoImage(image_new.resize(page["scale_size"]))
-                self._canvas.itemconfig(page["cr_img"], image=page["ph"])
+        __page = self._canvas.img
+        if __page["imgs"]:
+            __percent = float(per.get()) / 100
+            __fltr = f.get()
+            __image = __page["imgs"][-1]
+            __image_new = None
+            if __fltr == "color":
+                __image_new = ImageEnhance.Color(__image).enhance(__percent)
+            elif __fltr == "contrast":
+                __image_new = ImageEnhance.Contrast(__image).enhance(__percent)
+            elif __fltr == "brightness":
+                __image_new = ImageEnhance.Brightness(__image).enhance(__percent)
+            elif __fltr == "sharpness":
+                __image_new = ImageEnhance.Sharpness(__image).enhance(__percent)
             else:
-                messagebox.showerror("Внимание!", "Значение должно быть числовым")
+                pass
+            __page["curr_img"] = __image_new
+            __page["ph"] = ImageTk.PhotoImage(__image_new.resize(__page["scale_size"]))
+            self._canvas.itemconfig(__page["cr_img"], image=__page["ph"])
         else:
             messagebox.showwarning("Внимание!", "Сначала загрузите изображение")
 
@@ -339,73 +356,232 @@ class Img:
                 None
         """
 
-        page = self._canvas.img
-        if page["imgs"]:
-            fltr = f.get()
-            w, h = page["img_size"][0], page["img_size"][1]
-            image = page["imgs"][-1]
-            mode = None
-            if image.mode != "RGB":
-                mode = image.mode
-                image = image.convert("RGB")
-            image_new = Image.new('RGB', (w, h))
-
-            if fltr == "negative":
-                for x in range(w):
-                    for y in range(h):
-                        r, g, b = image.getpixel((x, y))
-                        image_new.putpixel((x, y), (255 - r, 255 - g, 255 - b))
-            elif fltr == "white-black":
-                separator = 255 / 0.8 / 2 * 3
-                for x in range(w):
-                    for y in range(h):
-                        r, g, b = image.getpixel((x, y))
-                        total = r + g + b
-                        if total > separator:
-                            image_new.putpixel((x, y), (255, 255, 255))
-                        else:
-                            image_new.putpixel((x, y), (0, 0, 0))
-            elif fltr == "gray scale":
-                for x in range(w):
-                    for y in range(h):
-                        r, g, b = image.getpixel((x, y))
-                        gray = int(r * 0.2126 + g * 0.7152 + b * 0.0722)
-                        image_new.putpixel((x, y), (gray, gray, gray))
-            elif fltr == "sepia":
-                for x in range(w):
-                    for y in range(h):
-                        r, g, b = image.getpixel((x, y))
-                        red = int(r * 0.393 + g * 0.769 + b * 0.189)
-                        green = int(r * 0.349 + g * 0.686 + b * 0.168)
-                        blue = int(r * 0.272 + g * 0.534 + b * 0.131)
-                        image_new.putpixel((x, y), (red, green, blue))
+        __page = self._canvas.img
+        if __page["imgs"]:
+            __fltr = f.get()
+            __w, __h = __page["img_size"][0], __page["img_size"][1]
+            __image = __page["imgs"][-1]
+            __mode = None
+            if __image.mode != "RGB":
+                __mode = __image.mode
+                __image = __image.convert("RGB")
+            __image_new = None
+            if __fltr == "negative":
+                __image_new = ImageOps.invert(__image)
+            elif __fltr == "gray scale":
+                __image_new = ImageOps.grayscale(__image)
+            elif __fltr == "solarize":
+                __image_new = ImageOps.solarize(__image)
             else:
                 pass
-            if mode:
-                image = image.convert(mode)
-            page["imgs"].append(image_new)
-            page["ph"] = ImageTk.PhotoImage(image_new.resize(page["scale_size"]))
-            self._canvas.itemconfig(page["cr_img"], image=page["ph"])
+            if __mode:
+                __image_new = __image.convert(__mode)
+            __page["imgs"].append(__image_new)
+            __page["ph"] = ImageTk.PhotoImage(__image_new.resize(__page["scale_size"]))
+            self._canvas.itemconfig(__page["cr_img"], image=__page["ph"])
         else:
             messagebox.showwarning("Внимание!", "Сначала загрузите изображение")
 
     def apply_filter_4(self):
-        """ Применяет к изображению с холста треш-фильтр
+        """ Применяет к изображению с холста ванильный-фильтр
 
             Возвращает:
                 None
         """
 
-        page = self._canvas.img
-        if page["imgs"]:
+        __page = self._canvas.img
+        if __page["imgs"]:
             try:
-                colors = page["imgs"][-1].split()
-                sample = choices(colors, k=len(colors))
-                image_new = Image.merge(page["imgs"][-1].mode, sample)
-                page["imgs"].append(image_new)
-                page["ph"] = ImageTk.PhotoImage(image_new.resize(page["scale_size"]))
-                self._canvas.itemconfig(page["cr_img"], image=page["ph"])
+                __image = __page['imgs'][-1]
+
+                __mode = None
+                if __image.mode != 'RGB':
+                    __mode = __image.mode
+                    __image = __image.convert("RGB")
+
+                __colors = __image.split()
+                __sample = choices(__colors, k=len(__colors))
+                while __sample[0] == __sample[1] == __sample[2]:
+                    __sample = choices(__colors, k=len(__colors))
+                __image_new = Image.merge(__image.mode, __sample)
+
+                if __mode:
+                    __image_new = __image.convert(__mode)
+
+                __page["imgs"].append(__image_new)
+                __page["ph"] = ImageTk.PhotoImage(__image_new.resize(__page["scale_size"]))
+                self._canvas.itemconfig(__page["cr_img"], image=__page["ph"])
             except ValueError:
                 messagebox.showerror("Ошибка!", "Применить фильтр не удалось")
+        else:
+            messagebox.showwarning("Внимание!", "Сначала загрузите изображение")
+
+    def change_layers(self, red, green, blue, event=None):
+        """
+        Изменяет насыщенность каждого слоя в отдельности
+
+        Аргументы:
+                r: tkinter.StringVar - строковая переменная tkinter, в которой содержится значение для красного слоя
+                g: tkinter.StringVar - строковая переменная tkinter, в которой содержится значение для зеленого слоя
+                b tkinter.StringVar - строковая переменная tkinter, в которой содержится значение для синего слоя
+
+        Возвращает:
+                None
+        """
+        __page = self._canvas.img
+        if __page["imgs"]:
+            try:
+                __image = __page["imgs"][-1]
+                __mode = None
+                if __image.mode != 'RGB':
+                    __mode = __image.mode
+                    __image = __image.convert("RGB")
+                __r_value = float(red.get()) / 100.
+                __g_value = float(green.get()) / 100.
+                __b_value = float(blue.get()) / 100.
+
+                __layers = __image.split()
+                __r_layer = __layers[0].point(lambda i: i * __r_value)
+                __g_layer = __layers[1].point(lambda i: i * __g_value)
+                __b_layer = __layers[2].point(lambda i: i * __b_value)
+
+                __image_new = Image.merge('RGB', (__r_layer, __g_layer, __b_layer))
+
+                if __mode:
+                    __image_new = __image.convert(__mode)
+
+                __page["curr_img"] = __image_new
+                __page["ph"] = ImageTk.PhotoImage(__image_new.resize(__page["scale_size"]))
+                self._canvas.itemconfig(__page["cr_img"], image=__page["ph"])
+
+            except ValueError:
+                messagebox.showerror("Ошибка!", "Применить фильтр не удалось")
+        else:
+            messagebox.showwarning("Внимание!", "Сначала загрузите изображение")
+
+    def normalize_image(self):
+        """
+        Нормализует изображение
+
+        Аргументы:
+                None
+        Возвращает:
+                None
+        """
+        __page = self._canvas.img
+        if __page["imgs"]:
+            try:
+                __image = __page["imgs"][-1]
+                __mode = None
+                if __image.mode != 'RGB':
+                    __mode = __image.mode
+                    __image = __image.convert("RGB")
+                __image_new = ImageOps.equalize(__image)
+                if __mode:
+                    __image_new = __image.convert(__mode)
+
+                __page["imgs"].append(__image_new)
+                __page["ph"] = ImageTk.PhotoImage(__image_new.resize(__page["scale_size"]))
+                self._canvas.itemconfig(__page["cr_img"], image=__page["ph"])
+
+            except ValueError:
+                messagebox.showerror("Ошибка!", "Применить фильтр не удалось")
+        else:
+            messagebox.showwarning("Внимание!", "Сначала загрузите изображение")
+
+    def append_image(self):
+        """
+        Добавляет изображение в список изображений после прокрутки Scale'ов
+
+        Аргументы:
+                None
+        Возвращает:
+                None
+        Побочные действия:
+                Очищает _canvas.img["curr_img"]
+        """
+        __page = self._canvas.img
+        if __page["curr_img"]:
+            __page["imgs"].append(copy(__page["curr_img"]))
+            __page["curr_img"] = None
+
+    def reflect_image(self, direction):
+        """
+        Отражает изображение по горизонтали или по вертикали.
+
+        Аргументы:
+                direction: tkinter.StringVar - строковая переменная tkinter, в которой содержится выбранный фильтр
+        Возвращает:
+                None
+        """
+        __page = self._canvas.img
+        if __page["imgs"]:
+            if not self._canvas.drawQ:
+                __image = __page["imgs"][-1]
+                __mode = None
+                if __image.mode != 'RGB':
+                    __mode = __image.mode
+                    __image = __image.convert("RGB")
+
+
+                if direction.get() == "horizontal":
+                    __image_new = ImageOps.mirror(__image)
+                elif direction.get() == "vertical":
+                    __image_new = ImageOps.flip(__image)
+                else:
+                    __image_new = __image
+
+                if __mode:
+                    __image_new = __image.convert(__mode)
+
+                __page["imgs"].append(__image_new)
+                __page["ph"] = ImageTk.PhotoImage(__image_new.resize(__page["scale_size"]))
+                self._canvas.itemconfig(__page["cr_img"], image=__page["ph"])
+
+            else:
+                messagebox.showerror("Ошибка!", "Изображение можно отразить только в том случае, если на нем ничего "
+                                                "не нарисовано")
+        else:
+            messagebox.showwarning("Внимание!", "Сначала загрузите изображение")
+
+    def rotate_image(self, direction):
+        """
+        Поворачивает изображение по часовой или против часовой стрелки.
+
+        Аргументы:
+                direction: tkinter.StringVar - строковая переменная tkinter, в которой содержится выбранный фильтр
+        Возвращает:
+                None
+        """
+        __page = self._canvas.img
+        if __page["imgs"]:
+            if not self._canvas.drawQ:
+                __image = __page["imgs"][-1]
+                __mode = None
+                if __image.mode != 'RGB':
+                    __mode = __image.mode
+                    __image = __image.convert("RGB")
+
+
+                if direction.get() == "90":
+                    __image_new = __image.transpose(Image.ROTATE_90)
+                elif direction.get() == "-90":
+                    __image_new = __image.transpose(Image.ROTATE_270)
+                else:
+                    __image_new = __image
+
+                if __mode:
+                    __image_new = __image.convert(__mode)
+
+                __page["imgs"].append(__image_new)
+                __page["scale_size"] = __page["scale_size"][::-1]
+                __page["img_size"] = __page["img_size"][::-1]
+                self._canvas.configure(scrollregion=(0, 0) + __page["scale_size"])
+                __page["ph"] = ImageTk.PhotoImage(__image_new.resize(__page["scale_size"]))
+                self._canvas.itemconfig(__page["cr_img"], image=__page["ph"])
+
+            else:
+                messagebox.showerror("Ошибка!", "Изображение можно отразить только в том случае, если на нем ничего "
+                                                "не нарисовано")
         else:
             messagebox.showwarning("Внимание!", "Сначала загрузите изображение")
