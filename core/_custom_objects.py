@@ -2,11 +2,11 @@
 
 
 # Импортированные модулей
-from core._custom_notebook import *
 from core.image_lib._image_processing import Img
 from core.graphic_lib._events import Events
 from core._defaults import *
 from tkinter import *
+from tkinter import ttk
 
 
 class CustomCanvas(Canvas):
@@ -17,6 +17,8 @@ class CustomCanvas(Canvas):
             * obj_oval: None or Oval - временное хранилище эллипса
             * obj_line: None or Line - временное хранилище прямой (отрезка)
             * obj_rectangle: None or Rectangle - временное хранилище прямоугольника
+            * obj_horizontal_axis: None or Line - временное хранилище для горизонтальной оси
+            * obj_vertical_axis: None or Line - временное хранилище для вертиальной оси
             * line_sequences: list - хранение последовательности линий
             * obj_storage: dict - хранилище графических примитивов на слое (canvas'e)
             * start_point: None or Tuple[int, int] - хранит начальную точку для многоугольников
@@ -36,6 +38,8 @@ class CustomCanvas(Canvas):
         self.obj_oval = None
         self.obj_line = None
         self.obj_rectangle = None
+        self.obj_horizontal_axis = None
+        self.obj_vertical_axis = None
 
         self.line_sequences = []
         self.obj_storage = {}
@@ -60,7 +64,106 @@ class CustomCanvas(Canvas):
                      "curr_img": None                                       # временное хранилище фотографии
                     }
 
-        self.drawQ = True                                                  # было ли что-то нарисовано?
+
+class NotebookTabs(ttk.Notebook):
+    """A ttk Notebook with close buttons on each tab"""
+
+    __initialized = False
+
+    def __init__(self, *args, **kwargs):
+        if not self.__initialized:
+            self.__initialize_custom_style()
+            self.__inititialized = True
+
+        kwargs["style"] = "CustomNotebook"
+        ttk.Notebook.__init__(self, *args, **kwargs)
+
+        self._active = None
+        self._closed_tabs = []
+
+        self.bind("<ButtonPress-1>", self.on_close_press, True)
+        self.bind("<ButtonRelease-1>", self.on_close_release)
+
+    def on_close_press(self, event):
+        """Вызывается при нажатии кнопки закрытия"""
+        if len(self.tabs()) > 1:
+            element = self.identify(event.x, event.y)
+
+            if "close" in element:
+                index = self.index("@%d,%d" % (event.x, event.y))
+                self.state(['pressed'])
+                self._active = index
+
+    def on_close_release(self, event):
+        """Вызывается, когда кнопка закрытия отпускается"""
+        if len(self.tabs()) > 1:
+            if not self.instate(['pressed']):
+                return
+
+            __element = self.identify(event.x, event.y)
+            __index = self.index("@%d,%d" % (event.x, event.y))
+
+            if "close" in __element and self._active == __index:
+                self._closed_tabs.append(self.tabs()[__index])
+                self.hide(__index)
+                # self.event_generate("<<NotebookTabClosed>>")
+
+            self.state(["!pressed"])
+            self._active = None
+
+    def reestablish_tab(self):
+        """
+        Восстанавливает последнюю закрытую вкладку
+        """
+        if self._closed_tabs:
+            __index = self._closed_tabs.pop()
+            self.add(__index)
+            self.select(__index)
+
+    def __initialize_custom_style(self):
+        style = ttk.Style()
+        self.images = (
+            PhotoImage("img_close", data='''
+                R0lGODlhCAAIAMIBAAAAADs7O4+Pj9nZ2Ts7Ozs7Ozs7Ozs7OyH+EUNyZWF0ZWQg
+                d2l0aCBHSU1QACH5BAEKAAQALAAAAAAIAAgAAAMVGDBEA0qNJyGw7AmxmuaZhWEU
+                5kEJADs=
+                '''),
+            PhotoImage("img_closeactive", data='''
+                R0lGODlhCAAIAMIEAAAAAP/SAP/bNNnZ2cbGxsbGxsbGxsbGxiH5BAEKAAQALAAA
+                AAAIAAgAAAMVGDBEA0qNJyGw7AmxmuaZhWEU5kEJADs=
+                '''),
+            PhotoImage("img_closepressed", data='''
+                R0lGODlhCAAIAMIEAAAAAOUqKv9mZtnZ2Ts7Ozs7Ozs7Ozs7OyH+EUNyZWF0ZWQg
+                d2l0aCBHSU1QACH5BAEKAAQALAAAAAAIAAgAAAMVGDBEA0qNJyGw7AmxmuaZhWEU
+                5kEJADs=
+            ''')
+        )
+
+        style.element_create("close", "image", "img_close",
+                             ("active", "pressed", "!disabled", "img_closepressed"),
+                             ("active", "!disabled", "img_closeactive"), border=8, sticky='')
+        style.layout("CustomNotebook", [("CustomNotebook.client", {"sticky": "nswe"})])
+        style.layout("CustomNotebook.Tab", [
+            ("CustomNotebook.tab", {
+                "sticky": "nswe",
+                "children": [
+                    ("CustomNotebook.padding", {
+                        "side": "top",
+                        "sticky": "nswe",
+                        "children": [
+                            ("CustomNotebook.focus", {
+                                "side": "top",
+                                "sticky": "nswe",
+                                "children": [
+                                    ("CustomNotebook.label", {"side": "left", "sticky": ''}),
+                                    ("CustomNotebook.close", {"side": "left", "sticky": ''}),
+                                ]
+                            })
+                        ]
+                    })
+                ]
+            })
+        ])
 
 
 class CustomNotebook(NotebookTabs):
@@ -75,7 +178,7 @@ class CustomNotebook(NotebookTabs):
     """
 
     def __init__(self, root, **kwargs):
-        super().__init__(root, **kwargs)
+        super().__init__(**kwargs)
 
         # фрейм, в который мы складывает холст и скроллы
         __frame = Frame(self)
@@ -113,7 +216,7 @@ class CustomNotebook(NotebookTabs):
         # привязываем события к холсту
         __canvas.bind("<Button 3>", lambda event: self.image_processing.grab(event))
         __canvas.bind("<B3-Motion>", lambda event: self.image_processing.drag(event))
-        __canvas.bind("<MouseWheel>", lambda event: self.image_processing.zoom(event))
+        __canvas.bind("<Control-MouseWheel>", lambda event: self.image_processing.zoom(event))
 
         self.root.bind('<Control-s>', lambda event: print(__canvas.modified_objs, __canvas.obj_storage)) # TODO: Избавится от этого, нужно лишь для debug'a
 
@@ -188,6 +291,8 @@ class CustomNotebook(NotebookTabs):
 
             self.image_processing = Img(__canvas)
             self.events = Events(self.root, DEFAULT_USED_EVENTS, __canvas)
+            self.root.bind('<Control-s>', lambda event: print(__canvas.modified_objs, __canvas.obj_storage))
             self.events.event_undo()
-        except _tkinter.TclError:
+        except TclError:
             pass
+

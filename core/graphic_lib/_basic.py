@@ -9,11 +9,13 @@
     transform_line_coords(old_coords: Tuple[int, int], new_coords: Tuple[int, int]) -> Tuple[int, int]
     transform_line_sequence(point_storage: Iterable) -> Tuple[(int, float), (int, float), (int, float), (int, float)]
     detect_object(event: tkinter.Event, _custom_objetcs.CustomCanvas) -> [str, None]
+    select_style(italicB: bool, boldB: bool, family: str, size: str) -> tkinter.font.Font
 """
 
 
 # Имортированные модули
 from numpy import subtract
+import tkinter.font as tkFont
 
 
 point_min_x = lambda points: min(point[0] for point in points)
@@ -152,6 +154,29 @@ def detect_object(event, canvas):
             obj_lst.append(obj[coords.index(obj_coords)])
 
     return obj_lst[-1] if obj_lst else None
+
+
+def select_style(italicB, boldB, family, size):
+    """ Шрифта для текста
+
+        Аргументы:
+            * italicB: bool - нужно ли делать текст курсивом
+            * boldB: bool - нужно ли делать текст жирным
+            * family: str - семейство шрифта для текста
+            * size: str - размер текста
+
+        Возвращает:
+            tkinter.font.Font - шрифт для текста
+    """
+
+    if italicB and boldB:
+        return tkFont.Font(family=family, size=int(size), weight='bold', slant='italic')
+    elif italicB:
+        return tkFont.Font(family=family, size=int(size), slant='italic')
+    elif boldB:
+        return tkFont.Font(family=family, size=int(size), weight='bold')
+    else:
+        return tkFont.Font(family=family, size=int(size))
 
 
 if __name__ == '__main__':

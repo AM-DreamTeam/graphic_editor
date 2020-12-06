@@ -18,6 +18,7 @@ from io import BytesIO
 from random import choices, randint
 from copy import copy
 
+
 """
     > Нужно для сохранения изображения
     Если drawQ == True, так как в этом случае используется метод Canvas.postscript,
@@ -99,12 +100,7 @@ class Img:
         except AttributeError:
             pass
 
-        except UnidentifiedImageError:
-            messagebox.showerror("Ошибка!", "Не удалось загузить фотографию")
-        except AttributeError:
-            pass
-
-    def get_info(self):
+    def get_info(self): # TODO: Избавится от этого, нужно лишь для debug'a
         """ Служебный метод для отладки
 
             Возвращает:
@@ -142,7 +138,7 @@ class Img:
                                                                 int(__img.size[0] * 1.333333),
                                                                 int(__img.size[1] * 1.333333))))
                 self._canvas.itemconfig(__page["cr_img"], image=__page["ph"])
-            if self._canvas.drawQ:
+            if self._canvas.obj_storage:
                 self._canvas.scale(ALL, 0, 0, (1 / __page["scale"]) * 1.333333, (1 / __page["scale"]) * 1.333333)
             __page["scale_size"] = tuple((int(_ * 1.333333) for _ in __page["img_size"]))
             __page["scale"] = 1.333333
@@ -150,7 +146,7 @@ class Img:
             self._canvas.configure(scrollregion=(0, 0, __bbox[2] - __bbox[0], __bbox[3] - __bbox[1]))
 
             __image = None
-            if self._canvas.drawQ:
+            if self._canvas.obj_storage:
                 if __page["imgs"]:
                     ps = self._canvas.postscript(colormode="color",
                                                  height=__bbox[3] - __bbox[1] + 10,
@@ -174,7 +170,6 @@ class Img:
                     __image = __image.crop((2, 2, __image.size[0] - 2, __image.size[1] - 2))
                 else:
                     __image = Image.new('RGB', (800, 600), color="white")
-            __image.show()
             __image.save(__new_file)
 
     def return_image(self):
@@ -245,7 +240,7 @@ class Img:
         """
 
         __page = self._canvas.img
-        if self._canvas.drawQ or __page["imgs"]:
+        if self._canvas.obj_storage or __page["imgs"]:
             if event.delta > 0:
                 __page["scale"] = __page["scale"] * 1.1 if __page["scale"] * 1.1 < 8 else 8
                 self.redraw("in")
@@ -274,7 +269,7 @@ class Img:
             __page["ph"] = ImageTk.PhotoImage(__image.resize(__page["scale_size"]))
             self._canvas.itemconfig(__page["cr_img"], image=__page["ph"])
 
-            self._canvas.configure(scrollregion=self._canvas.bbox(ALL))
+        self._canvas.configure(scrollregion=self._canvas.bbox(ALL))
 
         __scroll_speed = str(float(__page["scroll_speed"]) * pow(__page["scale"], 1 / 6))
         self._canvas.configure(yscrollincrement=__scroll_speed, xscrollincrement=__scroll_speed)
@@ -425,9 +420,9 @@ class Img:
         Изменяет насыщенность каждого слоя в отдельности
 
         Аргументы:
-                r: tkinter.StringVar - строковая переменная tkinter, в которой содержится значение для красного слоя
-                g: tkinter.StringVar - строковая переменная tkinter, в которой содержится значение для зеленого слоя
-                b tkinter.StringVar - строковая переменная tkinter, в которой содержится значение для синего слоя
+                r: tkinter.Scale - ползунок tkinter, в котором содержится значение для красного слоя
+                g: tkinter.Scale - ползунок tkinter, в котором содержится значение для зеленого слоя
+                b tkinter.Scale - ползунок tkinter, в котором содержится значение для синего слоя
 
         Возвращает:
                 None
@@ -514,23 +509,22 @@ class Img:
         Отражает изображение по горизонтали или по вертикали.
 
         Аргументы:
-                direction: tkinter.StringVar - строковая переменная tkinter, в которой содержится выбранный фильтр
+                direction: String - строка, в которой содержится выбранный фильтр
         Возвращает:
                 None
         """
         __page = self._canvas.img
         if __page["imgs"]:
-            if not self._canvas.drawQ:
+            if not self._canvas.obj_storage:
                 __image = __page["imgs"][-1]
                 __mode = None
                 if __image.mode != 'RGB':
                     __mode = __image.mode
                     __image = __image.convert("RGB")
 
-
-                if direction.get() == "horizontal":
+                if direction == "horizontal":
                     __image_new = ImageOps.mirror(__image)
-                elif direction.get() == "vertical":
+                elif direction == "vertical":
                     __image_new = ImageOps.flip(__image)
                 else:
                     __image_new = __image
@@ -553,23 +547,22 @@ class Img:
         Поворачивает изображение по часовой или против часовой стрелки.
 
         Аргументы:
-                direction: tkinter.StringVar - строковая переменная tkinter, в которой содержится выбранный фильтр
+                direction: String - строка, в которой содержится выбранный фильтр
         Возвращает:
                 None
         """
         __page = self._canvas.img
         if __page["imgs"]:
-            if not self._canvas.drawQ:
+            if not self._canvas.obj_storage:
                 __image = __page["imgs"][-1]
                 __mode = None
                 if __image.mode != 'RGB':
                     __mode = __image.mode
                     __image = __image.convert("RGB")
 
-
-                if direction.get() == "90":
+                if direction == "90":
                     __image_new = __image.transpose(Image.ROTATE_90)
-                elif direction.get() == "-90":
+                elif direction == "-90":
                     __image_new = __image.transpose(Image.ROTATE_270)
                 else:
                     __image_new = __image

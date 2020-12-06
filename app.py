@@ -66,14 +66,13 @@ class App:
 
         self.filter_2_percent.bind("<B1-Motion>", lambda
                                    event,
-                                   filter=variable_filter_2,
+                                   f=variable_filter_2,
                                    scale=self.filter_2_percent:
-                                   notebook.image_processing.apply_filter_2(f=filter, per=scale, event=event))
+                                   notebook.image_processing.apply_filter_2(f=f, per=scale, event=event))
 
         Button(frame_filter2,
                text='Apply',
-               command=
-               lambda : [notebook.image_processing.append_image(), self.reset_scales()]
+               command=lambda: [notebook.image_processing.append_image(), self.reset_scales()]
                ).pack()
         frame_filter2.pack()
 
@@ -113,7 +112,7 @@ class App:
                               r=self.r_scale_box,
                               g=self.g_scale_box,
                               b=self.b_scale_box:
-                               notebook.image_processing.change_layers(red=r, green=g, blue=b, event=event))
+                              notebook.image_processing.change_layers(red=r, green=g, blue=b, event=event))
         self.g_scale_box.bind("<B1-Motion>", lambda
                               event,
                               r=self.r_scale_box,
@@ -129,13 +128,12 @@ class App:
 
         Button(frame_filter4,
                text='Apply',
-               command=
-               lambda: [notebook.image_processing.append_image(), self.reset_scales()]
+               command=lambda: [notebook.image_processing.append_image(), self.reset_scales()]
                ).pack()
         frame_filter4.pack()
 
         # фильтр 5
-        frame_filter5 = LabelFrame(frame_img, text='filter 4')
+        frame_filter5 = LabelFrame(frame_img, text='filter 5')
         Button(frame_filter5,
                text="mix layers",
                command=lambda: notebook.image_processing.apply_filter_4()
@@ -149,59 +147,38 @@ class App:
 
         # отражение
         frame_filter6 = LabelFrame(frame_img, text='reflect')
-        variable_filter_6 = StringVar(frame_filter6)
-        variable_filter_6.set('horizontal')
-        filters6 = OptionMenu(frame_filter6,
-                              variable_filter_6,
-                              "horizontal",
-                              'vertical'
-                              )
-        filters6.pack()
 
-        btn_apply_filter6 = Button(frame_filter6,
-                                   text="apply filter",
-                                   command=lambda x=variable_filter_6:
-                                   notebook.image_processing.reflect_image(x)
-                                   )
-        btn_apply_filter6.pack()
+        btn_apply_filter6_1 = Button(frame_filter6,
+                                     text="horizontal",
+                                     command=lambda:
+                                     notebook.image_processing.reflect_image('horizontal')
+                                     )
+        btn_apply_filter6_1.grid(column=1, row=0)
+
+        btn_apply_filter6_2 = Button(frame_filter6,
+                                     text="vertical",
+                                     command=lambda:
+                                     notebook.image_processing.reflect_image('vertical')
+                                     )
+        btn_apply_filter6_2.grid(column=0, row=0)
         frame_filter6.pack()
 
         # отражение
-        frame_filter6 = LabelFrame(frame_img, text='reflect')
-        variable_filter_6 = StringVar(frame_filter6)
-        variable_filter_6.set('horizontal')
-        filters6 = OptionMenu(frame_filter6,
-                              variable_filter_6,
-                              "horizontal",
-                              'vertical'
-                              )
-        filters6.pack()
+        frame_filter7 = LabelFrame(frame_img, text='rotate')
 
-        btn_apply_filter6 = Button(frame_filter6,
-                                   text="apply filter",
-                                   command=lambda x=variable_filter_6:
-                                   notebook.image_processing.reflect_image(x)
-                                   )
-        btn_apply_filter6.pack()
-        frame_filter6.pack()
+        btn_apply_filter7_1 = Button(frame_filter7,
+                                     text="90",
+                                     command=lambda:
+                                     notebook.image_processing.rotate_image('90')
+                                     )
+        btn_apply_filter7_1.grid(column=1, row=0)
 
-        # отражение
-        frame_filter7 = LabelFrame(frame_img, text='reflect')
-        variable_filter_7 = StringVar(frame_filter6)
-        variable_filter_7.set('90')
-        filters7 = OptionMenu(frame_filter7,
-                              variable_filter_7,
-                              "90",
-                              '-90'
-                              )
-        filters7.grid(column=0, row=0)
-
-        btn_apply_filter7 = Button(frame_filter7,
-                                   text="apply filter",
-                                   command=lambda x=variable_filter_7:
-                                   notebook.image_processing.rotate_image(x)
-                                   )
-        btn_apply_filter7.grid(column=1, row=0)
+        btn_apply_filter7_2 = Button(frame_filter7,
+                                     text="-90",
+                                     command=lambda:
+                                     notebook.image_processing.rotate_image('-90')
+                                     )
+        btn_apply_filter7_2.grid(column=0, row=0)
         frame_filter7.pack()
 
         # frame_img.grid(row=0, column=0, sticky="nsew")
@@ -210,62 +187,77 @@ class App:
         colors = ('red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet')
         thickness_list = sample(range(5, 20), 6)
 
-        btnClear = Button(frame_graphic, text='*отчистить*', command=lambda: notebook.events.event_btnClear())
-        btnClear.pack(side=TOP, pady=5)
+        btn_clear = Button(frame_graphic, text='*отчистить*', command=lambda: notebook.events.event_btnClear())
+        btn_clear.pack(side=TOP, pady=5)
 
-        btnMove = Button(frame_graphic, text='*подвинуть*',
-                         command=lambda ms=core.DEFAULT_MOUSE_SPEED:
-                         notebook.events.event_move(mouse_speed=ms))
-        btnMove.pack(side=TOP, pady=5)
+        btn_move = Button(frame_graphic, text='*подвинуть*',
+                          command=lambda: notebook.events.event_move())
+        btn_move.pack(side=TOP, pady=5)
 
-        btnQuickEraser = Button(frame_graphic, text='*быстрый ластик*',
-                                command=notebook.events.event_btnQuickEraser)
-        btnQuickEraser.pack(side=TOP, pady=5)
+        btn_quick_eraser = Button(frame_graphic, text='*быстрый ластик*',
+                                  command=lambda: notebook.events.event_btnQuickEraser())
+        btn_quick_eraser.pack(side=TOP, pady=5)
 
-        btnBrush = Button(frame_graphic, text='*кисть*',
-                          command=lambda s=core.DEFAULT_BRUSH_SIZE, clr=core.DEFAULT_FIRST_COLOR:
-                          notebook.events.event_btnBrush(size=s, color=clr, debug_mode=False))
-        btnBrush.pack(side=TOP, pady=5)
+        btn_brush = Button(frame_graphic, text='*кисть*',
+                           command=lambda s=core.DEFAULT_BRUSH_SIZE, clr=core.DEFAULT_FIRST_COLOR:
+                           notebook.events.event_btnBrush(size=s, color=clr, debug_mode=False))
+        btn_brush.pack(side=TOP, pady=5)
 
-        btnFill = Button(frame_graphic, text='*заливка*',
-                         command=lambda c=colors:
-                         notebook.events.event_btnFill(color=choice(c)))
-        btnFill.pack(side=TOP, pady=5)
+        btn_fill = Button(frame_graphic, text='*заливка*',
+                          command=lambda c=colors:
+                          notebook.events.event_btnFill(color=choice(c)))
+        btn_fill.pack(side=TOP, pady=5)
 
-        btnOutlineColor = Button(frame_graphic, text='*обводка*',
-                                 command=lambda c=colors:
-                                 notebook.events.event_btnOutlineColor(color=choice(colors)))
-        btnOutlineColor.pack()
+        btn_outline_color = Button(frame_graphic, text='*обводка*',
+                                   command=lambda c=colors:
+                                   notebook.events.event_btnOutlineColor(color=choice(colors)))
+        btn_outline_color.pack()
 
-        btnThickness = Button(frame_graphic, text='*толщина*',
-                              command=lambda t=thickness_list: notebook.events.event_btnThickness(thickness=choice(t)))
-        btnThickness.pack(side=TOP, pady=5)
+        btn_thickness = Button(frame_graphic, text='*толщина*',
+                               command=lambda t=thickness_list: notebook.events.event_btnThickness(thickness=choice(t)))
+        btn_thickness.pack(side=TOP, pady=5)
 
-        btnCreateLine = Button(frame_graphic, text='*линия*',
-                               command=lambda t=core.DEFAULT_THICKNESS, clr=core.DEFAULT_FIRST_COLOR:
-                               notebook.events.event_btnCreateLine(thickness=t, color=clr))
-        btnCreateLine.pack(side=TOP, pady=5)
+        btn_create_line = Button(frame_graphic, text='*линия*',
+                                 command=lambda t=core.DEFAULT_THICKNESS, clr=core.DEFAULT_FIRST_COLOR:
+                                 notebook.events.event_btnCreateLine(thickness=t, color=clr))
+        btn_create_line.pack(side=TOP, pady=5)
 
-        btnCreatePolygon = Button(frame_graphic, text='*многоугольник*',
-                                  command=lambda t=core.DEFAULT_THICKNESS, outclr=core.DEFAULT_FIRST_COLOR,
-                                                 bgclr=core.DEFAULT_SECOND_COLOR:
-                                  notebook.events.event_btnCreatePolygon(thickness=t, bgcolor=bgclr, outcolor=outclr))
-        btnCreatePolygon.pack(side=TOP, pady=5)
+        btn_create_vector = Button(frame_graphic, text='*вектор*',
+                                   command=lambda t=core.DEFAULT_THICKNESS, clr=core.DEFAULT_FIRST_COLOR:
+                                   notebook.events.event_btnCreateVector(thickness=t, color=clr))
+        btn_create_vector.pack(side=TOP, pady=5)
 
-        btnCreateOval = Button(frame_graphic, text='*эллипс*',
-                               command=lambda t=core.DEFAULT_THICKNESS, outclr=core.DEFAULT_FIRST_COLOR,
-                                              bgclr=core.DEFAULT_SECOND_COLOR:
-                               notebook.events.event_btnCreateOval(thickness=t, bgcolor=bgclr, outcolor=outclr))
-        btnCreateOval.pack(side=TOP, pady=5)
+        btn_create_coordinate_plane = Button(frame_graphic, text='*плоскость*',
+                                             command=lambda: notebook.events.event_btnCreateCoordinatePlane())
+        btn_create_coordinate_plane.pack(side=TOP, pady=5)
 
-        btnCreateRectangle = Button(frame_graphic, text='*прямоугольник*',
+        btn_create_polygon = Button(frame_graphic, text='*многоугольник*',
                                     command=lambda
                                     t=core.DEFAULT_THICKNESS,
                                     outclr=core.DEFAULT_FIRST_COLOR,
                                     bgclr=core.DEFAULT_SECOND_COLOR:
-                                    notebook.events.event_btnCreateRectangle(thickness=t, bgcolor=bgclr, outcolor=outclr))
-        btnCreateRectangle.pack(side=TOP, pady=5)
-        # frame_graphic.grid(row=1, column=0, sticky="nsew")
+                                    notebook.events.event_btnCreatePolygon(thickness=t, bgcolor=bgclr, outcolor=outclr))
+        btn_create_polygon.pack(side=TOP, pady=5)
+
+        btn_create_oval = Button(frame_graphic, text='*эллипс*',
+                                 command=lambda
+                                 t=core.DEFAULT_THICKNESS, outclr=core.DEFAULT_FIRST_COLOR,
+                                 bgclr=core.DEFAULT_SECOND_COLOR:
+                                 notebook.events.event_btnCreateOval(thickness=t, bgcolor=bgclr, outcolor=outclr))
+        btn_create_oval.pack(side=TOP, pady=5)
+
+        btn_create_rectangle = Button(frame_graphic, text='*прямоугольник*',
+                                      command=lambda
+                                      t=core.DEFAULT_THICKNESS,
+                                      outclr=core.DEFAULT_FIRST_COLOR,
+                                      bgclr=core.DEFAULT_SECOND_COLOR:
+                                      notebook.events.event_btnCreateRectangle(thickness=t,
+                                                                               bgcolor=bgclr,
+                                                                               outcolor=outclr))
+        btn_create_rectangle.pack(side=TOP, pady=5)
+
+        btn_create_text = Button(frame_graphic, text='*текст*', command=lambda: notebook.events.event_btnCreateText())
+        btn_create_text.pack(side=TOP, pady=5)
 
         # для корректного отображения canvas'а
         root.rowconfigure(0, weight=1)
@@ -275,14 +267,16 @@ class App:
 
         # меню с доступными командами
         menubar = Menu(root)
-        filemenu = Menu(menubar, tearoff=0)
+        filemenu = Menu(menubar, tearoff=-2)
         filemenu.add_command(label="Open", command=lambda: notebook.image_processing.set_image())
         filemenu.add_command(label="Save", command=lambda: notebook.image_processing.save_image())
         filemenu.add_separator()
         filemenu.add_command(label="Exit", command=root.quit)
         menubar.add_cascade(label="File", menu=filemenu)
 
-        menubar.add_command(label='New canvas', command=notebook.create_new_canvas)
+        menubar.add_command(label='New tab', command=notebook.create_new_canvas)
+
+        menubar.add_command(label='Reestablish tab', command=lambda: notebook.reestablish_tab())
 
         menubar.add_command(label='Info', command=lambda: notebook.image_processing.get_info())
 
@@ -294,7 +288,7 @@ class App:
 
     def reset_scales(self, _=None):
         """
-        Сбрасывает значения Scale до 100 при смене вкладки
+            Сбрасывает значения Scale до 100 при смене вкладки
         """
         self.filter_2_percent.set(100)
         self.r_scale_box.set(100)
