@@ -49,6 +49,7 @@ class Events:
 
         for obj in self._canvas.obj_storage.keys():
             self._canvas.delete(obj)
+        self._canvas.itemconfig('photo', image='')
         self._canvas.obj_storage = {}
         self._canvas.modified_objs = []
         self._canvas.line_sequences = []

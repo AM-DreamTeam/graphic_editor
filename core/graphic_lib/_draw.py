@@ -573,7 +573,7 @@ class Draw:
 
             elif storage[last_modified_obj]['modifications'][-1] == 'thickness':
                 if 'brush' in last_modified_obj or 'plane' in last_modified_obj:
-                    thick_label = 'size' if 'brush' in canvas.obj_tag else 'thickness'
+                    thick_label = 'size' if 'brush' in last_modified_obj else 'thickness'
                     for member in canvas.find_withtag(last_modified_obj):
                         canvas.itemconfig(member, width=storage[last_modified_obj][thick_label][-2])
                     del storage[last_modified_obj][thick_label][-1]
