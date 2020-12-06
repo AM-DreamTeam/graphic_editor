@@ -21,11 +21,6 @@ class App:
         notebook.grid(row=0, column=1, rowspan=2, sticky="nswe")
 
         toolbar.add(frame_img, text="IMAGE")
-        # кнопка возврата предыдущего изображения
-        Button(frame_img,
-               text="return image",
-               command=lambda: notebook.image_processing.return_image()
-               ).pack()
 
         # кнопки фильтра 1
 
@@ -49,7 +44,7 @@ class App:
 
         # кнопки фильтра 2
 
-        # все тоже самое, только еще есть поле Entry, в которое вводится значение коэффициента,
+        # все тоже самое, только еще есть поле Scale, в которое вводится значение коэффициента,
         # при котором происходит фильтрация
         frame_filter2 = LabelFrame(frame_img, text='filter 2')
         variable_filter_2 = StringVar(frame_filter2)
@@ -187,7 +182,7 @@ class App:
         colors = ('red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet')
         thickness_list = sample(range(5, 20), 6)
 
-        btn_clear = Button(frame_graphic, text='*отчистить*', command=lambda: notebook.events.event_btnClear())
+        btn_clear = Button(frame_graphic, text='*очистить*', command=lambda: notebook.events.event_btnClear())
         btn_clear.pack(side=TOP, pady=5)
 
         btn_move = Button(frame_graphic, text='*подвинуть*',
@@ -283,6 +278,7 @@ class App:
         root.config(menu=menubar)
 
         notebook.bind("<<NotebookTabChanged>>", lambda _: [notebook.select_curr_tab(_), self.reset_scales(_)])
+        root.bind('<Control-z>', lambda e: notebook.undo(e))
 
         root.bind('<Control-x>', quit)
 

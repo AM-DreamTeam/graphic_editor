@@ -17,6 +17,7 @@ from PIL import Image, ImageTk, UnidentifiedImageError, EpsImagePlugin, ImageFil
 from io import BytesIO
 from random import choices, randint
 from copy import copy
+from core.image_lib._compress_window import *
 
 
 """
@@ -95,6 +96,8 @@ class Img:
             self._canvas.config(width=__im_size[0], height=__im_size[1])
             self._canvas.configure(scrollregion=(0, 0) + __im_size)
 
+            self._canvas.undo.append("image")
+
         except UnidentifiedImageError:
             messagebox.showerror('Ошибка!', 'Не удалось загузить фотографию')
         except AttributeError:
@@ -110,7 +113,7 @@ class Img:
                 Печатает в консоль информацию о текущем холсте
         """
 
-        print(self._canvas.img)
+        print(self._canvas.undo)
 
     def save_image(self):
         """ Сохраняет изображение с холста
@@ -129,6 +132,9 @@ class Img:
                                                   )
 
         if __new_file:
+            __compress_window = CompressWindow(self._canvas)
+            __compress = __compress_window.open()
+
             __page = self._canvas.img
             if __page["curr_img"]:
                 self.append_image()
@@ -170,7 +176,7 @@ class Img:
                     __image = __image.crop((2, 2, __image.size[0] - 2, __image.size[1] - 2))
                 else:
                     __image = Image.new('RGB', (800, 600), color="white")
-            __image.save(__new_file)
+            __image.save(__new_file, quality=int(__compress))
 
     def return_image(self):
         """ Возвращает на холст предыдущее изображение из списка изображений, а текущее удаляет
@@ -188,6 +194,13 @@ class Img:
 
             __page["ph"] = ImageTk.PhotoImage(__image.resize(__page["scale_size"]))
             self._canvas.itemconfig(__page["cr_img"], image=__page["ph"])
+        elif len(__page["imgs"]) == 1:
+            __page["imgs"] = []
+            __page["img_size"] = (800, 600)
+            __page["ph"] = None
+            __page["cr_img"] = None
+            __page["curr_img"] = None
+
 
     def grab(self, event):
         """ Отлавливает начало перемещение холста (инструмент "рука")
@@ -309,6 +322,8 @@ class Img:
             __page["imgs"].append(__image_new)
             __page["ph"] = ImageTk.PhotoImage(__image_new.resize(__page["scale_size"]))
             self._canvas.itemconfig(__page["cr_img"], image=__page["ph"])
+
+            self._canvas.undo.append("image")
         else:
             messagebox.showwarning("Внимание!", "Сначала загрузите изображение")
 
@@ -317,7 +332,7 @@ class Img:
 
             Аргументы:
                 f: tkinter.StringVar - строковая переменная tkinter, в которой содержится выбранный фильтр
-                per: tkinter.StringVat - строковая переменная tkinter, в которой содержится процент применения фильтра
+                per: tkinter.Scale - ползунок tkinter, в котором содержится процент применения фильтра
 
             Возвращает:
                 None
@@ -378,6 +393,8 @@ class Img:
             __page["imgs"].append(__image_new)
             __page["ph"] = ImageTk.PhotoImage(__image_new.resize(__page["scale_size"]))
             self._canvas.itemconfig(__page["cr_img"], image=__page["ph"])
+
+            self._canvas.undo.append("image")
         else:
             messagebox.showwarning("Внимание!", "Сначала загрузите изображение")
 
@@ -410,6 +427,8 @@ class Img:
                 __page["imgs"].append(__image_new)
                 __page["ph"] = ImageTk.PhotoImage(__image_new.resize(__page["scale_size"]))
                 self._canvas.itemconfig(__page["cr_img"], image=__page["ph"])
+
+                self._canvas.undo.append("image")
             except ValueError:
                 messagebox.showerror("Ошибка!", "Применить фильтр не удалось")
         else:
@@ -483,6 +502,8 @@ class Img:
                 __page["ph"] = ImageTk.PhotoImage(__image_new.resize(__page["scale_size"]))
                 self._canvas.itemconfig(__page["cr_img"], image=__page["ph"])
 
+                self._canvas.undo.append("image")
+
             except ValueError:
                 messagebox.showerror("Ошибка!", "Применить фильтр не удалось")
         else:
@@ -503,6 +524,8 @@ class Img:
         if __page["curr_img"]:
             __page["imgs"].append(copy(__page["curr_img"]))
             __page["curr_img"] = None
+
+            self._canvas.undo.append("image")
 
     def reflect_image(self, direction):
         """
@@ -535,6 +558,8 @@ class Img:
                 __page["imgs"].append(__image_new)
                 __page["ph"] = ImageTk.PhotoImage(__image_new.resize(__page["scale_size"]))
                 self._canvas.itemconfig(__page["cr_img"], image=__page["ph"])
+
+                self._canvas.undo.append("image")
 
             else:
                 messagebox.showerror("Ошибка!", "Изображение можно отразить только в том случае, если на нем ничего "
@@ -576,6 +601,8 @@ class Img:
                 self._canvas.configure(scrollregion=(0, 0) + __page["scale_size"])
                 __page["ph"] = ImageTk.PhotoImage(__image_new.resize(__page["scale_size"]))
                 self._canvas.itemconfig(__page["cr_img"], image=__page["ph"])
+
+                self._canvas.undo.append("image")
 
             else:
                 messagebox.showerror("Ошибка!", "Изображение можно отразить только в том случае, если на нем ничего "

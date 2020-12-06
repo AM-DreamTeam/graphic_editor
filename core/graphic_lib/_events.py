@@ -49,10 +49,18 @@ class Events:
 
         for obj in self._canvas.obj_storage.keys():
             self._canvas.delete(obj)
+        self._canvas.itemconfig("photo", image="")
         self._canvas.obj_storage = {}
         self._canvas.modified_objs = []
         self._canvas.line_sequences = []
         self._canvas['background'] = 'white'
+
+        __page = self._canvas.img
+        __page["imgs"] = []
+        __page["img_size"] = (800, 600)
+        __page["ph"] = None
+        __page["cr_img"] = None
+        __page["curr_img"] = None
 
     @reset
     def event_btnBrush(self,
@@ -238,7 +246,7 @@ class Events:
 
         self._root.bind('<ButtonPress-1>', lambda e: self.__draw(e).text_creation())
 
-    def event_undo(self):
+    def event_undo(self, event):
         """ Событие для бинда отмены действия (Ctrl-z)
 
             Возвращает:
@@ -248,7 +256,7 @@ class Events:
                 Создаёт новый бинд <Control-z> - отмена действия
         """
 
-        self._root.bind('<Control-z>', lambda e: self.__draw(e).undo())
+        self.__draw(event).undo()
 
     @reset
     def event_move(self):

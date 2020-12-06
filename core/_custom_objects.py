@@ -63,6 +63,7 @@ class CustomCanvas(Canvas):
                      "scroll_speed": 10.,                                   # скорость прокрутки скроллов
                      "curr_img": None                                       # временное хранилище фотографии
                     }
+        self.undo = []
 
 
 class NotebookTabs(ttk.Notebook):
@@ -187,7 +188,7 @@ class CustomNotebook(NotebookTabs):
         __scroll_x = Scrollbar(__frame, orient=HORIZONTAL)
         __scroll_y = Scrollbar(__frame, orient=VERTICAL)
 
-        __canvas = CustomCanvas(__frame,
+        self._canvas = CustomCanvas(__frame,
                                 width=DEFAULT_CANVAS_W,
                                 height=DEFAULT_CANVAS_H,
                                 bg=DEFAULT_CANVAS_BG,
@@ -195,34 +196,33 @@ class CustomNotebook(NotebookTabs):
                                 yscrollcommand=__scroll_y.set
                                 )
 
-        __scroll_x.config(command=__canvas.xview)
-        __scroll_y.config(command=__canvas.yview)
+        __scroll_x.config(command=self._canvas.xview)
+        __scroll_y.config(command=self._canvas.yview)
 
         # упаковываем все и настраиваем
-        __canvas.grid(column=0, row=0, sticky="nswe")
+        self._canvas.grid(column=0, row=0, sticky="nswe")
         __scroll_x.grid(column=0, row=1, sticky="we")
         __scroll_y.grid(column=1, row=0, sticky="ns")
         __frame.rowconfigure(0, weight=1)
         __frame.columnconfigure(0, weight=1)
-        __canvas.configure(yscrollincrement='11', xscrollincrement='11')
+        self._canvas.configure(yscrollincrement='11', xscrollincrement='11')
 
         self._count = 1
-        __canvas.img["id"] = self._count
-        self.image_processing = Img(__canvas)
+        self._canvas.img["id"] = self._count
+        self.image_processing = Img(self._canvas)
 
         self.root = root
-        self._canvases = [__canvas]
+        self._canvases = [self._canvas]
 
         # привязываем события к холсту
-        __canvas.bind("<Button 3>", lambda event: self.image_processing.grab(event))
-        __canvas.bind("<B3-Motion>", lambda event: self.image_processing.drag(event))
-        __canvas.bind("<Control-MouseWheel>", lambda event: self.image_processing.zoom(event))
+        self._canvas.bind("<Button 3>", lambda event: self.image_processing.grab(event))
+        self._canvas.bind("<B3-Motion>", lambda event: self.image_processing.drag(event))
+        self._canvas.bind("<Control-MouseWheel>", lambda event: self.image_processing.zoom(event))
 
-        self.root.bind('<Control-s>', lambda event: print(__canvas.modified_objs, __canvas.obj_storage)) # TODO: Избавится от этого, нужно лишь для debug'a
+        self.root.bind('<Control-s>', lambda event: print(self._canvas.modified_objs, self._canvas.obj_storage)) # TODO: Избавится от этого, нужно лишь для debug'a
 
-        self.events = Events(self.root, DEFAULT_USED_EVENTS, __canvas)
+        self.events = Events(self.root, DEFAULT_USED_EVENTS, self._canvas)
         self.events.event_onCanvas()
-        self.events.event_undo()
 
     def create_new_canvas(self):
         """ Создает новую вкладку на notebook и размещает на нем новый холст
@@ -239,7 +239,7 @@ class CustomNotebook(NotebookTabs):
         __scroll_x = Scrollbar(__frame, orient=HORIZONTAL)
         __scroll_y = Scrollbar(__frame, orient=VERTICAL)
 
-        __canvas = CustomCanvas(__frame,
+        self._canvas = CustomCanvas(__frame,
                                 width=DEFAULT_CANVAS_W,
                                 height=DEFAULT_CANVAS_H,
                                 bg=DEFAULT_CANVAS_BG,
@@ -247,29 +247,28 @@ class CustomNotebook(NotebookTabs):
                                 yscrollcommand=__scroll_y.set
                                 )
 
-        __scroll_x.config(command=__canvas.xview)
-        __scroll_y.config(command=__canvas.yview)
+        __scroll_x.config(command=self._canvas.xview)
+        __scroll_y.config(command=self._canvas.yview)
 
-        __canvas.grid(column=0, row=0, sticky="nswe")
+        self._canvas.grid(column=0, row=0, sticky="nswe")
         __scroll_x.grid(column=0, row=1, sticky="we")
         __scroll_y.grid(column=1, row=0, sticky="ns")
         __frame.rowconfigure(0, weight=1)
         __frame.columnconfigure(0, weight=1)
-        __canvas.configure(yscrollincrement='10.', xscrollincrement='10.')
+        self._canvas.configure(yscrollincrement='10.', xscrollincrement='10.')
 
-        __canvas.bind("<Button 3>", lambda event: self.image_processing.grab(event))
-        __canvas.bind("<B3-Motion>", lambda event: self.image_processing.drag(event))
-        __canvas.bind("<MouseWheel>", lambda event: self.image_processing.zoom(event))
+        self._canvas.bind("<Button 3>", lambda event: self.image_processing.grab(event))
+        self._canvas.bind("<B3-Motion>", lambda event: self.image_processing.drag(event))
+        self._canvas.bind("<Control-MouseWheel>", lambda event: self.image_processing.zoom(event))
 
         self.root.bind('<Control-x>', quit)
-        self.root.bind('<Control-s>', lambda event: print(__canvas.modified_objs, __canvas.obj_storage))     # TODO: Избавится от этого, нужно лишь для debug'a
-        self.events = Events(self.root, DEFAULT_USED_EVENTS, __canvas)
+        self.root.bind('<Control-s>', lambda event: print(self._canvas.modified_objs, self._canvas.obj_storage))     # TODO: Избавится от этого, нужно лишь для debug'a
+        self.events = Events(self.root, DEFAULT_USED_EVENTS, self._canvas)
         self.events.event_onCanvas()
-        self.events.event_undo()
 
-        __canvas.img["id"] = self._count
+        self._canvas.img["id"] = self._count
+        self._canvases.append(self._canvas)
         self.select(self.tabs()[-1])
-        self._canvases.append(__canvas)
 
     def select_curr_tab(self, event):
         """ Событие при переходе на новую вкладку
@@ -287,12 +286,20 @@ class CustomNotebook(NotebookTabs):
             __selected_canvas = event.widget.select()
             __id = int(event.widget.tab(__selected_canvas, "text")[-1])
 
-            __canvas = self._canvases[__id-1]
+            self._canvas = self._canvases[__id-1]
 
-            self.image_processing = Img(__canvas)
-            self.events = Events(self.root, DEFAULT_USED_EVENTS, __canvas)
-            self.root.bind('<Control-s>', lambda event: print(__canvas.modified_objs, __canvas.obj_storage))
-            self.events.event_undo()
+            self.image_processing = Img(self._canvas)
+            self.events = Events(self.root, DEFAULT_USED_EVENTS, self._canvas)
+            self.root.bind('<Control-s>', lambda event: print(self._canvas.modified_objs, self._canvas.obj_storage))
         except TclError:
             pass
 
+    def undo(self, event):
+        print("undo")
+        __acts = self._canvas.undo
+        if __acts:
+            __last_act = self._canvas.undo.pop()
+            if __last_act == "image":
+                self.image_processing.return_image()
+            elif __last_act == "graphic":
+                self.events.event_undo(event)
