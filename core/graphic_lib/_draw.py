@@ -285,7 +285,7 @@ class Draw:
         canvas.obj_tag = detect_object(event, canvas)
 
         if canvas.hover:
-            if not canvas.obj_tag:
+            if not canvas.obj_tag or 'text' not in canvas.obj_tag:
                 tag = f'text{len(canvas.obj_storage) + 1}'
                 window = TextSettingsWindow(root, text='', family='Arial', size='12', italic=False, bold=False, color='black')
                 data = window.get_data()
@@ -306,7 +306,7 @@ class Draw:
                                                'modifications': ['creation']}
                     canvas.modified_objs.append(tag)
 
-            elif 'text' in canvas.obj_tag:
+            else:
                 data = tuple(canvas.obj_storage[canvas.obj_tag].values())[1:-1]
                 formated_data = [item[-1] for item in data]
 

@@ -223,7 +223,8 @@ class App:
         btn_create_vector.pack(side=TOP, pady=5)
 
         btn_create_coordinate_plane = Button(frame_graphic, text='*плоскость*',
-                                             command=lambda: notebook.events.event_btnCreateCoordinatePlane())
+                                             command=lambda t=core.DEFAULT_THICKNESS, clr=core.DEFAULT_FIRST_COLOR:
+                                             notebook.events.event_btnCreateCoordinatePlane(thickness=t, color=clr))
         btn_create_coordinate_plane.pack(side=TOP, pady=5)
 
         btn_create_polygon = Button(frame_graphic, text='*многоугольник*',
