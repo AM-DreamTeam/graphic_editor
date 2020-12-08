@@ -21,7 +21,7 @@ class TextSettingsWindow(Toplevel):
         Методы:
             * choose_color(self) -> None
             * submit(self) -> None
-            * get_data(self) -> None
+            * get_data(self) -> tuple
     """
 
     def __init__(self, root, *, text, family, size, italic, bold, color, **kwargs):
