@@ -45,6 +45,7 @@ DEFAULT_CANVAS_BG = 'white'
 
 DEFAULT_FILTERS_1 = [
                     "blur",
+                    "blur",
                     "contour",
                     "edge enhance",
                     "emboss",
@@ -54,12 +55,14 @@ DEFAULT_FILTERS_1 = [
 
 DEFAULT_FILTERS_2 = [
                     "color",
+                    "color",
                     "contrast",
                     "brightness",
                     "sharpness"
                     ]
 
 DEFAULT_FILTERS_3 = [
+                    "negative",
                     "negative",
                     "gray scale",
                     "solarize"
