@@ -58,8 +58,8 @@ class NotebookTabs(Notebook):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._active = int
-        self._closed_tabs = []
+        self._active: int
+        self._closed_tabs: List
         ...
 
     def on_close_press(self, event: Event) -> None: ...
