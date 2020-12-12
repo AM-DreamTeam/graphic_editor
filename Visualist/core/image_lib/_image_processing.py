@@ -68,7 +68,8 @@ class Img:
             * apply_filter_4(self) -> None
     """
 
-    def __init__(self, canvas):
+    def __init__(self, root, canvas):
+        self.root = root
         self._canvas = canvas
         self._types = (("Изображение", "*.jpg *.gif *.png *.jpeg"),)
         self._y = None
@@ -135,7 +136,7 @@ class Img:
                                                   )
 
         if __new_file:
-            __compress_window = CompressWindow(self._canvas)
+            __compress_window = CompressWindow(self.root)
             __compress = __compress_window.open()
 
             __page = self._canvas.img
@@ -147,15 +148,17 @@ class Img:
                                                                 int(__img.size[0] * 1.333333),
                                                                 int(__img.size[1] * 1.333333))))
                 self._canvas.itemconfig(__page["cr_img"], image=__page["ph"])
-            if self._canvas.obj_storage:
+
+            __bbox = None
+            if len(self._canvas.obj_storage) > 1:
                 self._canvas.scale(ALL, 0, 0, (1 / __page["scale"]) * 1.333333, (1 / __page["scale"]) * 1.333333)
+                __bbox = self._canvas.bbox(ALL)
+                self._canvas.configure(scrollregion=(0, 0, __bbox[2] - __bbox[0], __bbox[3] - __bbox[1]))
             __page["scale_size"] = tuple((int(_ * 1.333333) for _ in __page["img_size"]))
             __page["scale"] = 1.333333
-            __bbox = self._canvas.bbox(ALL)
-            self._canvas.configure(scrollregion=(0, 0, __bbox[2] - __bbox[0], __bbox[3] - __bbox[1]))
 
             __image = None
-            if self._canvas.obj_storage:
+            if len(self._canvas.obj_storage) > 1:
                 if __page["imgs"]:
                     ps = self._canvas.postscript(colormode="color",
                                                  height=__bbox[3] - __bbox[1] + 10,
@@ -255,15 +258,15 @@ class Img:
         """
 
         __page = self._canvas.img
-        if self._canvas.obj_storage or __page["imgs"]:
+        if len(self._canvas.obj_storage) > 1 or __page["imgs"]:
             if event.delta > 0:
-                __page["scale"] = __page["scale"] * 1.1 if __page["scale"] * 1.1 < 8 else 8
+                __page["scale"] = __page["scale"] * 1.25 if __page["scale"] * 1.25 < 3.8147 else 3.8147
                 self.redraw("in")
             elif event.delta < 0:
-                __page["scale"] = __page["scale"] * 0.9 if __page["scale"] * 0.9 > 0.125 else 0.125
-                self.redraw("on")
+                __page["scale"] = __page["scale"] * 0.8 if __page["scale"] * 0.8 > 0.262144 else 0.262144
+                self.redraw("off")
 
-    def zoomIn(self, event):
+    def zoom_in(self, event):
         """ Расчитывает коэффициент масштабирования при прокрутке колеса мыши вниз
 
             Аргументы:
@@ -274,11 +277,11 @@ class Img:
         """
 
         __page = self._canvas.img
-        if self._canvas.obj_storage or __page["imgs"]:
-            __page["scale"] = __page["scale"] * 1.1 if __page["scale"] * 1.1 < 8 else 8
+        if len(self._canvas.obj_storage) > 1 or __page["imgs"]:
+            __page["scale"] = __page["scale"] * 1.25 if __page["scale"] * 1.25 < 3.8147 else 3.8147
             self.redraw("in")
 
-    def zoomOn(self, event):
+    def zoom_off(self, event):
         """ Расчитывает коэффициент масштабирования при прокрутке колеса мыши вверх
 
             Аргументы:
@@ -288,8 +291,8 @@ class Img:
                 None
         """
         __page = self._canvas.img
-        if self._canvas.obj_storage or __page["imgs"]:
-            __page["scale"] = __page["scale"] * 0.9 if __page["scale"] * 0.9 > 0.125 else 0.125
+        if len(self._canvas.obj_storage) > 1 or __page["imgs"]:
+            __page["scale"] = __page["scale"] * 0.8 if __page["scale"] * 0.8 > 0.262144 else 0.262144
             self.redraw("on")
 
     def redraw(self, direction="in"):
@@ -317,11 +320,11 @@ class Img:
 
         __scroll_speed = str(float(__page["scroll_speed"]) * pow(__page["scale"], 1 / 6))
         self._canvas.configure(yscrollincrement=__scroll_speed, xscrollincrement=__scroll_speed)
-        if 0.125 < __page["scale"] < 8:
+        if 0.262144 < __page["scale"] < 3.8147:
             if direction == "in":
-                self._canvas.scale(ALL, 0, 0, 1.1, 1.1)
-            elif direction == "on":
-                self._canvas.scale(ALL, 0, 0, 0.9, 0.9)
+                self._canvas.scale(ALL, 0, 0, 1.25, 1.25)
+            elif direction == "off":
+                self._canvas.scale(ALL, 0, 0, 0.8, 0.8)
 
     def apply_filter_1(self, f):
         """ Применяет к изображению с холста фильтр из первой группы (DEFAULT_FILTERS_1)
@@ -338,17 +341,17 @@ class Img:
             __image = __page["imgs"][-1]
             __fltr = f.get()
             __image_new = None
-            if __fltr == "blur":
+            if __fltr == "размытие":
                 __image_new = __image.filter(ImageFilter.BLUR)
-            elif __fltr == "contour":
+            elif __fltr == "контур":
                 __image_new = __image.filter(ImageFilter.CONTOUR)
-            elif __fltr == "edge enhance":
+            elif __fltr == "резкость":
                 __image_new = __image.filter(ImageFilter.EDGE_ENHANCE)
-            elif __fltr == "emboss":
+            elif __fltr == "рельеф":
                 __image_new = __image.filter(ImageFilter.EMBOSS)
-            elif __fltr == "find edges":
+            elif __fltr == "выделение краев":
                 __image_new = __image.filter(ImageFilter.FIND_EDGES)
-            elif __fltr == "smooth":
+            elif __fltr == "сглаживание":
                 __image_new = __image.filter(ImageFilter.SMOOTH)
             __page["imgs"].append(__image_new)
             __page["ph"] = ImageTk.PhotoImage(__image_new.resize(__page["scale_size"]))
@@ -375,13 +378,13 @@ class Img:
             __fltr = f.get()
             __image = __page["imgs"][-1]
             __image_new = None
-            if __fltr == "color":
+            if __fltr == "насыщенность":
                 __image_new = ImageEnhance.Color(__image).enhance(__percent)
-            elif __fltr == "contrast":
+            elif __fltr == "контрастность":
                 __image_new = ImageEnhance.Contrast(__image).enhance(__percent)
-            elif __fltr == "brightness":
+            elif __fltr == "яркость":
                 __image_new = ImageEnhance.Brightness(__image).enhance(__percent)
-            elif __fltr == "sharpness":
+            elif __fltr == "острота":
                 __image_new = ImageEnhance.Sharpness(__image).enhance(__percent)
             else:
                 pass
@@ -411,11 +414,11 @@ class Img:
                 __mode = __image.mode
                 __image = __image.convert("RGB")
             __image_new = None
-            if __fltr == "negative":
+            if __fltr == "негатив":
                 __image_new = ImageOps.invert(__image)
-            elif __fltr == "gray scale":
+            elif __fltr == "оттенки серого":
                 __image_new = ImageOps.grayscale(__image)
-            elif __fltr == "solarize":
+            elif __fltr == "соляризация":
                 __image_new = ImageOps.solarize(__image)
             else:
                 pass
@@ -569,7 +572,7 @@ class Img:
         """
         __page = self._canvas.img
         if __page["imgs"]:
-            if not self._canvas.obj_storage:
+            if len(self._canvas.obj_storage) == 1:
                 __image = __page["imgs"][-1]
                 __mode = None
                 if __image.mode != 'RGB':
@@ -609,7 +612,7 @@ class Img:
         """
         __page = self._canvas.img
         if __page["imgs"]:
-            if not self._canvas.obj_storage:
+            if len(self._canvas.obj_storage) == 1:
                 __image = __page["imgs"][-1]
                 __mode = None
                 if __image.mode != 'RGB':

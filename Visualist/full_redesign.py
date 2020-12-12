@@ -25,6 +25,7 @@ class App(Tk, ThemedStyle):
         ThemedStyle(self, theme='black')
 
     def init_main(self):
+        """ Содержит в себе инициальзацию основного окна"""
 
         # параметры стилизации
         self.dir = 'gifblack'
@@ -34,14 +35,30 @@ class App(Tk, ThemedStyle):
 
         # вспомогательные функции
         def image_resize(size: tuple, pic: str):
+            """ Изменяет размер иконки
+
+            Аргументы:
+                size: объект типа tuple содеражщий высоту и ширину выводимого изображения
+                pic: директория изображения
+
+            Возвращает:
+                изображение класса ImageTk
+            """
             return ImageTk.PhotoImage(Image.open(pic).resize(size))
 
-        self.color_code = ((0.0, 0.0, 0.0), '#424242')
+        self.color_code = ((0.0, 0.0, 0.0), 'black')
         def choose_color():
             self.color_code = tkinter.colorchooser.askcolor(title="Цвета")
             self.btn_color.config(bg=self.color_code[1])
 
         def slider_filter2(value):
+            """ Изменяет значение индикатора слайдера
+
+                Аргументы:
+                    value: текущее значение(положение) слайдера
+
+                По аналогии с slider_filter_r, slider_filter_g, slider_filter_b, slider_thickness
+            """
             self.value_label.config(text=round(float(value)))
         def slider_filter_r(value):
             self.r_scale_value.config(text=f'{round(float(value))} %')
@@ -49,7 +66,6 @@ class App(Tk, ThemedStyle):
             self.g_scale_value.config(text=f'{round(float(value))} %')
         def slider_filter_b(value):
             self.b_scale_value.config(text=f'{round(float(value))} %')
-
         self.thickness = 5
         def slider_thickness(value):
             self.thickness_value.config(text=round(float(value)))
@@ -68,8 +84,6 @@ class App(Tk, ThemedStyle):
         self.filemenu.add_separator()
         self.filemenu.add_command(label="Выход", command=self.quit)
         self.menubar.add_cascade(label="Файл", menu=self.filemenu)
-        self.menubar.add_command(label='Добавить хост', command=self.notebook.create_new_canvas)
-        self.menubar.add_command(label='Вернуть хост', command=lambda:self.notebook.reestablish_tab())
         self.config(menu=self.menubar)
 
         self.notebook.bind("<<NotebookTabChanged>>", self.notebook.select_curr_tab)
@@ -83,7 +97,7 @@ class App(Tk, ThemedStyle):
         self.minsize(self.winfo_width(), self.winfo_height())
 
         # GUI виджеты
-        self.nb = ttk.Notebook(self, width=900, height=110)
+        self.nb = ttk.Notebook(self)
         self.toolbar_1 = ttk.Frame(self.nb)
         self.toolbar_2 = ttk.Frame(self.nb)
         self.toolbar_3 = ttk.Frame(self.nb)
@@ -96,6 +110,13 @@ class App(Tk, ThemedStyle):
         self.nb.grid(row=0, column=0, sticky="WE")
 
             # панель
+        self.im_add_list = image_resize((30, 30), f"images/{self.dir}/add_list.{self.format}")
+        self.btn_add_list = ttk.Button(self.main_toolbar, text="Добавить холст", image=self.im_add_list, compound=LEFT,
+                                       command=self.notebook.create_new_canvas)
+
+        self.im_back_list = image_resize((30, 30), f"images/{self.dir}/back_list.{self.format}")
+        self.btn_back_list = ttk.Button(self.main_toolbar, text="Вернуть холст", image=self.im_back_list, compound=LEFT,
+                                        command=lambda: self.notebook.reestablish_tab())
 
         self.im_undo = image_resize((20, 20), f"images/{self.dir}/undo.{self.format}")
         self.btn_undo = ttk.Button(self.main_toolbar, image=self.im_undo)
@@ -140,19 +161,13 @@ class App(Tk, ThemedStyle):
         tool_tip.ToolTip(self.btn_eraser, "Ластик")
 
 
-        self.sep_1 = ttk.Separator(self.toolbar_1, orient=VERTICAL)
-
-
-        self.im_color = image_resize((70, 70), f"images/{self.dir}/color.{self.format}")
+        self.im_color = image_resize((85, 85), f"images/{self.dir}/color.{self.format}")
         self.btn_colorchoice = ttk.Button(self.toolbar_1, image=self.im_color, command=choose_color)
         tool_tip.ToolTip(self.btn_colorchoice, "Выбор цвета")
 
         self.color_frame = ttk.Frame(self.toolbar_1)
         self.btn_color = Button(self.color_frame, bg=self.color_code[1])
         tool_tip.ToolTip(self.btn_color, "Текущий цвет")
-
-
-        self.sep_2 = ttk.Separator(self.toolbar_1, orient=VERTICAL)
 
 
         self.thickness_labelframe = ttk.Labelframe(self.toolbar_1, text="Толщина")
@@ -190,9 +205,6 @@ class App(Tk, ThemedStyle):
                                          anchor=N, font=self.font_par)
         self.thickness_scale = ttk.Scale(self.thickness_labelframe, orient=VERTICAL, length=50, from_=1, to=20,
                                          command=slider_thickness)
-
-
-        self.sep_3 = ttk.Separator(self.toolbar_1, orient=VERTICAL)
 
 
         self.figure_labelframe = ttk.Labelframe(self.toolbar_1, text="Фигуры")
@@ -234,21 +246,13 @@ class App(Tk, ThemedStyle):
         self.btn_plot = ttk.Button(self.figure_labelframe, image=self.pic_plot,
                                     command=lambda:self.notebook.events.event_btnCreateCoordinatePlane())
         tool_tip.ToolTip(self.btn_plot, "Координатная плоскость")
+
             # страница 2
 
-        self.im_add_list = image_resize((30, 30), f"images/{self.dir}/add_list.{self.format}")
-        self.btn_add_list = ttk.Button(self.toolbar_2, text="Добавить холст", image=self.im_add_list, compound=LEFT,
-                                       command=self.notebook.create_new_canvas)
-
-        self.im_back_list = image_resize((30, 30), f"images/{self.dir}/back_list.{self.format}")
-        self.btn_back_list = ttk.Button(self.toolbar_2, text="Вернуть холст", image=self.im_back_list, compound=LEFT,
-                                       command=lambda:self.notebook.reestablish_tab())
-
-
-        self.filters_labelframe = ttk.Labelframe(self.toolbar_2, text="Фильтры")
+        # self.filters_labelframe = ttk.Labelframe(self.toolbar_2, text="Фильтры")
 
             # filter1
-        self.frame_filter1 = ttk.Labelframe(self.filters_labelframe, text="Шумы")
+        self.frame_filter1 = ttk.Labelframe(self.toolbar_2, text="Шумы")
         self.variable_filter_1 = StringVar(self.frame_filter1)
         self.variable_filter_1.set(core.DEFAULT_FILTERS_1[0])
         self.filters1 = ttk.OptionMenu(self.frame_filter1, self.variable_filter_1, *core.DEFAULT_FILTERS_1)
@@ -257,7 +261,7 @@ class App(Tk, ThemedStyle):
                                             self.notebook.image_processing.apply_filter_1(x))
 
             # filter3
-        self.frame_filter3 = ttk.Labelframe(self.filters_labelframe, text="Базовые фильтры")
+        self.frame_filter3 = ttk.Labelframe(self.toolbar_2, text="Базовые фильтры")
         self.variable_filter_3 = StringVar(self.frame_filter3)
         self.variable_filter_3.set(core.DEFAULT_FILTERS_3[0])
         self.filters3 = ttk.OptionMenu(self.frame_filter3, self.variable_filter_3, *core.DEFAULT_FILTERS_3)
@@ -266,13 +270,13 @@ class App(Tk, ThemedStyle):
                                             self.notebook.image_processing.apply_filter_3(x))
 
             # filter2
-        self.frame_filter2 = ttk.Labelframe(self.filters_labelframe, text="Стандартные параметры")
+        self.frame_filter2 = ttk.Labelframe(self.toolbar_2, text="Стандартные параметры")
         self.variable_filter_2 = StringVar(self.frame_filter2)
         self.variable_filter_2.set(core.DEFAULT_FILTERS_2[0])
         self.filters2 = ttk.OptionMenu(self.frame_filter2, self.variable_filter_2, *core.DEFAULT_FILTERS_2)
         self.filter_2_percent = ttk.Scale(self.frame_filter2, length=150, from_=0, to=500)
         self.filter_2_percent.set(100)
-        self.filter_2_percent.bind("<B1-Motion>", lambda
+        self.filter_2_percent.bind("<Button-1>", lambda
             event,
             f=self.variable_filter_2,
             scale=self.filter_2_percent:
@@ -286,7 +290,7 @@ class App(Tk, ThemedStyle):
                                              font=(self.font, 9))
 
             # filter4
-        self.frame_filter4 = ttk.LabelFrame(self.filters_labelframe, text='Работа с цветовыми слоями')
+        self.frame_filter4 = ttk.LabelFrame(self.toolbar_2, text='Работа с цветовыми слоями')
         self.r_scale_box = ttk.Scale(self.frame_filter4, length=130, from_=0, to=200, orient=HORIZONTAL)
         self.r_scale_box.set(100)
         self.g_scale_box = ttk.Scale(self.frame_filter4, length=130, from_=0, to=200, orient=HORIZONTAL)
@@ -307,20 +311,20 @@ class App(Tk, ThemedStyle):
 
         self.ticks_label_filter4 = ttk.Label(self.frame_filter4, text='0   |  100  |  200',
                                      font=(self.font, 9))
-        self.r_scale_box.bind("<B1-Motion>",
+        self.r_scale_box.bind("<Button-1>",
                               lambda
                                   event,
                                   r=self.r_scale_box,
                                   g=self.g_scale_box,
                                   b=self.b_scale_box:
                               self.notebook.image_processing.change_layers(red=r, green=g, blue=b, event=event))
-        self.g_scale_box.bind("<B1-Motion>", lambda
+        self.g_scale_box.bind("<Button-1>", lambda
             event,
             r=self.r_scale_box,
             g=self.g_scale_box,
             b=self.b_scale_box:
         self.notebook.image_processing.change_layers(red=r, green=g, blue=b, event=event))
-        self.b_scale_box.bind("<B1-Motion>", lambda
+        self.b_scale_box.bind("<Button-1>", lambda
             event,
             r=self.r_scale_box,
             g=self.g_scale_box,
@@ -328,11 +332,10 @@ class App(Tk, ThemedStyle):
         self.notebook.image_processing.change_layers(red=r, green=g, blue=b, event=event))
         self.btn_apply_filter4 = ttk.Button(self.frame_filter4,
                text='Применить',
-               command=lambda: [self.notebook.image_processing.append_image(), self.reset_scales()]
-               )
+               command=lambda: [self.notebook.image_processing.append_image(), self.reset_scales()])
 
             # filter5
-        self.frame_filter5 = ttk.LabelFrame(self.filters_labelframe, text='')
+        self.frame_filter5 = ttk.LabelFrame(self.toolbar_2, text='')
         self.btn_mix_layers = ttk.Button(self.frame_filter5,text="mix layers",
                                          command=lambda: self.notebook.image_processing.apply_filter_4())
         tool_tip.ToolTip(self.btn_mix_layers, "Случайный набор слоёв")
@@ -342,11 +345,11 @@ class App(Tk, ThemedStyle):
 
             # filter6
         self.frame_filter6 = ttk.LabelFrame(self.toolbar_2, text='Отразить')
-        self.im_horizontal = image_resize((25, 20), f"images/{self.dir}/horizontal.{self.format}")
+        self.im_horizontal = image_resize((25, 20), f"images/{self.dir}/vertical.{self.format}")
         self.btn_apply_filter6_1 = ttk.Button(self.frame_filter6, image=self.im_horizontal,
                                      command=lambda:self.notebook.image_processing.reflect_image('horizontal'))
         tool_tip.ToolTip(self.btn_apply_filter6_1, "Отразить по горизонтали")
-        self.im_vertical = image_resize((25, 20), f"images/{self.dir}/vertical.{self.format}")
+        self.im_vertical = image_resize((25, 20), f"images/{self.dir}/horizontal.{self.format}")
         self.btn_apply_filter6_2 = ttk.Button(self.frame_filter6,image=self.im_vertical,
                                      command=lambda:self.notebook.image_processing.reflect_image('vertical'))
         tool_tip.ToolTip(self.btn_apply_filter6_2, "Отразить по вертикали")
@@ -364,22 +367,22 @@ class App(Tk, ThemedStyle):
 
         # упаковка виджетов
 
-        self.btn_undo.grid(row=0, column=0, sticky="NSWE")
-        self.btn_replace.grid(row=0, column=2, sticky="NSWE")
-        self.btn_clear.grid(row=0, column=3, sticky="NSWE")
+        self.btn_add_list.grid(row=0, column=0, sticky="WE")
+        self.btn_back_list.grid(row=0, column=1, sticky="WE")
+        self.btn_undo.grid(row=0, column=2, sticky="NSWE")
+        self.btn_replace.grid(row=0, column=3, sticky="NSWE")
+        self.btn_clear.grid(row=0, column=4, sticky="NSWE")
 
         self.btn_brush.grid(row=0, column=0, sticky="NSWE")
         self.btn_fill.grid(row=0, column=1, sticky="NSWE")
         self.btn_text.grid(row=1, column=0, sticky="NSWE")
         self.btn_eraser.grid(row=1, column=1, sticky="NSWE")
 
-        # self.sep_1.grid(row=0, column=2, rowspan=2, sticky="NSWE")
+        ttk.Separator(self.toolbar_1, orient=VERTICAL).grid(row=0, column=2, rowspan=2, sticky="NSWE")
 
         self.btn_colorchoice.grid(row=0, column=4, rowspan=2, columnspan=2, sticky="NSWE")
         self.color_frame.grid(row=0, column=6, rowspan=2, sticky="NSWE")
         self.btn_color.pack(expand=1, fill=Y)
-
-        self.sep_2.grid(row=0, column=7, rowspan=2, sticky="NSWE")
 
         self.thickness_labelframe.grid(row=0, column=8, rowspan=2, sticky="NSWE")
         self.btn_thickness_1.grid(row=0, column=0, sticky="NSWE")
@@ -389,7 +392,7 @@ class App(Tk, ThemedStyle):
         self.thickness_scale.grid(row=0, column=1, rowspan=4, sticky="NSWE")
         self.thickness_value.grid(row=0, column=2, rowspan=4, sticky="WE")
 
-        self.sep_3.grid(row=0, column=9, rowspan=2, sticky="NSWE")
+        ttk.Separator(self.toolbar_1, orient=VERTICAL).grid(row=0, column=9, rowspan=2, sticky="NSWE")
 
         self.figure_labelframe.grid(row=0, column=10, rowspan=3, sticky="NS")
         self.btn_rectangle.grid(row=0, column=0)
@@ -399,20 +402,28 @@ class App(Tk, ThemedStyle):
         self.btn_arrow.grid(row=1, column=1)
         self.btn_plot.grid(row=1, column=2)
 
-        self.btn_add_list.grid(row=0, column=1, sticky="WE")
-        self.btn_back_list.grid(row=0, column=2, sticky="WE")
+        self.frame_filter6.grid(row=0, column=0, sticky="NS")
+        self.btn_apply_filter6_1.grid(row=0, column=0, sticky="WE")
+        self.btn_apply_filter6_2.grid(row=0, column=1, sticky="WE")
 
-        self.filters_labelframe.grid(row=0, column=3, rowspan=2, sticky="NS")
+        self.frame_filter7.grid(row=1, column=0, sticky="NS")
+        self.btn_apply_filter7_1.grid(row=0, column=0, sticky="WE")
+        self.btn_apply_filter7_2.grid(row=0, column=1, sticky="WE")
 
-        self.frame_filter1.grid(row=0, column=0, sticky="NSWE")
+        ttk.Separator(self.toolbar_2, orient=VERTICAL).grid(row=0, column=2, rowspan=2, sticky="NSWE")
+
+        # self.filters_labelframe.grid(row=0, column=3, rowspan=2, sticky="NS")
+        self.frame_filter1.grid(row=0, column=3, rowspan=2, sticky="NSWE")
         self.filters1.grid(row=0, sticky="we")
         self.btn_apply_filter1.grid(row=1, sticky="e")
 
-        self.frame_filter3.grid(row=0, column=1, sticky="NSWE")
+        self.frame_filter3.grid(row=0, column=4, rowspan=2, sticky="NSWE")
         self.filters3.grid(row=0, sticky="we")
         self.btn_apply_filter3.grid(row=1, sticky="e")
 
-        self.frame_filter2.grid(row=0, column=2, sticky="NSWE")
+        ttk.Separator(self.toolbar_2, orient=VERTICAL).grid(row=0, column=5, rowspan=2, sticky="NSWE")
+
+        self.frame_filter2.grid(row=0, column=6, rowspan=2, sticky="NSWE")
         self.filters2.grid(row=0, column=0, sticky="we")
         self.btn_apply_filter2.grid(row=0, column=1, sticky="e")
 
@@ -420,8 +431,9 @@ class App(Tk, ThemedStyle):
         self.value_label.grid(row=1, column=2, sticky="NSWE")
         self.ticks_label_filter2.grid(row=2, column=0, columnspan=2, sticky="NSWE")
 
+        ttk.Separator(self.toolbar_2, orient=VERTICAL).grid(row=0, column=7, rowspan=2, sticky="NSWE")
 
-        self.frame_filter4.grid(row=0, column=3, sticky="NSWE")
+        self.frame_filter4.grid(row=0, column=8, rowspan=2, sticky="NSWE")
         self.label_r.grid(row=0, column=0)
         self.label_g.grid(row=1, column=0)
         self.label_b.grid(row=2, column=0)
@@ -434,17 +446,12 @@ class App(Tk, ThemedStyle):
         self.ticks_label_filter4.grid(column=1, row=3, columnspan=2, sticky="NSWE")
         self.btn_apply_filter4.grid(row=0, column=3, rowspan=3, sticky="WE")
 
-        self.frame_filter5.grid(row=0, column=4, sticky="NSWE")
+        self.frame_filter5.grid(row=0, column=9, rowspan=2, sticky="NSWE")
         self.btn_mix_layers.grid(row=0, column=0, sticky="WE")
         self.btn_normalize.grid(row=1, column=0, sticky="WE")
 
-        self.frame_filter6.grid(row=1, column=1, sticky="NS")
-        self.btn_apply_filter6_1.grid(row=0, column=0, sticky="WE")
-        self.btn_apply_filter6_2.grid(row=0, column=1, sticky="WE")
+        ttk.Separator(self.toolbar_2, orient=VERTICAL).grid(row=0, column=10, rowspan=2, sticky="NSWE")
 
-        self.frame_filter7.grid(row=1, column=2, sticky="NS")
-        self.btn_apply_filter7_1.grid(row=0, column=0, sticky="WE")
-        self.btn_apply_filter7_2.grid(row=0, column=1, sticky="WE")
 
     def reset_scales(self, _=None):
         """
@@ -466,16 +473,28 @@ if __name__ == "__main__":
         app.set_theme('black')
         btn_theme = ttk.Button(app.main_toolbar, image=app.moon, command=change_theme_white)
         tool_tip.ToolTip(btn_theme, "Установить светлую тему")
-        btn_theme.grid(row=0, column=4, sticky="NSWE")
+        btn_theme.grid(row=0, column=5, sticky="NSWE")
 
     def change_theme_white():
         app.set_theme('arc')
         btn_theme = ttk.Button(app.main_toolbar, image=app.sun, command=change_theme_black)
         tool_tip.ToolTip(btn_theme, "Установить тёмную тему")
-        btn_theme.grid(row=0, column=4, sticky="NSWE")
+        btn_theme.grid(row=0, column=5, sticky="NSWE")
 
     btn_theme = ttk.Button(app.main_toolbar, image=app.moon, command=change_theme_white)
     tool_tip.ToolTip(btn_theme, "Установить светлую тему")
-    btn_theme.grid(row=0, column=4, sticky="NSWE")
+    btn_theme.grid(row=0, column=5, sticky="NSWE")
+
+    def f(s):
+        app.set_theme(str(s))
+
+    options = StringVar(app.main_toolbar)
+    menu = ttk.OptionMenu(app.main_toolbar, options,
+                          "aquativo","aquativo","blue","breeze","clearlooks","elegance","equilux","kroc",
+                          "plastik","radiance","smog","winxpblue","yaru",
+                          command=f)
+    menu.grid(row=0, column=6, sticky="NSWE")
+
+
 
     app.mainloop()

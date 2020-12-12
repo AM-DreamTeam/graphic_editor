@@ -44,26 +44,26 @@ DEFAULT_CANVAS_BG = 'white'
 
 
 DEFAULT_FILTERS_1 = [
-                    "blur",
-                    "blur",
-                    "contour",
-                    "edge enhance",
-                    "emboss",
-                    "find edges",
-                    "smooth"
+                    "размытие",
+                    "размытие",
+                    "контур",
+                    "резкость",
+                    "рельеф",
+                    "выделение краев",
+                    "сглаживание"
                     ]
 
 DEFAULT_FILTERS_2 = [
-                    "color",
-                    "color",
-                    "contrast",
-                    "brightness",
-                    "sharpness"
+                    "насыщенность",
+                    "насыщенность",
+                    "контрастность",
+                    "яркость",
+                    "острота"
                     ]
 
 DEFAULT_FILTERS_3 = [
-                    "negative",
-                    "negative",
-                    "gray scale",
-                    "solarize"
+                    "негатив",
+                    "негатив",
+                    "оттенки серого",
+                    "соляризация"
                     ]
