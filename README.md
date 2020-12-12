@@ -2,7 +2,6 @@
 ![GitHub](https://img.shields.io/github/license/AM-DreamTeam/graphic_editor?style=flat-square)
 [![Python 3.8](https://img.shields.io/badge/python-3.8-green.svg?style=flat-square)](https://www.python.org/downloads/release/python-380/)
 ![GitHub issues](https://img.shields.io/github/issues/AM-DreamTeam/graphic_editor?style=flat-square)
-![GitHub contributors](https://img.shields.io/github/contributors/AM-DreamTeam/graphic_editor?style=flat-square)
 ![GitHub repo size](https://img.shields.io/github/repo-size/AM-DreamTeam/graphic_editor?style=flat-square)
 
 <h1> <img src="visualist.png" width="40" alt="visualist"/> Графический редактор — <i>Visualist</i> </h1>
@@ -30,4 +29,4 @@
 
 <sub> Проект по ЯиМП: 2 курс (1 семестр) </sub>
 <br>
-<sub> 🚧 Последнее обновление: 9.12.2020 </sub>
+<sub> 🚧 Последнее обновление: 12.12.2020 </sub>
