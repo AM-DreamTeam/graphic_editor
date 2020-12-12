@@ -106,7 +106,7 @@ class App(Tk, ThemedStyle):
         self.filemenu.add_command(label="Сохранить...", command=lambda: self.notebook.save_canvas())
         self.filemenu.add_command(label="Настройки",)
         self.filemenu.add_separator()
-        self.filemenu.add_command(label="Выход", command=self.quit)
+        self.filemenu.add_command(label="Выход", command=self.close_window)
         self.menubar.add_cascade(label="Файл", menu=self.filemenu)
         self.menubar.add_command(label='info', command=lambda: self.notebook.image_processing.get_info())  # TODO: убрать
         self.config(menu=self.menubar)
@@ -152,7 +152,8 @@ class App(Tk, ThemedStyle):
 
         self.im_undo = image_resize((20, 20), f"images/{self.dir}/undo.{self.format}")
         self.btn_undo = ttk.Button(self.main_toolbar,
-                                   image=self.im_undo)
+                                   image=self.im_undo,
+                                   command=lambda: self.notebook.undo())
         _tool_tip.ToolTip(self.btn_undo, "Вернуть")
 
         self.im_replace = image_resize((20, 20), f"images/{self.dir}/replace.{self.format}")
