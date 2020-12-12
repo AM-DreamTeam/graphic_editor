@@ -17,7 +17,7 @@ from PIL import Image, ImageTk, UnidentifiedImageError, EpsImagePlugin, ImageFil
 from io import BytesIO
 from random import choices, randint
 from copy import copy
-from core.image_lib._compress_window import *
+from core.image_lib._compress_window import CompressWindow
 
 
 """
@@ -59,13 +59,19 @@ class Img:
             * grab(self, event: tkinter.Event) -> None
             * drag(self, event: tkinter.Event) -> None
             * zoom(self, event: tkinter.Event) -> None
-            * zoomIn(self, event: tkinter.Event) -> None
-            * zoomOut(self, event: tkinter.Event) -> None
+            * zoom_in(self, event: tkinter.Event) -> None
+            * zoom_off(self, event: tkinter.Event) -> None
             * redraw(self, direction: str = "in") -> None
             * apply_filter_1(self, f: tkinter.StringVar) -> None
             * apply_filter_2(self, f: tkinter.StringVar, per: tkinter.StringVar) -> None
             * apply_filter_3(self, f: tkinter.StringVar) -> None
             * apply_filter_4(self) -> None
+            * change_layers(self, red: tkinter.Scale, green: tkinter.Scale, blue: tkinter.Scale,
+                            event: tkinter.Event) -> None
+            * normalize_image(self) -> None
+            * append_image(self) -> None
+            * reflect_image(self, direction: str) -> None
+            * def rotate_image(self, direction: str) -> None
     """
 
     def __init__(self, root, canvas):
@@ -83,6 +89,7 @@ class Img:
         """
 
         try:
+            self._canvas.saveQ = False
             __page = self._canvas.img
             __image = Image.open(filedialog.askopenfilename(title="Open image", filetypes=self._types))
             __page["imgs"].append(__image)
@@ -117,7 +124,7 @@ class Img:
                 Печатает в консоль информацию о текущем холсте
         """
 
-        print(self._canvas.undo)
+        print(self._canvas.saveQ)
 
     def save_image(self):
         """ Сохраняет изображение с холста
@@ -136,6 +143,8 @@ class Img:
                                                   )
 
         if __new_file:
+            self._canvas.saveQ = True
+
             __compress_window = CompressWindow(self.root)
             __compress = __compress_window.open()
 
@@ -161,9 +170,9 @@ class Img:
             if len(self._canvas.obj_storage) > 1:
                 if __page["imgs"]:
                     ps = self._canvas.postscript(colormode="color",
-                                                 height=__bbox[3] - __bbox[1] + 10,
-                                                 width=__bbox[2] - __bbox[0] + 10,
-                                                 x=__bbox[0] - 5, y=__bbox[1] - 5)
+                                                 height=__bbox[3] - __bbox[1],
+                                                 width=__bbox[2] - __bbox[0],
+                                                 x=__bbox[0] - 5, y=__bbox[1])
                     __image = Image.open(BytesIO(ps.encode('utf-8')))
                     __image = __image.resize([_ + 4 for _ in __image.size])
                     __image = __image.crop((2, 2, __image.size[0] - 2, __image.size[1] - 2))
@@ -184,6 +193,19 @@ class Img:
                     __image = Image.new('RGB', (800, 600), color="white")
             __image.save(__new_file, quality=int(__compress))
 
+            if __page["imgs"]:
+                __img = __page["imgs"][-1]
+                __page["ph"] = ImageTk.PhotoImage(__img.resize(__page["img_size"]))
+                self._canvas.itemconfig(__page["cr_img"], image=__page["ph"])
+
+            __bbox = None
+            if len(self._canvas.obj_storage) > 1:
+                self._canvas.scale(ALL, 0, 0, 1/1.333333, 1/1.333333)
+                __bbox = self._canvas.bbox(ALL)
+                self._canvas.configure(scrollregion=(0, 0, __bbox[2] - __bbox[0], __bbox[3] - __bbox[1]))
+            __page["scale_size"] = copy(__page["img_size"])
+            __page["scale"] = 1.
+
     def return_image(self):
         """ Возвращает на холст предыдущее изображение из списка изображений, а текущее удаляет
 
@@ -192,6 +214,7 @@ class Img:
         """
 
         __page = self._canvas.img
+        self._canvas.saveQ = False
         if len(__page["imgs"]) >= 2:
             del __page["imgs"][-1]
             __image = __page["imgs"][-1]
@@ -201,6 +224,7 @@ class Img:
             __page["ph"] = ImageTk.PhotoImage(__image.resize(__page["scale_size"]))
             self._canvas.itemconfig(__page["cr_img"], image=__page["ph"])
         elif len(__page["imgs"]) == 1:
+            self._canvas.saveQ = False
             __page["imgs"] = []
             __page["img_size"] = (800, 600)
             __page["ph"] = None
@@ -338,20 +362,22 @@ class Img:
 
         __page = self._canvas.img
         if __page["imgs"]:
+            self._canvas.saveQ = False
+
             __image = __page["imgs"][-1]
             __fltr = f.get()
             __image_new = None
-            if __fltr == "размытие":
+            if __fltr == "Размытие":
                 __image_new = __image.filter(ImageFilter.BLUR)
-            elif __fltr == "контур":
+            elif __fltr == "Контур":
                 __image_new = __image.filter(ImageFilter.CONTOUR)
-            elif __fltr == "резкость":
+            elif __fltr == "Резкость":
                 __image_new = __image.filter(ImageFilter.EDGE_ENHANCE)
-            elif __fltr == "рельеф":
+            elif __fltr == "Рельеф":
                 __image_new = __image.filter(ImageFilter.EMBOSS)
-            elif __fltr == "выделение краев":
+            elif __fltr == "Выделение краев":
                 __image_new = __image.filter(ImageFilter.FIND_EDGES)
-            elif __fltr == "сглаживание":
+            elif __fltr == "Сглаживание":
                 __image_new = __image.filter(ImageFilter.SMOOTH)
             __page["imgs"].append(__image_new)
             __page["ph"] = ImageTk.PhotoImage(__image_new.resize(__page["scale_size"]))
@@ -378,13 +404,13 @@ class Img:
             __fltr = f.get()
             __image = __page["imgs"][-1]
             __image_new = None
-            if __fltr == "насыщенность":
+            if __fltr == "Насыщенность":
                 __image_new = ImageEnhance.Color(__image).enhance(__percent)
-            elif __fltr == "контрастность":
+            elif __fltr == "Контрастность":
                 __image_new = ImageEnhance.Contrast(__image).enhance(__percent)
-            elif __fltr == "яркость":
+            elif __fltr == "Яркость":
                 __image_new = ImageEnhance.Brightness(__image).enhance(__percent)
-            elif __fltr == "острота":
+            elif __fltr == "Острота":
                 __image_new = ImageEnhance.Sharpness(__image).enhance(__percent)
             else:
                 pass
@@ -406,6 +432,8 @@ class Img:
 
         __page = self._canvas.img
         if __page["imgs"]:
+            self._canvas.saveQ = False
+
             __fltr = f.get()
             __w, __h = __page["img_size"][0], __page["img_size"][1]
             __image = __page["imgs"][-1]
@@ -414,11 +442,11 @@ class Img:
                 __mode = __image.mode
                 __image = __image.convert("RGB")
             __image_new = None
-            if __fltr == "негатив":
+            if __fltr == "Негатив":
                 __image_new = ImageOps.invert(__image)
-            elif __fltr == "оттенки серого":
+            elif __fltr == "Оттенки серого":
                 __image_new = ImageOps.grayscale(__image)
-            elif __fltr == "соляризация":
+            elif __fltr == "Соляризация":
                 __image_new = ImageOps.solarize(__image)
             else:
                 pass
@@ -441,6 +469,8 @@ class Img:
 
         __page = self._canvas.img
         if __page["imgs"]:
+            self._canvas.saveQ = False
+
             try:
                 __image = __page['imgs'][-1]
 
@@ -523,6 +553,8 @@ class Img:
         __page = self._canvas.img
         if __page["imgs"]:
             try:
+                self._canvas.saveQ = False
+
                 __image = __page["imgs"][-1]
                 __mode = None
                 if __image.mode != 'RGB':
@@ -556,6 +588,8 @@ class Img:
         """
         __page = self._canvas.img
         if __page["curr_img"]:
+            self._canvas.saveQ = False
+
             __page["imgs"].append(copy(__page["curr_img"]))
             __page["curr_img"] = None
 
@@ -573,6 +607,8 @@ class Img:
         __page = self._canvas.img
         if __page["imgs"]:
             if len(self._canvas.obj_storage) == 1:
+                self._canvas.saveQ = False
+
                 __image = __page["imgs"][-1]
                 __mode = None
                 if __image.mode != 'RGB':
@@ -613,6 +649,8 @@ class Img:
         __page = self._canvas.img
         if __page["imgs"]:
             if len(self._canvas.obj_storage) == 1:
+                self._canvas.saveQ = False
+
                 __image = __page["imgs"][-1]
                 __mode = None
                 if __image.mode != 'RGB':

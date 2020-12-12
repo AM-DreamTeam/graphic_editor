@@ -31,7 +31,7 @@ class Events:
     """
 
     def __init__(self, root, used_events, canvas):
-        self.root = root
+        self._root = root
         self._used_events = used_events
         self._canvas = canvas
         self.__draw = lambda event: Draw(root, event, canvas)
@@ -84,7 +84,7 @@ class Events:
         """
 
         for event in ('<ButtonRelease-1>', '<B1-Motion>'):
-            self.root.bind(event, lambda e, s=size, clr=color, dm=debug_mode:
+            self._root.bind(event, lambda e, s=size, clr=color, dm=debug_mode:
                             self.__draw(e).point(size=s, color=clr, debug_mode=dm))
 
     @reset
@@ -107,7 +107,7 @@ class Events:
         """
 
         for event in ('<ButtonPress-1>', '<ButtonRelease-1>', '<B1-Motion>', '<KeyPress-Control_L>','<KeyRelease-Control_L>'):
-            self.root.bind(event, lambda e, t=thickness, clr=color:
+            self._root.bind(event, lambda e, t=thickness, clr=color:
                             self.__draw(e).line(thickness=t, color=clr))
 
     @reset
@@ -130,7 +130,7 @@ class Events:
         """
 
         for event in ('<ButtonPress-1>', '<ButtonRelease-1>', '<B1-Motion>', '<KeyPress-Control_L>','<KeyRelease-Control_L>'):
-            self.root.bind(event, lambda e, t=thickness, clr=color:
+            self._root.bind(event, lambda e, t=thickness, clr=color:
                             self.__draw(e).coordinate_plane(thickness=t, color=clr))
 
     @reset
@@ -153,7 +153,7 @@ class Events:
         """
 
         for event in ('<ButtonPress-1>', '<ButtonRelease-1>', '<B1-Motion>', '<KeyPress-Control_L>','<KeyRelease-Control_L>'):
-            self.root.bind(event, lambda e, t=thickness, clr=color:
+            self._root.bind(event, lambda e, t=thickness, clr=color:
                             self.__draw(e).line(thickness=t, color=clr, arrow=True))
 
     @reset
@@ -178,7 +178,7 @@ class Events:
         """
 
         for event in ('<ButtonPress-1>', '<ButtonRelease-1>', '<B1-Motion>', '<KeyPress-Control_L>', '<KeyRelease-Control_L>'):
-            self.root.bind(event, lambda e, t=thickness, bgclr=bgcolor, outclr=outcolor:
+            self._root.bind(event, lambda e, t=thickness, bgclr=bgcolor, outclr=outcolor:
                             self.__draw(e).oval(thickness=t, bgcolor=bgclr, outcolor=outclr))
 
     @reset
@@ -203,7 +203,7 @@ class Events:
         """
 
         for event in ('<ButtonPress-1>', '<ButtonRelease-1>', '<B1-Motion>', '<KeyPress-Control_L>', '<KeyRelease-Control_L>'):
-            self.root.bind(event, lambda e, t=thickness, bgclr=bgcolor, outclr=outcolor:
+            self._root.bind(event, lambda e, t=thickness, bgclr=bgcolor, outclr=outcolor:
                             self.__draw(e).rectangle(thickness=t, bgcolor=bgclr, outcolor=outclr))
 
     @reset
@@ -230,7 +230,7 @@ class Events:
         """
 
         for event in ('<ButtonPress-1>', '<ButtonRelease-1>', '<B1-Motion>', '<KeyPress-Control_L>', '<KeyRelease-Control_L>'):
-            self.root.bind(event, lambda e, t=thickness, bgclr=bgcolor, outclr=outcolor:
+            self._root.bind(event, lambda e, t=thickness, bgclr=bgcolor, outclr=outcolor:
                             self.__draw(e).polygon(thickness=t, bgcolor=bgclr, outcolor=outclr))
 
     @reset
@@ -244,7 +244,7 @@ class Events:
                 Очищает все бинды и создёт ноый бинд <ButtonPress-1> - отрисовка текста
         """
 
-        self.root.bind('<ButtonPress-1>', lambda e: self.__draw(e).text_creation())
+        self._root.bind('<ButtonPress-1>', lambda e: self.__draw(e).text_creation())
 
     def event_undo(self, event):
         """ Событие для бинда отмены действия (Ctrl-z)
@@ -274,7 +274,7 @@ class Events:
         """
 
         for event in ('<ButtonPress-1>', '<ButtonRelease-1>', '<B1-Motion>'):
-            self.root.bind(event, lambda e:
+            self._root.bind(event, lambda e:
                             self.__draw(e).move())
 
     @reset
@@ -293,7 +293,7 @@ class Events:
                 Очищает все бинды и создаёт новый бинд <ButtonPress-1> - заливка графических примитивов
         """
 
-        self.root.bind('<ButtonPress-1>', lambda e, c=color:
+        self._root.bind('<ButtonPress-1>', lambda e, c=color:
                         self.__draw(e).fill_objects(color=c))
 
     @reset
@@ -307,7 +307,7 @@ class Events:
                 Очищает все бинды и создаёт новый бинд <ButtonPress-1> - удаляет графический примитив с canvas'а (слоя)
         """
 
-        self.root.bind('<B1-Motion>', lambda e: self.__draw(e).quick_eraser())
+        self._root.bind('<B1-Motion>', lambda e: self.__draw(e).quick_eraser())
 
     def event_onCanvas(self):
         """ Событие для canvas'а
@@ -335,7 +335,7 @@ class Events:
                 Очищает все бинды и создаёт новый бинд <ButtonPress-1> - изменение жирности обводки графического примитива
         """
 
-        self.root.bind('<ButtonPress-1>', lambda e, t=thickness: self.__draw(e).thickness_objects(thickness=t))
+        self._root.bind('<ButtonPress-1>', lambda e, t=thickness: self.__draw(e).thickness_objects(thickness=t))
 
     @reset
     def event_btnOutlineColor(self,
@@ -350,4 +350,4 @@ class Events:
                 Очищает все бинды и создаёт новый бинд <ButtonPress-1> - изменение цвета обводки графического примитива
         """
 
-        self.root.bind('<ButtonPress-1>', lambda e, clr=color: self.__draw(e).outline_color_objects(color=clr))
+        self._root.bind('<ButtonPress-1>', lambda e, clr=color: self.__draw(e).outline_color_objects(color=clr))
