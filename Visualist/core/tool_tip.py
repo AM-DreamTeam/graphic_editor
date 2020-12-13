@@ -1,7 +1,7 @@
-from tkinter import *
-
+from tkinter import  *
 
 class ToolTipBase:
+
     def __init__(self, button):
         self.button = button
         self.tipwindow = None
@@ -23,7 +23,7 @@ class ToolTipBase:
         self.id = self.button.after(1500, self.showtip)
 
     def unschedule(self):
-        _id = self.id
+        id = self.id
         self.id = None
         if id:
             self.button.after_cancel(id)
@@ -54,22 +54,18 @@ class ToolTipBase:
         if tw:
             tw.destroy()
 
-
 class ToolTip(ToolTipBase):
     def __init__(self, button, text):
         ToolTipBase.__init__(self, button)
         self.text = text
-
-    def showcontents(self):
+    def showcontents(self, text="Your text here"):
         ToolTipBase.showcontents(self, self.text)
-
 
 class ListboxToolTip(ToolTipBase):
     def __init__(self, button, items):
         ToolTipBase.__init__(self, button)
         self.items = items
-
-    def showcontents(self):
+    def showcontents(self, text="Your text here"):
         listbox = Listbox(self.tipwindow, background="#ffffe0")
         listbox.pack()
         for item in self.items:

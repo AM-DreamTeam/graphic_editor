@@ -35,7 +35,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/Visualist_new/core/image_lib" />
+    <property name="last_opened_file_path" value="$USER_HOME$/Downloads/graphic_editor-e0a16fba7ecce017474b5d631d5f44fd1a193570/graphic_editor-e0a16fba7ecce017474b5d631d5f44fd1a193570/Visualist" />
     <property name="restartRequiresConfirmation" value="false" />
   </component>
   <component name="RecentsManager">
@@ -47,8 +47,8 @@
       <recent name="C:\Users\rpd13\python repositories\graphic_editor" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.full_redesign">
-    <configuration name="_custom_objects" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Python.full_redesign (1)">
+    <configuration name="_draw" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="graphic_editor" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -56,32 +56,11 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Visualist/core" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Visualist/core/graphic_lib" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Visualist/core/_custom_objects.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="_defaults" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="graphic_editor" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Visualist/core" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Visualist/core/_defaults.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Visualist/core/graphic_lib/_draw.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -119,11 +98,11 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Visualist_new" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Visualist_n" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Visualist_new/full_redesign.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Visualist_n/full_redesign.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -153,13 +132,34 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="tool_tip" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="graphic_editor" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Visualist/core" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Visualist/core/tool_tip.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.full_redesign" />
-        <item itemvalue="Python._custom_objects" />
-        <item itemvalue="Python._image_processing" />
-        <item itemvalue="Python._defaults" />
         <item itemvalue="Python.full_redesign (1)" />
+        <item itemvalue="Python.full_redesign" />
+        <item itemvalue="Python.tool_tip" />
+        <item itemvalue="Python._image_processing" />
+        <item itemvalue="Python._draw" />
       </list>
     </recent_temporary>
   </component>
@@ -191,26 +191,30 @@
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="547" y="214" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1536.824@0.0.1536.824" timestamp="1607268897445" />
-    <state width="1515" height="181" key="GridCell.Tab.0.bottom" timestamp="1607786954067">
+    <state x="549" y="167" key="FileChooserDialogImpl" timestamp="1607871738736">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1515" height="181" key="GridCell.Tab.0.bottom/0.0.1536.824@0.0.1536.824" timestamp="1607786954067" />
-    <state width="1515" height="181" key="GridCell.Tab.0.center" timestamp="1607786954066">
+    <state x="549" y="167" key="FileChooserDialogImpl/0.0.1536.824@0.0.1536.824" timestamp="1607871738736" />
+    <state width="745" height="79" key="GridCell.Tab.0.bottom" timestamp="1607872760231">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1515" height="181" key="GridCell.Tab.0.center/0.0.1536.824@0.0.1536.824" timestamp="1607786954066" />
-    <state width="1515" height="181" key="GridCell.Tab.0.left" timestamp="1607786954066">
+    <state width="745" height="79" key="GridCell.Tab.0.bottom/0.0.1536.824@0.0.1536.824" timestamp="1607872760231" />
+    <state width="745" height="79" key="GridCell.Tab.0.center" timestamp="1607872760231">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1515" height="181" key="GridCell.Tab.0.left/0.0.1536.824@0.0.1536.824" timestamp="1607786954066" />
-    <state width="1515" height="181" key="GridCell.Tab.0.right" timestamp="1607786954066">
+    <state width="745" height="79" key="GridCell.Tab.0.center/0.0.1536.824@0.0.1536.824" timestamp="1607872760231" />
+    <state width="745" height="79" key="GridCell.Tab.0.left" timestamp="1607872760231">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1515" height="181" key="GridCell.Tab.0.right/0.0.1536.824@0.0.1536.824" timestamp="1607786954066" />
-    <state x="478" y="116" width="579" height="592" key="find.popup" timestamp="1607783976867">
+    <state width="745" height="79" key="GridCell.Tab.0.left/0.0.1536.824@0.0.1536.824" timestamp="1607872760231" />
+    <state width="745" height="79" key="GridCell.Tab.0.right" timestamp="1607872760231">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="478" y="116" width="579" height="592" key="find.popup/0.0.1536.824@0.0.1536.824" timestamp="1607783976867" />
+    <state width="745" height="79" key="GridCell.Tab.0.right/0.0.1536.824@0.0.1536.824" timestamp="1607872760231" />
+    <state x="478" y="116" width="579" height="592" key="find.popup" timestamp="1607869726239">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state x="478" y="116" width="579" height="592" key="find.popup/0.0.1536.824@0.0.1536.824" timestamp="1607869726239" />
     <state x="431" y="145" width="672" height="678" key="search.everywhere.popup" timestamp="1607251035039">
       <screen x="0" y="0" width="1536" height="824" />
     </state>

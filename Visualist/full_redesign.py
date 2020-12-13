@@ -4,7 +4,7 @@ import tkinter.ttk as ttk
 from ttkthemes import ThemedStyle
 from PIL import Image, ImageTk
 import tkinter.colorchooser
-from core import _tool_tip
+from core import tool_tip
 from core import core
 from tkinter import messagebox
 
@@ -65,7 +65,6 @@ class App(Tk, ThemedStyle):
             return ImageTk.PhotoImage(Image.open(pic).resize(size))
 
         self.color_code = ((0.0, 0.0, 0.0), 'black')
-
         def choose_color():
             self.color_code = tkinter.colorchooser.askcolor(title="Цвета")
             self.btn_color.config(bg=self.color_code[1])
@@ -79,7 +78,6 @@ class App(Tk, ThemedStyle):
                 По аналогии с slider_filter_r, slider_filter_g, slider_filter_b, slider_thickness
             """
             self.value_label.config(text=round(float(value)))
-
         def slider_filter_r(value):
             self.r_scale_value.config(text=f'{round(float(value))} %')
 
@@ -101,14 +99,15 @@ class App(Tk, ThemedStyle):
 
         # меню
         self.menubar = Menu(self)
-        self.filemenu = Menu(self.menubar, tearoff=-2)
+        self.filemenu = Menu(self.menubar)
         self.filemenu.add_command(label="Открыть...", command=lambda: self.notebook.image_processing.set_image())
         self.filemenu.add_command(label="Сохранить...", command=lambda: self.notebook.save_canvas())
-        self.filemenu.add_command(label="Настройки",)
+        self.filemenu.add_command(label="Настройки")
         self.filemenu.add_separator()
         self.filemenu.add_command(label="Выход", command=self.close_window)
         self.menubar.add_cascade(label="Файл", menu=self.filemenu)
-        self.menubar.add_command(label='info', command=lambda: self.notebook.image_processing.get_info())  # TODO: убрать
+        self.menubar.add_command(label='info',
+                                 command=lambda: self.notebook.image_processing.get_info())  # TODO: убрать
         self.config(menu=self.menubar)
 
         self.notebook.bind("<<NotebookTabChanged>>", self.notebook.select_curr_tab)
@@ -154,21 +153,21 @@ class App(Tk, ThemedStyle):
         self.btn_undo = ttk.Button(self.main_toolbar,
                                    image=self.im_undo,
                                    command=lambda: self.notebook.undo())
-        _tool_tip.ToolTip(self.btn_undo, "Вернуть")
+        tool_tip.ToolTip(self.btn_undo, "Вернуть")
 
         self.im_replace = image_resize((20, 20), f"images/{self.dir}/replace.{self.format}")
         self.btn_replace = ttk.Button(self.main_toolbar,
                                       image=self.im_replace,
                                       command=lambda: [self.notebook.events.event_move(),
                                                        self.notebook.set_save_label()])
-        _tool_tip.ToolTip(self.btn_replace, "Перенести")
+        tool_tip.ToolTip(self.btn_replace, "Перенести")
 
         self.im_clear = image_resize((20, 20), f"images/{self.dir}/delete.{self.format}")
         self.btn_clear = ttk.Button(self.main_toolbar,
                                     image=self.im_clear,
                                     command=lambda: [self.notebook.events.event_btnClear(),
                                                      self.notebook.set_save_label()])
-        _tool_tip.ToolTip(self.btn_clear, "Очистить холст")
+        tool_tip.ToolTip(self.btn_clear, "Очистить холст")
 
         self.sun = image_resize((20, 20), f"images/{self.dir}/sun.{self.format}")
         self.moon = image_resize((20, 20), f"images/{self.dir}/moon.{self.format}")
@@ -182,73 +181,70 @@ class App(Tk, ThemedStyle):
                                                                                          color=self.color_code[1],
                                                                                          debug_mode=False),
                                                      self.notebook.set_save_label()])
-        _tool_tip.ToolTip(self.btn_brush, "Кисточка")
+        tool_tip.ToolTip(self.btn_brush, "Кисточка")
 
         self.im_fill = image_resize((30, 30), f"images/{self.dir}/fill.{self.format}")
         self.btn_fill = ttk.Button(self.toolbar_1,
                                    image=self.im_fill,
                                    command=lambda: [self.notebook.events.event_btnFill(color=self.color_code[1]),
                                                     self.notebook.set_save_label()])
-        _tool_tip.ToolTip(self.btn_fill, "Заливка")
+        tool_tip.ToolTip(self.btn_fill, "Заливка")
 
         self.im_text = image_resize((30, 30), f"images/{self.dir}/text.{self.format}")
         self.btn_text = ttk.Button(self.toolbar_1,
                                    image=self.im_text,
                                    command=lambda: [self.notebook.events.event_btnCreateText(),
                                                     self.notebook.set_save_label()])
-        _tool_tip.ToolTip(self.btn_text, "Текст")
+        tool_tip.ToolTip(self.btn_text, "Текст")
 
         self.im_eraser = image_resize((30, 30), f"images/{self.dir}/eraser.{self.format}")
         self.btn_eraser = ttk.Button(self.toolbar_1,
                                      image=self.im_eraser,
                                      command=lambda: [self.notebook.events.event_btnQuickEraser(),
                                                       self.notebook.set_save_label()])
-        _tool_tip.ToolTip(self.btn_eraser, "Ластик")
+        tool_tip.ToolTip(self.btn_eraser, "Ластик")
 
         self.im_color = image_resize((85, 85), f"images/{self.dir}/color.{self.format}")
         self.btn_colorchoice = ttk.Button(self.toolbar_1,
                                           image=self.im_color,
                                           command=lambda: [choose_color(),
                                                            self.notebook.set_save_label()])
-        _tool_tip.ToolTip(self.btn_colorchoice, "Выбор цвета")
+        tool_tip.ToolTip(self.btn_colorchoice, "Выбор цвета")
 
         self.color_frame = ttk.Frame(self.toolbar_1)
         self.btn_color = Button(self.color_frame, bg=self.color_code[1])
-        _tool_tip.ToolTip(self.btn_color, "Текущий цвет")
+        tool_tip.ToolTip(self.btn_color, "Текущий цвет")
 
         self.thickness_labelframe = ttk.Labelframe(self.toolbar_1, text="Толщина")
 
         self.pic_thickness_1 = image_resize((100, 5), f"images/{self.dir}/lineth4.{self.format}")
-        self.btn_thickness_1 = ttk.Button(self.thickness_labelframe,
-                                          image=self.pic_thickness_1,
+        self.btn_thickness_1 = ttk.Button(self.thickness_labelframe, image=self.pic_thickness_1,
+
                                           command=lambda: [self.notebook.events.event_btnThickness(thickness=5),
                                                            self.thickness_value.config(text=5),
                                                            self.thickness_scale.set(5)])
-        _tool_tip.ToolTip(self.btn_thickness_1, "Толщина - 5")
+        tool_tip.ToolTip(self.btn_thickness_1, "Толщина - 5")
 
         self.pic_thickness_2 = image_resize((100, 7), f"images/{self.dir}/lineth4.{self.format}")
-        self.btn_thickness_2 = ttk.Button(self.thickness_labelframe,
-                                          image=self.pic_thickness_2,
+        self.btn_thickness_2 = ttk.Button(self.thickness_labelframe, image=self.pic_thickness_2,
                                           command=lambda: [self.notebook.events.event_btnThickness(thickness=10),
                                                            self.thickness_value.config(text=10),
                                                            self.thickness_scale.set(10)])
-        _tool_tip.ToolTip(self.btn_thickness_2, "Толщина - 10")
+        tool_tip.ToolTip(self.btn_thickness_2, "Толщина - 10")
 
         self.pic_thickness_3 = image_resize((100, 9), f"images/{self.dir}/lineth4.{self.format}")
-        self.btn_thickness_3 = ttk.Button(self.thickness_labelframe,
-                                          image=self.pic_thickness_3,
+        self.btn_thickness_3 = ttk.Button(self.thickness_labelframe, image=self.pic_thickness_3,
                                           command=lambda: [self.notebook.events.event_btnThickness(thickness=15),
                                                            self.thickness_value.config(text=15),
                                                            self.thickness_scale.set(15)])
-        _tool_tip.ToolTip(self.btn_thickness_3, "Толщина - 15")
+        tool_tip.ToolTip(self.btn_thickness_3, "Толщина - 15")
 
         self.pic_thickness_4 = image_resize((100, 11), f"images/{self.dir}/lineth4.{self.format}")
-        self.btn_thickness_4 = ttk.Button(self.thickness_labelframe,
-                                          image=self.pic_thickness_4,
+        self.btn_thickness_4 = ttk.Button(self.thickness_labelframe, image=self.pic_thickness_4,
                                           command=lambda: [self.notebook.events.event_btnThickness(thickness=20),
                                                            self.thickness_value.config(text=20),
                                                            self.thickness_scale.set(20)])
-        _tool_tip.ToolTip(self.btn_thickness_4, "Толщина - 20")
+        tool_tip.ToolTip(self.btn_thickness_4, "Толщина - 20")
 
         self.thickness_value = ttk.Label(self.thickness_labelframe,
                                          text=self.thickness,
@@ -268,13 +264,12 @@ class App(Tk, ThemedStyle):
         self.pic_rectangle = image_resize((25, 20), f"images/{self.dir}/rectangle.{self.format}")
         self.btn_rectangle = ttk.Button(self.figure_labelframe,
                                         image=self.pic_rectangle,
-                                        command=lambda
-                                        bgclr=core.DEFAULT_SECOND_COLOR:
+                                        command=lambda bgclr=core.DEFAULT_SECOND_COLOR:
                                         [self.notebook.events.event_btnCreateRectangle(thickness=self.thickness,
                                                                                        bgcolor=bgclr,
                                                                                        outcolor=self.color_code[1]),
                                          self.notebook.set_save_label()])
-        _tool_tip.ToolTip(self.btn_rectangle, "Прямоугольник")
+        tool_tip.ToolTip(self.btn_rectangle, "Прямоугольник")
 
         self.pic_polygon = image_resize((25, 20), f"images/{self.dir}/polygon.{self.format}")
         self.btn_polygon = ttk.Button(self.figure_labelframe,
@@ -284,7 +279,7 @@ class App(Tk, ThemedStyle):
                                                                                    bgcolor=bgclr,
                                                                                    outcolor=self.color_code[1]),
                                        self.notebook.set_save_label()])
-        _tool_tip.ToolTip(self.btn_polygon, "Многоугольник")
+        tool_tip.ToolTip(self.btn_polygon, "Многоугольник")
 
         self.pic_ellipsis = image_resize((25, 20), f"images/{self.dir}/ellipsis.{self.format}")
         self.btn_ellipsis = ttk.Button(self.figure_labelframe,
@@ -294,7 +289,7 @@ class App(Tk, ThemedStyle):
                                                                                  bgcolor=bgclr,
                                                                                  outcolor=self.color_code[1]),
                                         self.notebook.set_save_label()])
-        _tool_tip.ToolTip(self.btn_ellipsis, "Эллипсис")
+        tool_tip.ToolTip(self.btn_ellipsis, "Эллипсис")
 
         self.pic_line = image_resize((25, 20), f"images/{self.dir}/line.{self.format}")
         self.btn_line = ttk.Button(self.figure_labelframe,
@@ -302,7 +297,7 @@ class App(Tk, ThemedStyle):
                                    command=lambda: [self.notebook.events.event_btnCreateLine(thickness=self.thickness,
                                                                                              color=self.color_code[1]),
                                                     self.notebook.set_save_label()])
-        _tool_tip.ToolTip(self.btn_line, "Линия")
+        tool_tip.ToolTip(self.btn_line, "Линия")
 
         self.pic_arrow = image_resize((25, 20), f"images/{self.dir}/arrow.{self.format}")
         self.btn_arrow = ttk.Button(self.figure_labelframe,
@@ -311,14 +306,14 @@ class App(Tk, ThemedStyle):
                                     [self.notebook.events.event_btnCreateVector(thickness=self.thickness,
                                                                                 color=self.color_code[1]),
                                      self.notebook.set_save_label()])
-        _tool_tip.ToolTip(self.btn_arrow, "Вектор")
+        tool_tip.ToolTip(self.btn_arrow, "Вектор")
 
         self.pic_plot = image_resize((25, 20), f"images/{self.dir}/plot.{self.format}")
         self.btn_plot = ttk.Button(self.figure_labelframe,
                                    image=self.pic_plot,
                                    command=lambda: [self.notebook.events.event_btnCreateCoordinatePlane(),
                                                     self.notebook.set_save_label()])
-        _tool_tip.ToolTip(self.btn_plot, "Координатная плоскость")
+        tool_tip.ToolTip(self.btn_plot, "Координатная плоскость")
 
             # страница 2
 
@@ -332,8 +327,9 @@ class App(Tk, ThemedStyle):
         self.btn_apply_filter1 = ttk.Button(self.frame_filter1,
                                             text="Применить",
                                             command=lambda
-                                            x=self.variable_filter_1: [self.notebook.image_processing.apply_filter_1(x),
-                                                                       self.notebook.set_save_label()])
+                                                x=self.variable_filter_1: [
+                                                self.notebook.image_processing.apply_filter_1(x),
+                                                self.notebook.set_save_label()])
 
             # filter3
         self.frame_filter3 = ttk.Labelframe(self.toolbar_2, text="Базовые фильтры")
@@ -343,8 +339,9 @@ class App(Tk, ThemedStyle):
         self.btn_apply_filter3 = ttk.Button(self.frame_filter3,
                                             text="Применить",
                                             command=lambda
-                                            x=self.variable_filter_3: [self.notebook.image_processing.apply_filter_3(x),
-                                                                       self.notebook.set_save_label()])
+                                                x=self.variable_filter_3: [
+                                                self.notebook.image_processing.apply_filter_3(x),
+                                                self.notebook.set_save_label()])
 
             # filter2
         self.frame_filter2 = ttk.Labelframe(self.toolbar_2, text="Стандартные параметры")
@@ -364,7 +361,7 @@ class App(Tk, ThemedStyle):
                                             command=lambda: [self.notebook.image_processing.append_image(),
                                                              self.reset_scales(),
                                                              self.notebook.set_save_label()])
-        self.value_label = ttk.Label(self.frame_filter2, text=100,  width=3)
+        self.value_label = ttk.Label(self.frame_filter2, text=100, width=3)
         self.filter_2_percent.config(command=slider_filter2)
         self.ticks_label_filter2 = ttk.Label(self.frame_filter2, text='0     |    250    |    500',
                                              font=(self.font, 9))
@@ -389,9 +386,8 @@ class App(Tk, ThemedStyle):
         self.g_scale_box.config(command=slider_filter_g)
         self.b_scale_box.config(command=slider_filter_b)
 
-        self.ticks_label_filter4 = ttk.Label(self.frame_filter4,
-                                             text='0   |  100  |  200',
-                                             font=(self.font, 9))
+        self.ticks_label_filter4 = ttk.Label(self.frame_filter4, text='0   |  100  |  200',
+                                     font=(self.font, 9))
         self.r_scale_box.bind("<Button-1>",
                               lambda
                               event,
@@ -401,6 +397,7 @@ class App(Tk, ThemedStyle):
                                                                                                green=g,
                                                                                                blue=b,
                                                                                                event=event))
+
         self.g_scale_box.bind("<Button-1>",
                               lambda
                               event,
@@ -410,6 +407,7 @@ class App(Tk, ThemedStyle):
                                                                                                green=g,
                                                                                                blue=b,
                                                                                                event=event))
+
         self.b_scale_box.bind("<Button-1>",
                               lambda
                               event,
@@ -419,6 +417,7 @@ class App(Tk, ThemedStyle):
                                                                                                green=g,
                                                                                                blue=b,
                                                                                                event=event))
+
         self.btn_apply_filter4 = ttk.Button(self.frame_filter4,
                                             text='Применить',
                                             command=lambda: [self.notebook.image_processing.append_image(),
@@ -431,12 +430,13 @@ class App(Tk, ThemedStyle):
                                          text="Перемешать слои",
                                          command=lambda: [self.notebook.image_processing.apply_filter_4(),
                                                           self.notebook.set_save_label()])
-        _tool_tip.ToolTip(self.btn_mix_layers, "В случайном порядке перемешивает цветовые слои")
+        tool_tip.ToolTip(self.btn_mix_layers, "В случайном порядке перемешивает цветовые слои")
+
         self.btn_normalize = ttk.Button(self.frame_filter5,
                                         text="Нормализация",
                                         command=lambda: [self.notebook.image_processing.normalize_image(),
                                                          self.notebook.set_save_label()])
-        _tool_tip.ToolTip(self.btn_normalize, "Нормализация изображения")
+        tool_tip.ToolTip(self.btn_normalize, "Нормализация изображения")
 
             # filter6
         self.frame_filter6 = ttk.LabelFrame(self.toolbar_2, text='Отразить')
@@ -446,13 +446,14 @@ class App(Tk, ThemedStyle):
                                               command=lambda:
                                               [self.notebook.image_processing.reflect_image('horizontal'),
                                                self.notebook.set_save_label()])
-        _tool_tip.ToolTip(self.btn_apply_filter6_1, "Отразить по горизонтали")
+        tool_tip.ToolTip(self.btn_apply_filter6_1, "Отразить по горизонтали")
+
         self.im_vertical = image_resize((25, 20), f"images/{self.dir}/horizontal.{self.format}")
         self.btn_apply_filter6_2 = ttk.Button(self.frame_filter6,
                                               image=self.im_vertical,
                                               command=lambda: [self.notebook.image_processing.reflect_image('vertical'),
                                                                self.notebook.set_save_label()])
-        _tool_tip.ToolTip(self.btn_apply_filter6_2, "Отразить по вертикали")
+        tool_tip.ToolTip(self.btn_apply_filter6_2, "Отразить по вертикали")
 
             # filter7
         self.frame_filter7 = ttk.LabelFrame(self.toolbar_2, text='Повернуть')
@@ -461,13 +462,14 @@ class App(Tk, ThemedStyle):
                                               image=self.im_rotate_right,
                                               command=lambda: [self.notebook.image_processing.rotate_image('90'),
                                                                self.notebook.set_save_label()])
-        _tool_tip.ToolTip(self.btn_apply_filter7_1, "Повернуть изображение на 90° вправо")
+        tool_tip.ToolTip(self.btn_apply_filter7_1, "Повернуть изображение на 90° вправо")
+
         self.im_rotate_left = image_resize((25, 20), f"images/{self.dir}/rotate_left.{self.format}")
         self.btn_apply_filter7_2 = ttk.Button(self.frame_filter7,
                                               image=self.im_rotate_left,
                                               command=lambda: [self.notebook.image_processing.rotate_image('-90'),
                                                                self.notebook.set_save_label()])
-        _tool_tip.ToolTip(self.btn_apply_filter7_2, "Повернуть изображение на 90° влево")
+        tool_tip.ToolTip(self.btn_apply_filter7_2, "Повернуть изображение на 90° влево")
 
         # упаковка виджетов
 
@@ -566,17 +568,17 @@ if __name__ == "__main__":
     def change_theme_black():
         app.set_theme('black')
         btn_theme = ttk.Button(app.main_toolbar, image=app.moon, command=change_theme_white)
-        _tool_tip.ToolTip(btn_theme, "Установить светлую тему")
+        tool_tip.ToolTip(btn_theme, "Установить светлую тему")
         btn_theme.grid(row=0, column=5, sticky="NSWE")
 
     def change_theme_white():
         app.set_theme('arc')
         btn_theme = ttk.Button(app.main_toolbar, image=app.sun, command=change_theme_black)
-        _tool_tip.ToolTip(btn_theme, "Установить тёмную тему")
+        tool_tip.ToolTip(btn_theme, "Установить тёмную тему")
         btn_theme.grid(row=0, column=5, sticky="NSWE")
 
     btn_theme = ttk.Button(app.main_toolbar, image=app.moon, command=change_theme_white)
-    _tool_tip.ToolTip(btn_theme, "Установить светлую тему")
+    tool_tip.ToolTip(btn_theme, "Установить светлую тему")
     btn_theme.grid(row=0, column=5, sticky="NSWE")
 
     def f(s):
@@ -588,5 +590,7 @@ if __name__ == "__main__":
                           "plastik", "radiance", "smog", "winxpblue", "yaru",
                           command=f)
     menu.grid(row=0, column=6, sticky="NSWE")
+
+
 
     app.mainloop()
