@@ -32,7 +32,6 @@ class TextSettingsWindow(Toplevel):
         self.wm_title('Текст')
 
         # Frame с текстом
-
         __frame_text = Frame(self)
 
         __lblText = Label(__frame_text, text='Введите текст: ')
@@ -152,7 +151,7 @@ class TextSettingsWindow(Toplevel):
         """ Возращает выбранные данные из модального окна
 
             Возвращает:
-                tuple - настройки текста из модального окна
+                tuple: настройки текста из модального окна
         """
 
         self.wait_window()

@@ -143,7 +143,7 @@ def detect_object(event, canvas):
     """
 
     x, y = canvas.canvasx(event.x), canvas.canvasy(event.y)
-    storage = canvas.obj_storage
+    storage = {key: value for key, value in canvas.obj_storage.items() if key != 'canvas'}
 
     obj, coords = list(storage.keys()), list(map(lambda ds: ds['coords'][-1], storage.values()))
     obj_lst = []

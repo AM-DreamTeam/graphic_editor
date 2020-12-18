@@ -39,7 +39,7 @@ class Draw:
               *,
               size,
               color,
-              debug_mode = False):
+              debug_mode=False):
         """ Рисует точку на месте курсора
 
             Аргументы:
@@ -58,6 +58,8 @@ class Draw:
         x1, y1 = canvas.canvasx(event.x), canvas.canvasy(event.y)
 
         if str(event.type) == 'ButtonRelease' and canvas.line_sequences and canvas.hover:
+            self._canvas.undo.append("graphic")
+            self._canvas.saveQ = False
             canvas.old_point = None
             tag = f'brush{len(canvas.obj_storage) + 1}'
             x_min, y_min, x_max, y_max = transform_line_sequence(canvas.line_sequences)
@@ -78,7 +80,7 @@ class Draw:
              *,
              thickness,
              color,
-             arrow = False):
+             arrow=False):
         """ Рисует линию по заданным точкам
 
              Аргументы:
@@ -99,6 +101,8 @@ class Draw:
         if str(event.type) == 'ButtonPress' and canvas.hover:
             canvas.old_point = new_point
         elif str(event.type) == 'ButtonRelease' and canvas.old_point and canvas.hover:
+            self._canvas.undo.append("graphic")
+            self._canvas.saveQ = False
             tag = f'line{len(canvas.obj_storage) + 1}'
             x2, y2 = canvas.old_point
             x1, y1 = transform_line_coords(canvas.old_point, new_point) if 'Control' in str(event) else new_point
@@ -146,6 +150,8 @@ class Draw:
         if str(event.type) == 'ButtonPress' and canvas.hover:
             canvas.old_point = event.x, event.y
         elif str(event.type) == 'ButtonRelease' and canvas.old_point and canvas.hover:
+            self._canvas.undo.append("graphic")
+            self._canvas.saveQ = False
             tag = f'oval{len(canvas.obj_storage) + 1}'
             x1, y1 = transform_coords(canvas.old_point, new_point) if 'Control' in str(event) else new_point
             x2, y2 = canvas.old_point
@@ -188,6 +194,8 @@ class Draw:
         if str(event.type) == 'ButtonPress' and canvas.hover:
             canvas.old_point = new_point
         elif str(event.type) == 'ButtonRelease' and canvas.old_point and canvas.hover:
+            self._canvas.undo.append("graphic")
+            self._canvas.saveQ = False
             tag = f'rectangle{len(canvas.obj_storage)+1}'
             x1, y1 = transform_coords(canvas.old_point, new_point) if 'Control' in str(event) else new_point
             x2, y2 = canvas.old_point
@@ -236,6 +244,8 @@ class Draw:
             canvas.create_line(x1, y1, x2, y2, width=thickness, fill=outcolor, smooth=TRUE, capstyle=ROUND, tags='temp_line')
             canvas.delete(canvas.obj_line)
             if x1-10 < canvas.start_point[0] < x1+10 and y1-10 < canvas.start_point[1] < y1+10:
+                self._canvas.undo.append("graphic")
+                self._canvas.saveQ = False
                 tag = f'polygon{len(canvas.obj_storage) + 1}'
                 x1, y1 = canvas.start_point
                 x_delta, y_delta = abs(x1-canvas.start_point[0]), abs(y1-canvas.start_point[1])
@@ -317,6 +327,8 @@ class Draw:
                     canvas.obj_storage[canvas.obj_tag][label].append(value)
 
                 canvas.modified_objs.append(canvas.obj_tag)
+            self._canvas.undo.append("graphic")
+            self._canvas.saveQ = False
 
     def coordinate_plane(self,
                          *,
@@ -341,6 +353,9 @@ class Draw:
         if str(event.type) == 'ButtonPress' and canvas.hover:
             canvas.old_point = new_point
         elif str(event.type) == 'ButtonRelease' and canvas.old_point and canvas.hover:
+            self._canvas.undo.append("graphic")
+            self._canvas.saveQ = False
+
             tag = f'plane{len(canvas.obj_storage)+1}'
             x1, y1 = transform_coords(canvas.old_point, new_point) if 'Control' in str(event) else new_point
             x2, y2 = canvas.old_point
@@ -383,6 +398,9 @@ class Draw:
         if str(event.type) == 'ButtonPress' and canvas.hover:
             canvas.obj_tag = detect_object(event, canvas)
         elif str(event.type) == 'ButtonRelease' and canvas.obj_tag and canvas.hover:
+            self._canvas.undo.append("graphic")
+            self._canvas.saveQ = False
+
             if 'brush' in canvas.obj_tag:
                 raw_points = [tuple(map(lambda x: floor(x), canvas.coords(obj))) for obj in canvas.find_withtag(canvas.obj_tag)]
                 points_storage = list(map(lambda sublist: [sublist[i:i+2] for i in range(0, len(sublist), 2)], raw_points))
@@ -423,7 +441,7 @@ class Draw:
         event, canvas = self._event, self._canvas
         canvas.obj_tag = detect_object(event, canvas)
 
-        if canvas.obj_tag:
+        if canvas.obj_tag and canvas.hover:
             if 'brush' in canvas.obj_tag or 'plane' in canvas.obj_tag:
                 for member in canvas.find_withtag(canvas.obj_tag):
                      canvas.itemconfig(member, fill=color)
@@ -438,6 +456,9 @@ class Draw:
                 canvas.modified_objs.append(canvas.obj_tag)
         elif canvas.hover:
             canvas['background'] = color
+            canvas.modified_objs.append('canvas')
+            canvas.obj_storage['canvas']['color'].append(color)
+        canvas.undo.append("graphic")
 
     def thickness_objects(self,
                           *,
@@ -458,6 +479,7 @@ class Draw:
         canvas.obj_tag = detect_object(event, canvas)
 
         if canvas.obj_tag:
+            canvas.undo.append("graphic")
             if 'brush' in canvas.obj_tag or 'plane' in canvas.obj_tag:
                 thick_label = 'size' if 'brush' in canvas.obj_tag else 'thickness'
                 for member in canvas.find_withtag(canvas.obj_tag):
@@ -491,6 +513,7 @@ class Draw:
         valiable_objs = ['rectangle', 'oval', 'polygon']
 
         if canvas.obj_tag:
+            canvas.undo.append("graphic")
             if any([obj in canvas.obj_tag for obj in valiable_objs]):
                 canvas.modified_objs.append(canvas.obj_tag)
                 obj = canvas.find_withtag(canvas.obj_tag)
@@ -512,6 +535,7 @@ class Draw:
 
         canvas.obj_tag = detect_object(event, canvas)
         if canvas.obj_tag:
+            canvas.undo.append("graphic")
             canvas.modified_objs = [obj for obj in canvas.modified_objs if obj != canvas.obj_tag]
             del canvas.obj_storage[canvas.obj_tag]
         canvas.delete(canvas.obj_tag)
@@ -547,8 +571,10 @@ class Draw:
 
         if storage and canvas.modified_objs:
             last_modified_obj = canvas.modified_objs[-1]
-
-            if storage[last_modified_obj]['modifications'][-1] == 'fill':
+            if last_modified_obj == 'canvas' and len(storage[last_modified_obj]['color']) > 1:
+                canvas['background'] = storage[last_modified_obj]['color'][-2]
+                del storage[last_modified_obj]['color'][-1]
+            elif storage[last_modified_obj]['modifications'][-1] == 'fill':
                 if 'brush' in last_modified_obj or 'plane' in last_modified_obj:
                     for member in canvas.find_withtag(last_modified_obj):
                         canvas.itemconfig(member, fill=storage[last_modified_obj]['color'][-2])
@@ -573,7 +599,7 @@ class Draw:
 
             elif storage[last_modified_obj]['modifications'][-1] == 'thickness':
                 if 'brush' in last_modified_obj or 'plane' in last_modified_obj:
-                    thick_label = 'size' if 'brush' in last_modified_obj else 'thickness'
+                    thick_label = 'size' if 'brush' in canvas.obj_tag else 'thickness'  # TODO: тут Егор что-то исправил
                     for member in canvas.find_withtag(last_modified_obj):
                         canvas.itemconfig(member, width=storage[last_modified_obj][thick_label][-2])
                     del storage[last_modified_obj][thick_label][-1]
