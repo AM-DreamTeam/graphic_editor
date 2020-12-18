@@ -6,7 +6,10 @@
     DEFAULT_SECOND_COLOR - дополнительный цвет (цвет заливки) для графического примитива
     DEFAULT_CHANGE_COLOR - цвет графического примитива при его смене на прошлый
     DEFAULT_BRUSH_SIZE - размер кисти
+    DEFAULT_ERASER_SIZE - размер ластика
     DEFAULT_THICKNESS - ширина обводки графического примитива
+
+    DEFAULT_MOUSE_SPEED - скорость передвижения объектов на слое (canvas'e)
 
     DEFAULT_CANVAS_W - ширина слоя (canvas'a)
     DEFAULT_CANVAS_H - высота слоя (canvas'a)
@@ -28,6 +31,9 @@ DEFAULT_SECOND_COLOR = ''
 DEFAULT_CHANGE_COLOR = 'green'
 DEFAULT_THICKNESS = 2
 DEFAULT_BRUSH_SIZE = 5
+DEFAULT_ERASER_SIZE = 20
+
+DEFAULT_MOUSE_SPEED = 5
 
 DEFAULT_CANVAS_W = 800
 DEFAULT_CANVAS_H = 600
@@ -38,23 +44,26 @@ DEFAULT_CANVAS_BG = 'white'
 
 
 DEFAULT_FILTERS_1 = [
-                    "blur",
-                    "contour",
-                    "edge enhance",
-                    "emboss",
-                    "find edges",
-                    "smooth"
+                    "Размытие",
+                    "Размытие",
+                    "Контур",
+                    "Резкость",
+                    "Рельеф",
+                    "Выделение краев",
+                    "Сглаживание"
                     ]
 
 DEFAULT_FILTERS_2 = [
-                    "color",
-                    "contrast",
-                    "brightness",
-                    "sharpness"
+                    "Насыщенность",
+                    "Насыщенность",
+                    "Контрастность",
+                    "Яркость",
+                    "Острота"
                     ]
 
 DEFAULT_FILTERS_3 = [
-                    "negative",
-                    "gray scale",
-                    "solarize"
+                    "Негатив",
+                    "Негатив",
+                    "Оттенки серого",
+                    "Соляризация"
                     ]

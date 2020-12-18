@@ -39,7 +39,7 @@ class Draw:
               *,
               size,
               color,
-              debug_mode = False):
+              debug_mode=False):
         """ Рисует точку на месте курсора
 
             Аргументы:
@@ -59,6 +59,7 @@ class Draw:
 
         if str(event.type) == 'ButtonRelease' and canvas.line_sequences and canvas.hover:
             self._canvas.undo.append("graphic")
+            self._canvas.saveQ = False
             canvas.old_point = None
             tag = f'brush{len(canvas.obj_storage) + 1}'
             x_min, y_min, x_max, y_max = transform_line_sequence(canvas.line_sequences)
@@ -75,12 +76,11 @@ class Draw:
                 canvas.line_sequences.append([(x1, y1), (x2, y2)])
             canvas.old_point = x1, y1
 
-
     def line(self,
              *,
              thickness,
              color,
-             arrow = False):
+             arrow=False):
         """ Рисует линию по заданным точкам
 
              Аргументы:
@@ -102,6 +102,7 @@ class Draw:
             canvas.old_point = new_point
         elif str(event.type) == 'ButtonRelease' and canvas.old_point and canvas.hover:
             self._canvas.undo.append("graphic")
+            self._canvas.saveQ = False
             tag = f'line{len(canvas.obj_storage) + 1}'
             x2, y2 = canvas.old_point
             x1, y1 = transform_line_coords(canvas.old_point, new_point) if 'Control' in str(event) else new_point
@@ -150,6 +151,7 @@ class Draw:
             canvas.old_point = event.x, event.y
         elif str(event.type) == 'ButtonRelease' and canvas.old_point and canvas.hover:
             self._canvas.undo.append("graphic")
+            self._canvas.saveQ = False
             tag = f'oval{len(canvas.obj_storage) + 1}'
             x1, y1 = transform_coords(canvas.old_point, new_point) if 'Control' in str(event) else new_point
             x2, y2 = canvas.old_point
@@ -193,6 +195,7 @@ class Draw:
             canvas.old_point = new_point
         elif str(event.type) == 'ButtonRelease' and canvas.old_point and canvas.hover:
             self._canvas.undo.append("graphic")
+            self._canvas.saveQ = False
             tag = f'rectangle{len(canvas.obj_storage)+1}'
             x1, y1 = transform_coords(canvas.old_point, new_point) if 'Control' in str(event) else new_point
             x2, y2 = canvas.old_point
@@ -242,6 +245,7 @@ class Draw:
             canvas.delete(canvas.obj_line)
             if x1-10 < canvas.start_point[0] < x1+10 and y1-10 < canvas.start_point[1] < y1+10:
                 self._canvas.undo.append("graphic")
+                self._canvas.saveQ = False
                 tag = f'polygon{len(canvas.obj_storage) + 1}'
                 x1, y1 = canvas.start_point
                 x_delta, y_delta = abs(x1-canvas.start_point[0]), abs(y1-canvas.start_point[1])
@@ -263,7 +267,6 @@ class Draw:
             if canvas.obj_line:
                 canvas.delete(canvas.obj_line)
 
-
             canvas.obj_line = line
 
     def text_creation(self):
@@ -273,14 +276,14 @@ class Draw:
                 None
 
             Побочный эффект:
-                Вызывает модальное окно с настройками текста, создаёт или редактирует текст на canvas'e
+                Вызывает модальное окно с настстройками текста, создаёт и редактирует текст на canvas'e
         """
 
         event, canvas, root = self._event, self._canvas, self._root
         canvas.obj_tag = detect_object(event, canvas)
 
         if canvas.hover:
-            if not canvas.obj_tag or 'text' not in canvas.obj_tag:
+            if not canvas.obj_tag:
                 tag = f'text{len(canvas.obj_storage) + 1}'
                 window = TextSettingsWindow(root, text='', family='Arial', size='12', italic=False, bold=False, color='black')
                 data = window.get_data()
@@ -288,6 +291,7 @@ class Draw:
                 text, color, family, size, italicB, boldB = data
                 if text != '':
                     canvas.create_text(x, y, text=text, fill=color, tags=tag)
+
                     font = select_style(italicB, boldB, family, size)
                     canvas.itemconfig(tag, font=font)
                     canvas.obj_storage[tag] = {'coords': [canvas.bbox(tag)],
@@ -300,7 +304,7 @@ class Draw:
                                                'modifications': ['creation']}
                     canvas.modified_objs.append(tag)
 
-            else:
+            elif 'text' in canvas.obj_tag:
                 data = tuple(canvas.obj_storage[canvas.obj_tag].values())[1:-1]
                 formated_data = [item[-1] for item in data]
 
@@ -324,6 +328,7 @@ class Draw:
 
                 canvas.modified_objs.append(canvas.obj_tag)
             self._canvas.undo.append("graphic")
+            self._canvas.saveQ = False
 
     def coordinate_plane(self,
                          *,
@@ -349,6 +354,8 @@ class Draw:
             canvas.old_point = new_point
         elif str(event.type) == 'ButtonRelease' and canvas.old_point and canvas.hover:
             self._canvas.undo.append("graphic")
+            self._canvas.saveQ = False
+
             tag = f'plane{len(canvas.obj_storage)+1}'
             x1, y1 = transform_coords(canvas.old_point, new_point) if 'Control' in str(event) else new_point
             x2, y2 = canvas.old_point
@@ -392,6 +399,8 @@ class Draw:
             canvas.obj_tag = detect_object(event, canvas)
         elif str(event.type) == 'ButtonRelease' and canvas.obj_tag and canvas.hover:
             self._canvas.undo.append("graphic")
+            self._canvas.saveQ = False
+
             if 'brush' in canvas.obj_tag:
                 raw_points = [tuple(map(lambda x: floor(x), canvas.coords(obj))) for obj in canvas.find_withtag(canvas.obj_tag)]
                 points_storage = list(map(lambda sublist: [sublist[i:i+2] for i in range(0, len(sublist), 2)], raw_points))

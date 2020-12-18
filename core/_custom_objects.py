@@ -27,6 +27,7 @@ class CustomCanvas(Canvas):
             * hover: bool - хранит логическое значение, находится ли курсор над canvas'ом или нет
             * img: dict - словарь для хранения информации о холстах
             * undo: dict - список для хранения метод с каким из двух типов объектов мы работали (с графическими примитивами или с фото)
+            * saveQ: bool - проверяет, сохранили ли пользователь последние изменения
     """
 
     def __init__(self, *args, **kwargs):
@@ -64,7 +65,9 @@ class CustomCanvas(Canvas):
                      "scroll_speed": 10.,                                   # скорость прокрутки скроллов
                      "curr_img": None                                       # временное хранилище фотографии
                     }
-        self.undo = []
+        self.undo = []                                                      # стек для отслеживания последнего произведенного действия
+
+        self.saveQ = True                                                   # сохранен ли?
 
 
 class NotebookTabs(ttk.Notebook):
@@ -96,7 +99,10 @@ class NotebookTabs(ttk.Notebook):
                 self._active = index
 
     def on_close_release(self, event):
-        """Вызывается, когда кнопка закрытия отпускается"""
+        """
+            Вызывается, когда кнопка закрытия отпускается
+        """
+
         if len(self.tabs()) > 1:
             if not self.instate(['pressed']):
                 return
@@ -114,8 +120,9 @@ class NotebookTabs(ttk.Notebook):
 
     def reestablish_tab(self):
         """
-        Восстанавливает последнюю закрытую вкладку
+            Восстанавливает последнюю закрытую вкладку
         """
+
         if self._closed_tabs:
             __index = self._closed_tabs.pop()
             self.add(__index)
@@ -177,28 +184,39 @@ class CustomNotebook(NotebookTabs):
             * create_new_canvas(self) -> None
             * select_curr_tab(self, event: tkinter.Tk) -> None
             * undo(self, event: tkinter.Tk) -> None
+            * saveQ(self) -> bool
+            * save_canvas(self) -> None
+            * set_save_label(self) -> None
     """
 
     def __init__(self, root, **kwargs):
         super().__init__(**kwargs)
 
         # фрейм, в который мы складывает холст и скроллы
-        __frame = Frame(self)
+        __frame = ttk.Frame(self)
         self.add(__frame, text='Холст 1')
 
-        __scroll_x = Scrollbar(__frame, orient=HORIZONTAL)
-        __scroll_y = Scrollbar(__frame, orient=VERTICAL)
+        __scroll_x = ttk.Scrollbar(__frame, orient=HORIZONTAL)
+        __scroll_y = ttk.Scrollbar(__frame, orient=VERTICAL)
 
         self._canvas = CustomCanvas(__frame,
-                                width=DEFAULT_CANVAS_W,
-                                height=DEFAULT_CANVAS_H,
-                                bg=DEFAULT_CANVAS_BG,
-                                xscrollcommand=__scroll_x.set,
-                                yscrollcommand=__scroll_y.set
-                                )
+                                    width=DEFAULT_CANVAS_W,
+                                    height=DEFAULT_CANVAS_H,
+                                    bg=DEFAULT_CANVAS_BG,
+                                    xscrollcommand=__scroll_x.set,
+                                    yscrollcommand=__scroll_y.set
+                                    )
 
         __scroll_x.config(command=self._canvas.xview)
         __scroll_y.config(command=self._canvas.yview)
+
+        __label_frame = ttk.Frame(__frame)
+        self._scale_label = ttk.Label(__label_frame, text="Масштаб: 100%")
+        self._save_label = ttk.Label(__label_frame, text="Сохранено")
+        self._scale_label.grid(column=1, row=0, sticky="e")
+        self._save_label.grid(column=0, row=0, sticky="e", padx=10)
+        __label_frame.grid(column=0, row=2, sticky="e")
+        self._labels = [[self._save_label, self._scale_label]]
 
         # упаковываем все и настраиваем
         self._canvas.grid(column=0, row=0, sticky="nswe")
@@ -210,22 +228,25 @@ class CustomNotebook(NotebookTabs):
 
         self._count = 1
         self._canvas.img["id"] = self._count
-        self.image_processing = Img(self._canvas)
 
         self.root = root
         self._canvases = [self._canvas]
 
+        # активация ядер
+        self.image_processing = Img(self.root, self._canvas)
+        self.events = Events(self.root, DEFAULT_USED_EVENTS, self._canvas)
+        self.events.event_onCanvas()
+
         # привязываем события к холсту
         self._canvas.bind("<Button 3>", lambda event: self.image_processing.grab(event))
         self._canvas.bind("<B3-Motion>", lambda event: self.image_processing.drag(event))
-        self._canvas.bind("<Control-MouseWheel>", lambda event: self.image_processing.zoom(event))
-        self._canvas.bind("<Control-Button-4>", lambda event: self.image_processing.zoomIn(event))
-        self._canvas.bind("<Control-Button-5>", lambda event: self.image_processing.zoomOn(event))
-
-        self.root.bind('<Control-s>', lambda event: print(self._canvas.modified_objs, self._canvas.obj_storage)) # TODO: Избавится от этого, нужно лишь для debug'a
-
-        self.events = Events(self.root, DEFAULT_USED_EVENTS, self._canvas)
-        self.events.event_onCanvas()
+        self._canvas.bind("<Control-MouseWheel>", lambda event: [
+                                                                 self.image_processing.zoom(event),
+                                                                 self._scale_label.config(text=f"Масштаб: {round(self._canvas.img['scale'] * 100, 2)}%")
+        ]
+                          )
+        self._canvas.bind("<Control-Button-4>", lambda event: [self.image_processing.zoom_in(event), self._scale_label.config(text=f"Масштаб: {round(self._canvas.img['scale'] * 100, 2)}%")])
+        self._canvas.bind("<Control-Button-5>", lambda event: [self.image_processing.zoom_off(event), self._scale_label.config(text=f"Масштаб: {round(self._canvas.img['scale'] * 100, 2)}%") ])
 
     def create_new_canvas(self):
         """ Создает новую вкладку на notebook и размещает на нем новый холст
@@ -236,22 +257,30 @@ class CustomNotebook(NotebookTabs):
 
         self._count += 1
 
-        __frame = Frame(self)
+        __frame = ttk.Frame(self)
         self.add(__frame, text=f"Холст {self._count}")
 
-        __scroll_x = Scrollbar(__frame, orient=HORIZONTAL)
-        __scroll_y = Scrollbar(__frame, orient=VERTICAL)
+        __scroll_x = ttk.Scrollbar(__frame, orient=HORIZONTAL)
+        __scroll_y = ttk.Scrollbar(__frame, orient=VERTICAL)
 
         self._canvas = CustomCanvas(__frame,
-                                width=DEFAULT_CANVAS_W,
-                                height=DEFAULT_CANVAS_H,
-                                bg=DEFAULT_CANVAS_BG,
-                                xscrollcommand=__scroll_x.set,
-                                yscrollcommand=__scroll_y.set
-                                )
+                                    width=DEFAULT_CANVAS_W,
+                                    height=DEFAULT_CANVAS_H,
+                                    bg=DEFAULT_CANVAS_BG,
+                                    xscrollcommand=__scroll_x.set,
+                                    yscrollcommand=__scroll_y.set
+                                    )
 
         __scroll_x.config(command=self._canvas.xview)
         __scroll_y.config(command=self._canvas.yview)
+
+        __label_frame = ttk.Frame(__frame)
+        self._scale_label = ttk.Label(__label_frame, text="Масштаб: 100%")
+        self._save_label = ttk.Label(__label_frame, text='Сохранено')
+        self._scale_label.grid(column=1, row=0, sticky="e")
+        self._save_label.grid(column=0, row=0, sticky="e", padx=10)
+        __label_frame.grid(column=0, row=2, sticky="e")
+        self._labels.append([self._save_label, self._scale_label])
 
         self._canvas.grid(column=0, row=0, sticky="nswe")
         __scroll_x.grid(column=0, row=1, sticky="we")
@@ -260,16 +289,20 @@ class CustomNotebook(NotebookTabs):
         __frame.columnconfigure(0, weight=1)
         self._canvas.configure(yscrollincrement='10.', xscrollincrement='10.')
 
-        self._canvas.bind("<Button 3>", lambda event: self.image_processing.grab(event))
-        self._canvas.bind("<B3-Motion>", lambda event: self.image_processing.drag(event))
-        self._canvas.bind("<Control-MouseWheel>", lambda event: self.image_processing.zoom(event))
-        self._canvas.bind("<Control-Button-4>", lambda event: self.image_processing.zoomIn(event))
-        self._canvas.bind("<Control-Button-5>", lambda event: self.image_processing.zoomOn(event))
-
-        self.root.bind('<Control-x>', quit)
-        self.root.bind('<Control-s>', lambda event: print(self._canvas.modified_objs, self._canvas.obj_storage))
+        # активация ядер
+        self.image_processing = Img(self.root, self._canvas)
         self.events = Events(self.root, DEFAULT_USED_EVENTS, self._canvas)
         self.events.event_onCanvas()
+
+        self._canvas.bind("<Button 3>", lambda event: self.image_processing.grab(event))
+        self._canvas.bind("<B3-Motion>", lambda event: self.image_processing.drag(event))
+        self._canvas.bind("<Control-MouseWheel>", lambda event: [
+                                                                 self.image_processing.zoom(event),
+                                                                 self._scale_label.config(text=f"Масштаб: {round(self._canvas.img['scale'] * 100, 2)}%")
+                                                                ]
+                          )
+        self._canvas.bind("<Control-Button-4>", lambda event: self.image_processing.zoom_in(event))
+        self._canvas.bind("<Control-Button-5>", lambda event: self.image_processing.zoom_off(event))
 
         self._canvas.img["id"] = self._count
         self._canvases.append(self._canvas)
@@ -294,13 +327,16 @@ class CustomNotebook(NotebookTabs):
 
             self._canvas = self._canvases[__id-1]
 
-            self.image_processing = Img(self._canvas)
+            self.image_processing = Img(self.root, self._canvas)
             self.events = Events(self.root, DEFAULT_USED_EVENTS, self._canvas)
-            self.root.bind('<Control-s>', lambda event: print(self._canvas.modified_objs, self._canvas.obj_storage))
+
+            __labels = self._labels[__id-1]
+            self._save_label = __labels[0]
+            self._scale_label = __labels[1]
         except TclError:
             pass
 
-    def undo(self, event):
+    def undo(self, event=None):
         """ Событие отмены действия
 
             Аргументы:
@@ -313,6 +349,7 @@ class CustomNotebook(NotebookTabs):
                 Обновляет графическое ядро и ядро для работы с фотографиями
         """
 
+        print("undo")
         __acts = self._canvas.undo
         if __acts:
             __last_act = self._canvas.undo.pop()
@@ -320,3 +357,39 @@ class CustomNotebook(NotebookTabs):
                 self.image_processing.return_image()
             elif __last_act == "graphic":
                 self.events.event_undo(event)
+
+    def save_q(self):
+        """ Проверяет, есть ли несохраненные данные
+
+            Возвращает:
+                bool: возвращает результат проверки несохранённых данных
+        """
+
+        __flags = [canvas.saveQ for canvas in self._canvases]
+        return False not in __flags
+
+    def save_canvas(self):
+        """ Сохраняет изображение с холста и меняет значение текстовых полей
+
+            Возвращает:
+                None
+
+            Побочный эффект:
+                Изменяет текст в Label'ах _save_label и _scale_label
+        """
+
+        self.image_processing.save_image()
+        self._save_label.config(text="Сохранено")
+        self._scale_label.config(text="Масштаб 100%")
+
+    def set_save_label(self):
+        """ Изменяет значение текстового поля save_label
+
+            Возвращает:
+                None
+
+            Побочный эффект:
+                Изменяет текст в Label'е _save_label
+        """
+
+        self._save_label.config(text="Не сохранено")
