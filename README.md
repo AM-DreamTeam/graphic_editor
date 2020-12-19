@@ -4,7 +4,7 @@
 ![GitHub issues](https://img.shields.io/github/issues/AM-DreamTeam/graphic_editor?style=flat-square)
 ![GitHub repo size](https://img.shields.io/github/repo-size/AM-DreamTeam/graphic_editor?style=flat-square)
 
-<h1> <img src="visualist.png" width="40" alt="visualist"/> Графический редактор — <i>Visualist</i> </h1>
+<h1> <img src="images/visualist.png" width="40" alt="visualist"/> Графический редактор — <i>Visualist</i> </h1>
 
 ## Актуальность:
 Большинство задач в *Python* решаются подключением одного модуля. Мы же решили создать бесконечно расширяемый проект — графический редактор. Для нас это опыт в создании архитектуры  достаточно большого приложения и в исследовательской деятельности (машинное обучение, алгоритмы сжатия, компьютерное зрение и т. д.)
