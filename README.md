@@ -23,16 +23,15 @@
 ## Процесс разработки:
 Все вопросы или ссылки мы выкладываем в раздел [**`Issues`**](https://github.com/AM-DreamTeam/graphic_editor/issues), а задания распеределяем в ToDo-листе в разделе [**`Projects`**](https://github.com/AM-DreamTeam/graphic_editor/projects). Также каждый человека работает в своей ветке, в дальнейшем мы сделаем [**`PullRequest`**](https://github.com/AM-DreamTeam/graphic_editor/pulls) и соеденим наши части проекта. Документация по проекту описана в разделе [**`Wiki`**](https://github.com/AM-DreamTeam/graphic_editor/wiki).
 
-## Технологии:
-1. [**`tkinter`**](https://docs.python.org/3/library/tkinter.html)
-1. [**`Pillow (Python Imaging Library)`**](https://pillow.readthedocs.io/en/stable/)
-
-## Установка:
+## Процесс установки:
 1. Клонируем репозиторий: `$ git clone https://github.com/AM-DreamTeam/graphic_editor.git`
 1. Заходим в каталог с репозиторием: `$ cd graphic_editor`
 1. Устанавливаем дополнительные пакеты: `$ pip3 install -r requirements.txt`
 1. Запускаем приложение: `$ python3 app.py`
 
+## Технологии:
+1. [**`tkinter`**](https://docs.python.org/3/library/tkinter.html)
+1. [**`Pillow (Python Imaging Library)`**](https://pillow.readthedocs.io/en/stable/)
 
 <sub> Проект по ЯиМП: 2 курс (1 семестр) </sub>
 <br>
