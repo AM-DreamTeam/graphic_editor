@@ -29,7 +29,7 @@
 
 ## Установка:
 1. Клонируем репозиторий: `$ git clone https://github.com/AM-DreamTeam/graphic_editor.git`
-1. Заходим в каталог с репозиторием: `$ cd vk_bot`
+1. Заходим в каталог с репозиторием: `$ cd graphic_editor`
 1. Устанавливаем дополнительные пакеты: `$ pip3 install -r requirements.txt`
 1. Запускаем приложение: `$ python3 app.py`
 
