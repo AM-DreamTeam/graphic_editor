@@ -89,7 +89,10 @@ class NotebookTabs(ttk.Notebook):
         self.bind("<ButtonRelease-1>", self.on_close_release)
 
     def on_close_press(self, event):
-        """Вызывается при нажатии кнопки закрытия"""
+        """
+            Вызывается при нажатии кнопки закрытия
+        """
+
         if len(self.tabs()) > 1:
             element = self.identify(event.x, event.y)
 
