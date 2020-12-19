@@ -7,6 +7,7 @@
     <img src="https://img.shields.io/badge/python-3.8-green.svg?style=flat-square" alt="Python 3.8">
     <img src="https://img.shields.io/github/issues/AM-DreamTeam/graphic_editor?style=flat-square" alt="GitHub issues">
     <img src="https://img.shields.io/github/repo-size/AM-DreamTeam/graphic_editor?style=flat-square" alt="GitHub repo size">
+    <img src="https://img.shields.io/tokei/lines/github/AM-DreamTeam/graphic_editor?style=flat-square" alt="Lines of code">
 </p>
 
 <h1> <img src="images/visualist.png" width="40" alt="visualist"/> Графический редактор — <i>Visualist</i> </h1>
