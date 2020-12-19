@@ -1,8 +1,13 @@
-![visualist stats:](https://img.shields.io/badge/visualist-0.0.1-%23000000?style=for-the-badge)\
-![GitHub](https://img.shields.io/github/license/AM-DreamTeam/graphic_editor?style=flat-square)
-[![Python 3.8](https://img.shields.io/badge/python-3.8-green.svg?style=flat-square)](https://www.python.org/downloads/release/python-380/)
-![GitHub issues](https://img.shields.io/github/issues/AM-DreamTeam/graphic_editor?style=flat-square)
-![GitHub repo size](https://img.shields.io/github/repo-size/AM-DreamTeam/graphic_editor?style=flat-square)
+<p align="center">
+    <img src="https://img.shields.io/badge/visualist-0.0.1-%23000000?style=for-the-badge" alt="Visualist version">
+</p>
+
+<p align="center">
+    <img src="https://img.shields.io/github/license/AM-DreamTeam/graphic_editor?style=flat-square" alt="GitHub">
+    <img src="https://img.shields.io/badge/python-3.8-green.svg?style=flat-square" alt="Python 3.8">
+    <img src="https://img.shields.io/github/issues/AM-DreamTeam/graphic_editor?style=flat-square" alt="GitHub issues">
+    <img src="https://img.shields.io/github/repo-size/AM-DreamTeam/graphic_editor?style=flat-square" alt="GitHub repo size">
+</p>
 
 <h1> <img src="images/visualist.png" width="40" alt="visualist"/> Графический редактор — <i>Visualist</i> </h1>
 
