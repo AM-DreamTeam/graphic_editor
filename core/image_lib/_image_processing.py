@@ -5,11 +5,7 @@ from io import BytesIO
 from random import choices
 from copy import copy
 from core.image_lib._compress_window import CompressWindow
-import platform
-
-
-if platform.system() == 'Windows':
-    EpsImagePlugin.gs_windows_binary = r'C:\Program Files\gs\gs9.53.3\bin\gswin64c'
+from core.graphic_lib._basic import select_style
 
 
 class Img:
@@ -31,6 +27,7 @@ class Img:
             * zoom(self, event: tkinter.Event) -> None
             * zoom_in(self, event: tkinter.Event) -> None
             * zoom_off(self, event: tkinter.Event) -> None
+            * update_data(self, const: float) -> None
             * redraw(self, direction: str = "in") -> None
             * apply_filter_1(self, f: tkinter.StringVar) -> None
             * apply_filter_2(self, f: tkinter.StringVar, per: tkinter.StringVar) -> None
@@ -271,10 +268,31 @@ class Img:
             Возращает:
                 None
         """
+        
         __page = self._canvas.img
         if len(self._canvas.obj_storage) > 1 or __page["imgs"]:
             __page["scale"] = __page["scale"] * 0.8 if __page["scale"] * 0.8 > 0.262144 else 0.262144
-            self.redraw("on")
+            self.redraw("off")
+
+    def update_data(self, const):
+        """ Обновляет данные об объектах относительно масштаба холста
+
+            Аргументы:
+                * const: float - коэффициент масштаба
+
+            Возращает:
+                None
+        """
+        
+        for key, value in self._canvas.obj_storage.items():
+            if key != 'canvas':
+                for i in range(len(value['coords'])):
+                    value['coords'][i] = tuple([const*x for x in value['coords'][i]])
+                if 'text' in key:
+                    for i in range(len(value['size'])):
+                        value['size'][i] = str(round(const*int(value['size'][i])))
+                    font = select_style(value['italic'][-1], value['bold'][-1], value['family'][-1], value['size'][-1])
+                    self._canvas.itemconfig(key, font=font)
 
     def redraw(self, direction="in"):
         """ Осущесвляет масшабирование в соответствии с коэффициентом масштабирования
@@ -304,8 +322,11 @@ class Img:
         if 0.262144 < __page["scale"] < 3.8147:
             if direction == "in":
                 self._canvas.scale(ALL, 0, 0, 1.25, 1.25)
+                self.update_data(1.25)
             elif direction == "off":
                 self._canvas.scale(ALL, 0, 0, 0.8, 0.8)
+                self.update_data(0.8)
+
 
     def apply_filter_1(self, f):
         """ Применяет к изображению с холста фильтр из первой группы (DEFAULT_FILTERS_1)
@@ -459,12 +480,12 @@ class Img:
         """ Изменяет насыщенность каждого слоя в отдельности
 
             Аргументы:
-                    r: tkinter.Scale - ползунок tkinter, в котором содержится значение для красного слоя
-                    g: tkinter.Scale - ползунок tkinter, в котором содержится значение для зеленого слоя
-                    b tkinter.Scale - ползунок tkinter, в котором содержится значение для синего слоя
+                r: tkinter.Scale - ползунок tkinter, в котором содержится значение для красного слоя
+                g: tkinter.Scale - ползунок tkinter, в котором содержится значение для зеленого слоя
+                b tkinter.Scale - ползунок tkinter, в котором содержится значение для синего слоя
 
             Возвращает:
-                    None
+                None
         """
 
         __page = self._canvas.img
@@ -501,10 +522,8 @@ class Img:
     def normalize_image(self):
         """ Нормализует изображение
 
-            Аргументы:
-                    None
             Возвращает:
-                    None
+                None
         """
 
         __page = self._canvas.img
@@ -535,14 +554,11 @@ class Img:
     def append_image(self):
         """ Добавляет изображение в список изображений после прокрутки Scale'ов
 
-            Аргументы:
-                    None
-
             Возвращает:
-                    None
+                None
 
             Побочные действия:
-                    Очищает _canvas.img["curr_img"]
+                Очищает _canvas.img["curr_img"]
         """
 
         __page = self._canvas.img
@@ -558,9 +574,9 @@ class Img:
         """ Отражает изображение по горизонтали или по вертикали.
 
             Аргументы:
-                    direction: String - строка, в которой содержится выбранный фильтр
+                direction: String - строка, в которой содержится выбранный фильтр
             Возвращает:
-                    None
+                None
         """
 
         __page = self._canvas.img

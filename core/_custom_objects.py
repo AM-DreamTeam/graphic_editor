@@ -1,6 +1,3 @@
-""" Новые настраиваемые объекты """
-
-
 # Импортированные модулей
 from core.image_lib._image_processing import Img
 from core.graphic_lib._events import Events
@@ -89,7 +86,10 @@ class NotebookTabs(ttk.Notebook):
         self.bind("<ButtonRelease-1>", self.on_close_release)
 
     def on_close_press(self, event):
-        """Вызывается при нажатии кнопки закрытия"""
+        """
+            Вызывается при нажатии кнопки закрытия
+        """
+
         if len(self.tabs()) > 1:
             element = self.identify(event.x, event.y)
 
@@ -246,7 +246,7 @@ class CustomNotebook(NotebookTabs):
         ]
                           )
         self._canvas.bind("<Control-Button-4>", lambda event: [self.image_processing.zoom_in(event), self._scale_label.config(text=f"Масштаб: {round(self._canvas.img['scale'] * 100, 2)}%")])
-        self._canvas.bind("<Control-Button-5>", lambda event: [self.image_processing.zoom_off(event), self._scale_label.config(text=f"Масштаб: {round(self._canvas.img['scale'] * 100, 2)}%") ])
+        self._canvas.bind("<Control-Button-5>", lambda event: [self.image_processing.zoom_off(event), self._scale_label.config(text=f"Масштаб: {round(self._canvas.img['scale'] * 100, 2)}%")])
 
     def create_new_canvas(self):
         """ Создает новую вкладку на notebook и размещает на нем новый холст
@@ -349,7 +349,6 @@ class CustomNotebook(NotebookTabs):
                 Обновляет графическое ядро и ядро для работы с фотографиями
         """
 
-        print("undo")
         __acts = self._canvas.undo
         if __acts:
             __last_act = self._canvas.undo.pop()

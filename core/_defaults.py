@@ -1,19 +1,25 @@
 """ Стандартные настройки
 
-    DEFAULT_USED_EVENTS - события, которые используются
+    # graphic_lib
+        DEFAULT_USED_EVENTS - события, которые используются
 
-    DEFAULT_FIRST_COLOR - основной цвет или цвет обводки для графического примитива
-    DEFAULT_SECOND_COLOR - дополнительный цвет (цвет заливки) для графического примитива
-    DEFAULT_CHANGE_COLOR - цвет графического примитива при его смене на прошлый
-    DEFAULT_BRUSH_SIZE - размер кисти
-    DEFAULT_ERASER_SIZE - размер ластика
-    DEFAULT_THICKNESS - ширина обводки графического примитива
+        DEFAULT_FIRST_COLOR - основной цвет или цвет обводки для графического примитива
+        DEFAULT_SECOND_COLOR - дополнительный цвет (цвет заливки) для графического примитива
+        DEFAULT_CHANGE_COLOR - цвет графического примитива при его смене на прошлый
+        DEFAULT_BRUSH_SIZE - размер кисти
+        DEFAULT_ERASER_SIZE - размер ластика
+        DEFAULT_THICKNESS - ширина обводки графического примитива
 
-    DEFAULT_MOUSE_SPEED - скорость передвижения объектов на слое (canvas'e)
+        DEFAULT_MOUSE_SPEED - скорость передвижения объектов на слое (canvas'e)
 
-    DEFAULT_CANVAS_W - ширина слоя (canvas'a)
-    DEFAULT_CANVAS_H - высота слоя (canvas'a)
-    DEFAULT_CANVAS_BG - заливка слоя (canvas'a)
+        DEFAULT_CANVAS_W - ширина слоя (canvas'a)
+        DEFAULT_CANVAS_H - высота слоя (canvas'a)
+        DEFAULT_CANVAS_BG - заливка слоя (canvas'a)
+
+    # image_lib
+        DEFAULT_FILTERS_1 - список фильтров из 1 группы
+        DEFAULT_FILTERS_2 - список фильтров из 2 группы
+        DEFAULT_FILTERS_3 - список фильтров из 3 группы
 """
 
 

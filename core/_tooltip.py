@@ -1,9 +1,8 @@
 # Импортированные модули
-from tkinter import  *
+from tkinter import *
 
 
 class ToolTipBase:
-
     def __init__(self, button):
         self.button = button
         self.tipwindow = None

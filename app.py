@@ -4,13 +4,14 @@ import tkinter.ttk as ttk
 from ttkthemes import ThemedStyle
 from PIL import Image, ImageTk
 import tkinter.colorchooser
-from core import core
 from tkinter import messagebox
+from core import core
+import platform
 
 
 class App(Tk, ThemedStyle):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.init_main()
 
         # лого
@@ -25,6 +26,7 @@ class App(Tk, ThemedStyle):
         """
             Сбрасывает значения Scale до 100 при смене вкладки
         """
+        
         self.filter_2_percent.set(100)
         self.r_scale_box.set(100)
         self.g_scale_box.set(100)
@@ -32,8 +34,9 @@ class App(Tk, ThemedStyle):
 
     def close_window(self):
         """
-        обработка закрытия окна
+            Обработка закрытия окна
         """
+        
         x = lambda: self.notebook.save_q()
         if not x():
             if messagebox.askyesno("Выход", "У Вас есть несохраненные данные. Вы действительно хотите выйти?"):
@@ -42,7 +45,9 @@ class App(Tk, ThemedStyle):
             self.destroy()
 
     def init_main(self):
-        """ Содержит в себе инициальзацию основного окна"""
+        """
+            Содержит в себе инициальзацию основного окна
+        """
 
         # параметры стилизации
         self.dir = 'gifblack'
@@ -59,8 +64,9 @@ class App(Tk, ThemedStyle):
                 pic: директория изображения
 
             Возвращает:
-                изображение класса ImageTk
+                PIL.ImageTk: изображение
             """
+            
             return ImageTk.PhotoImage(Image.open(pic).resize(size))
 
         self.color_code = ((0.0, 0.0, 0.0), 'black')
@@ -134,7 +140,7 @@ class App(Tk, ThemedStyle):
         self.main_toolbar.grid(row=1, column=0, sticky="WE")
         self.nb.grid(row=0, column=0, sticky="WE")
 
-            # панель
+        # панель
         self.im_add_list = image_resize((30, 30), f"images/{self.dir}/add_list.{self.format}")
         self.btn_add_list = ttk.Button(self.main_toolbar,
                                        text="Добавить холст",
@@ -172,7 +178,7 @@ class App(Tk, ThemedStyle):
         self.sun = image_resize((20, 20), f"images/{self.dir}/sun.{self.format}")
         self.moon = image_resize((20, 20), f"images/{self.dir}/moon.{self.format}")
 
-            # страница 1
+        # Страница 1
 
         self.im_brush = image_resize((30, 30), f"images/{self.dir}/brush.{self.format}")
         self.btn_brush = ttk.Button(self.toolbar_1,
@@ -315,11 +321,8 @@ class App(Tk, ThemedStyle):
                                                     self.notebook.set_save_label()])
         core.ToolTip(self.btn_plot, "Координатная плоскость")
 
-            # страница 2
-
-        # self.filters_labelframe = ttk.Labelframe(self.toolbar_2, text="Фильтры")
-
-            # filter1
+        # Страница 2
+        # filter1
         self.frame_filter1 = ttk.Labelframe(self.toolbar_2, text="Шумы")
         self.variable_filter_1 = StringVar(self.frame_filter1)
         self.variable_filter_1.set(core.DEFAULT_FILTERS_1[0])
@@ -331,7 +334,7 @@ class App(Tk, ThemedStyle):
                                                 self.notebook.image_processing.apply_filter_1(x),
                                                 self.notebook.set_save_label()])
 
-            # filter3
+        # filter3
         self.frame_filter3 = ttk.Labelframe(self.toolbar_2, text="Базовые фильтры")
         self.variable_filter_3 = StringVar(self.frame_filter3)
         self.variable_filter_3.set(core.DEFAULT_FILTERS_3[0])
@@ -343,7 +346,7 @@ class App(Tk, ThemedStyle):
                                                 self.notebook.image_processing.apply_filter_3(x),
                                                 self.notebook.set_save_label()])
 
-            # filter2
+        # filter2
         self.frame_filter2 = ttk.Labelframe(self.toolbar_2, text="Стандартные параметры")
         self.variable_filter_2 = StringVar(self.frame_filter2)
         self.variable_filter_2.set(core.DEFAULT_FILTERS_2[0])
@@ -366,7 +369,7 @@ class App(Tk, ThemedStyle):
         self.ticks_label_filter2 = ttk.Label(self.frame_filter2, text='0     |    250    |    500',
                                              font=(self.font, 9))
 
-            # filter4
+        # filter4
         self.frame_filter4 = ttk.LabelFrame(self.toolbar_2, text='Работа с цветовыми слоями')
         self.r_scale_box = ttk.Scale(self.frame_filter4, length=130, from_=0, to=200, orient=HORIZONTAL)
         self.r_scale_box.set(100)
@@ -424,7 +427,7 @@ class App(Tk, ThemedStyle):
                                                              self.reset_scales(),
                                                              self.notebook.set_save_label()])
 
-            # filter5
+        # filter5
         self.frame_filter5 = ttk.LabelFrame(self.toolbar_2, text='')
         self.btn_mix_layers = ttk.Button(self.frame_filter5,
                                          text="Перемешать слои",
@@ -438,7 +441,7 @@ class App(Tk, ThemedStyle):
                                                          self.notebook.set_save_label()])
         core.ToolTip(self.btn_normalize, "Нормализация изображения")
 
-            # filter6
+        # filter6
         self.frame_filter6 = ttk.LabelFrame(self.toolbar_2, text='Отразить')
         self.im_horizontal = image_resize((25, 20), f"images/{self.dir}/vertical.{self.format}")
         self.btn_apply_filter6_1 = ttk.Button(self.frame_filter6,
@@ -455,7 +458,7 @@ class App(Tk, ThemedStyle):
                                                                self.notebook.set_save_label()])
         core.ToolTip(self.btn_apply_filter6_2, "Отразить по вертикали")
 
-            # filter7
+        # filter7
         self.frame_filter7 = ttk.LabelFrame(self.toolbar_2, text='Повернуть')
         self.im_rotate_right = image_resize((25, 20), f"images/{self.dir}/rotate_right.{self.format}")
         self.btn_apply_filter7_1 = ttk.Button(self.frame_filter7,
@@ -560,10 +563,13 @@ class App(Tk, ThemedStyle):
 
 
 if __name__ == "__main__":
-    app = App()
+    app = App(className='Visualist')
     app.title('Visualist')
-    # app.state('iconic')
-
+    
+    if platform.system() == 'Windows':
+        app.state('zoomed')
+    elif platform.system() == 'Linux':
+        app.attributes('-zoomed', True)
 
     def change_theme_black():
         app.set_theme('black')

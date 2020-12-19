@@ -148,7 +148,7 @@ class Draw:
         new_point = canvas.canvasx(event.x), canvas.canvasy(event.y)
 
         if str(event.type) == 'ButtonPress' and canvas.hover:
-            canvas.old_point = event.x, event.y
+            canvas.old_point = new_point
         elif str(event.type) == 'ButtonRelease' and canvas.old_point and canvas.hover:
             self._canvas.undo.append("graphic")
             self._canvas.saveQ = False
@@ -417,7 +417,7 @@ class Draw:
             coords = canvas.bbox(canvas.obj_tag) if 'text' in canvas.obj_tag else canvas.coords(canvas.obj_tag)[0:4]
             x1, y1, x2, y2 = coords
             obj_center_x, obj_center_y = (x1+x2)/2, (y1+y2)/2
-            mouse_x, mouse_y = event.x, event.y
+            mouse_x, mouse_y = canvas.canvasx(event.x), canvas.canvasy(event.y)
 
             move_x, move_y = mouse_x-obj_center_x, mouse_y-obj_center_y
 

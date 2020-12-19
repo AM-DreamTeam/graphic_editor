@@ -62,6 +62,7 @@ class CompressWindow(Toplevel):
             Возвращает:
                 int: процент компрессии
         """
+
         self.grab_set()
         self.wait_window()
         compress = int(self._compress.get())
