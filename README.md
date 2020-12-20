@@ -1,8 +1,14 @@
-![visualist stats:](https://img.shields.io/badge/visualist-in%20developing...-%23000000?style=for-the-badge)\
-![GitHub](https://img.shields.io/github/license/AM-DreamTeam/graphic_editor?style=flat-square)
-[![Python 3.8](https://img.shields.io/badge/python-3.8-green.svg?style=flat-square)](https://www.python.org/downloads/release/python-380/)
-![GitHub issues](https://img.shields.io/github/issues/AM-DreamTeam/graphic_editor?style=flat-square)
-![GitHub repo size](https://img.shields.io/github/repo-size/AM-DreamTeam/graphic_editor?style=flat-square)
+<p align="center">
+    <img src="https://img.shields.io/badge/visualist-0.0.1-%23000000?style=for-the-badge" alt="Visualist version">
+</p>
+
+<p align="center">
+    <img src="https://img.shields.io/github/license/AM-DreamTeam/graphic_editor?style=flat-square" alt="GitHub">
+    <img src="https://img.shields.io/badge/python-3.8-green.svg?style=flat-square" alt="Python 3.8">
+    <img src="https://img.shields.io/github/issues/AM-DreamTeam/graphic_editor?style=flat-square" alt="GitHub issues">
+    <img src="https://img.shields.io/github/repo-size/AM-DreamTeam/graphic_editor?style=flat-square" alt="GitHub repo size">
+    <img src="https://img.shields.io/tokei/lines/github/AM-DreamTeam/graphic_editor?style=flat-square" alt="Lines of code">
+</p>
 
 <h1> <img src="images/visualist.png" width="40" alt="visualist"/> Графический редактор — <i>Visualist</i> </h1>
 
@@ -23,10 +29,16 @@
 ## Процесс разработки:
 Все вопросы или ссылки мы выкладываем в раздел [**`Issues`**](https://github.com/AM-DreamTeam/graphic_editor/issues), а задания распеределяем в ToDo-листе в разделе [**`Projects`**](https://github.com/AM-DreamTeam/graphic_editor/projects). Также каждый человека работает в своей ветке, в дальнейшем мы сделаем [**`PullRequest`**](https://github.com/AM-DreamTeam/graphic_editor/pulls) и соеденим наши части проекта. Документация по проекту описана в разделе [**`Wiki`**](https://github.com/AM-DreamTeam/graphic_editor/wiki).
 
+## Процесс установки:
+1. Клонируем репозиторий: `$ git clone https://github.com/AM-DreamTeam/graphic_editor.git`
+1. Заходим в каталог с репозиторием: `$ cd graphic_editor`
+1. Устанавливаем дополнительные пакеты: `$ pip3 install -r requirements.txt`
+1. Запускаем приложение: `$ python3 app.py`
+
 ## Технологии:
 1. [**`tkinter`**](https://docs.python.org/3/library/tkinter.html)
 1. [**`Pillow (Python Imaging Library)`**](https://pillow.readthedocs.io/en/stable/)
 
 <sub> Проект по ЯиМП: 2 курс (1 семестр) </sub>
 <br>
-<sub> 🚧 Последнее обновление: 12.12.2020 </sub>
+<sub> 🚧 Последнее обновление: 19.12.2020 </sub>
