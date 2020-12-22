@@ -34,7 +34,7 @@
 | [**`Мурад`**](https://github.com/AkselMath)  |  `murad's-branch`   | Исследовательская деятельность: добавление фичей с машинным обучением, алгоритмами сжатия и т.д.   |![GitHub last commit (branch)](https://img.shields.io/github/last-commit/AM-DreamTeam/graphic_editor/murad's-branch?style=flat-square)|
 
 ## Процесс разработки:
-Все вопросы или ссылки мы выкладываем в раздел [**`Issues`**](https://github.com/AM-DreamTeam/graphic_editor/issues), а задания распеределяем в ToDo-листе в разделе [**`Projects`**](https://github.com/AM-DreamTeam/graphic_editor/projects). Также каждый человека работает в своей ветке, в дальнейшем мы сделаем [**`PullRequest`**](https://github.com/AM-DreamTeam/graphic_editor/pulls) и соеденим наши части проекта. Документация по проекту описана в разделе [**`Wiki`**](https://github.com/AM-DreamTeam/graphic_editor/wiki).
+Все вопросы или ссылки мы выкладываем в раздел [**`Issues`**](https://github.com/AM-DreamTeam/graphic_editor/issues), а задания распределяем в ToDo-листе в разделе [**`Projects`**](https://github.com/AM-DreamTeam/graphic_editor/projects). Также каждый человека работает в своей ветке, в дальнейшем мы сделаем [**`PullRequest`**](https://github.com/AM-DreamTeam/graphic_editor/pulls) и соединим наши части проекта. Документация по проекту описана в разделе [**`Wiki`**](https://github.com/AM-DreamTeam/graphic_editor/wiki).
 
 ## Процесс установки:
 1. Клонируем репозиторий: `$ git clone https://github.com/AM-DreamTeam/graphic_editor.git`
