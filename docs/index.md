@@ -1,37 +1,51 @@
-## Welcome to GitHub Pages
+<p align="center">
+    <img src="https://img.shields.io/badge/visualist-0.0.1-%23000000?style=for-the-badge" alt="Visualist version">
+</p>
 
-You can use the [editor on GitHub](https://github.com/AM-DreamTeam/graphic_editor/edit/master/docs/index.md) to maintain and preview the content for your website in Markdown files.
+<p align="center">
+    <img src="https://img.shields.io/github/license/AM-DreamTeam/graphic_editor?style=flat-square" alt="GitHub">
+    <img src="https://img.shields.io/badge/python-3.8-green.svg?style=flat-square" alt="Python 3.8">
+    <img src="https://img.shields.io/github/issues/AM-DreamTeam/graphic_editor?style=flat-square" alt="GitHub issues">
+    <img src="https://img.shields.io/github/repo-size/AM-DreamTeam/graphic_editor?style=flat-square" alt="GitHub repo size">
+    <img src="https://img.shields.io/tokei/lines/github/AM-DreamTeam/graphic_editor?style=flat-square" alt="Lines of code">
+</p>
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+<h1> <img src="images/visualist.png" width="40" alt="visualist"/> Графический редактор — <i>Visualist</i> </h1>
 
-### Markdown
+<p align="center">
+    <img src="images/github/emoji.gif" width="650" alt="Emoji example">
+</p>
+<p align="center">
+    👍
+</p>
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+## Актуальность:
+Большинство задач в *Python* решаются подключением одного модуля. Мы же решили создать бесконечно расширяемый проект — графический редактор. Для нас это опыт в создании архитектуры  достаточно большого приложения и в исследовательской деятельности (машинное обучение, алгоритмы сжатия, компьютерное зрение и т. д.)
 
-```markdown
-Syntax highlighted code block
+## Цель:
+Создать <ins>удобный</ins> и <ins>минималистичный</ins> графический редактор с открытым исходным кодом, в котором можно будет редактировать фотографии и рисовать различные графические примитивы.
 
-# Header 1
-## Header 2
-### Header 3
+## Распределение сфер деятельности:
+|                 Участник               | Ветка в репозитории |                                    Сфера деятельности                                              |Последний коммит|
+|----------------------------------------|---------------------|----------------------------------------------------------------------------------------------------|----------------|
+| [**`Егор`**](https://github.com/endygamedev) |  `egor's-branch` <br/>`egor's-debug-branch` <br/> `core`| Разработка модуля для работы с графическими примитивами                                            |![GitHub last commit (branch)](https://img.shields.io/github/last-commit/AM-DreamTeam/graphic_editor/egor's-branch?style=flat-square) ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/AM-DreamTeam/graphic_editor/egor's-debug-branch?style=flat-square) ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/AM-DreamTeam/graphic_editor/core?style=flat-square)|
+| [**`Рома`**](https://github.com/arti-shok)   |  `arti's-branch` <br/>`arti's-debug-branch`  | Разработка модуля для работы с фотографиями                                                        |![GitHub last commit (branch)](https://img.shields.io/github/last-commit/AM-DreamTeam/graphic_editor/arti's-branch?style=flat-square) ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/AM-DreamTeam/graphic_editor/arti's-debug-branch?style=flat-square)|
+| [**`Андрей`**](https://github.com/SaintOops) |  `andrey's-branch`  | Разработка и вёрстка графического интерфейса                                                       |![GitHub last commit (branch)](https://img.shields.io/github/last-commit/AM-DreamTeam/graphic_editor/andrey's-branch?style=flat-square)|
+| [**`Мурад`**](https://github.com/AkselMath)  |  `murad's-branch`   | Исследовательская деятельность: добавление фичей с машинным обучением, алгоритмами сжатия и т.д.   |![GitHub last commit (branch)](https://img.shields.io/github/last-commit/AM-DreamTeam/graphic_editor/murad's-branch?style=flat-square)|
 
-- Bulleted
-- List
+## Процесс разработки:
+Все вопросы или ссылки мы выкладываем в раздел [**`Issues`**](https://github.com/AM-DreamTeam/graphic_editor/issues), а задания распределяем в ToDo-листе в разделе [**`Projects`**](https://github.com/AM-DreamTeam/graphic_editor/projects). Также каждый человека работает в своей ветке, в дальнейшем мы сделаем [**`PullRequest`**](https://github.com/AM-DreamTeam/graphic_editor/pulls) и соединим наши части проекта. Документация по проекту описана в разделе [**`Wiki`**](https://github.com/AM-DreamTeam/graphic_editor/wiki).
 
-1. Numbered
-2. List
+## Процесс установки:
+1. Клонируем репозиторий: `$ git clone https://github.com/AM-DreamTeam/graphic_editor.git`
+1. Заходим в каталог с репозиторием: `$ cd graphic_editor`
+1. Устанавливаем дополнительные пакеты: `$ pip3 install -r requirements.txt`
+1. Запускаем приложение: `$ python3 app.py`
 
-**Bold** and _Italic_ and `Code` text
+## Технологии:
+1. [**`tkinter`**](https://docs.python.org/3/library/tkinter.html)
+1. [**`Pillow (Python Imaging Library)`**](https://pillow.readthedocs.io/en/stable/)
 
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/AM-DreamTeam/graphic_editor/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+<sub> Проект по ЯиМП: 2 курс (1 семестр) </sub>
+<br>
+<sub> 🚧 Последнее обновление: 20.12.2020 </sub>

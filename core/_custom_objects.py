@@ -301,8 +301,8 @@ class CustomNotebook(NotebookTabs):
                                                                  self._scale_label.config(text=f"Масштаб: {round(self._canvas.img['scale'] * 100, 2)}%")
                                                                 ]
                           )
-        self._canvas.bind("<Control-Button-4>", lambda event: self.image_processing.zoom_in(event))
-        self._canvas.bind("<Control-Button-5>", lambda event: self.image_processing.zoom_off(event))
+        self._canvas.bind("<Control-Button-4>", lambda event: [self.image_processing.zoom_in(event), self._scale_label.config(text=f"Масштаб: {round(self._canvas.img['scale'] * 100, 2)}%")])
+        self._canvas.bind("<Control-Button-5>", lambda event: [self.image_processing.zoom_off(event), self._scale_label.config(text=f"Масштаб: {round(self._canvas.img['scale'] * 100, 2)}%")])
 
         self._canvas.img["id"] = self._count
         self._canvases.append(self._canvas)

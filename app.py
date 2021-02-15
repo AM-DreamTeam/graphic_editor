@@ -353,7 +353,7 @@ class App(Tk, ThemedStyle):
         self.filters2 = ttk.OptionMenu(self.frame_filter2, self.variable_filter_2, *core.DEFAULT_FILTERS_2)
         self.filter_2_percent = ttk.Scale(self.frame_filter2, length=150, from_=0, to=500)
         self.filter_2_percent.set(100)
-        self.filter_2_percent.bind("<Button-1>",
+        self.filter_2_percent.bind("<B1-Motion>",
                                    lambda
                                    event,
                                    fl=self.variable_filter_2,
@@ -366,7 +366,7 @@ class App(Tk, ThemedStyle):
                                                              self.notebook.set_save_label()])
         self.value_label = ttk.Label(self.frame_filter2, text=100, width=3)
         self.filter_2_percent.config(command=slider_filter2)
-        self.ticks_label_filter2 = ttk.Label(self.frame_filter2, text='0     |    250    |    500',
+        self.ticks_label_filter2 = ttk.Label(self.frame_filter2, text='0       |     250     |      500',
                                              font=(self.font, 9))
 
         # filter4
@@ -391,7 +391,7 @@ class App(Tk, ThemedStyle):
 
         self.ticks_label_filter4 = ttk.Label(self.frame_filter4, text='0   |  100  |  200',
                                      font=(self.font, 9))
-        self.r_scale_box.bind("<Button-1>",
+        self.r_scale_box.bind("<B1-Motion>",
                               lambda
                               event,
                               r=self.r_scale_box,
@@ -401,7 +401,7 @@ class App(Tk, ThemedStyle):
                                                                                                blue=b,
                                                                                                event=event))
 
-        self.g_scale_box.bind("<Button-1>",
+        self.g_scale_box.bind("<B1-Motion>",
                               lambda
                               event,
                               r=self.r_scale_box,
@@ -411,7 +411,7 @@ class App(Tk, ThemedStyle):
                                                                                                blue=b,
                                                                                                event=event))
 
-        self.b_scale_box.bind("<Button-1>",
+        self.b_scale_box.bind("<B1-Motion>",
                               lambda
                               event,
                               r=self.r_scale_box,
